@@ -2,18 +2,19 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-	"gorm.io/gorm/schema"
 	"hrms/handler"
 	"hrms/resource"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
 func InitConfig() error {
@@ -26,6 +27,10 @@ func InitConfig() error {
 	if env == "" || env == "dev" {
 		// 开发环境
 		vip.SetConfigName("config-dev")
+	}
+	if env == "test" {
+		// 测试环境
+		vip.SetConfigName("config-test")
 	}
 	if env == "prod" {
 		// 生产环境

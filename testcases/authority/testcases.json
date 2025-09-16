@@ -1,0 +1,223 @@
+[
+  {
+    "name": "添加权限详情成功",
+    "method": "POST",
+    "url": "/authority/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "user_type": "normal",
+      "model": "staff_manage",
+      "name": "员工管理模块",
+      "authority_content": "查询、添加、编辑"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "为普通用户添加员工管理模块权限",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "添加权限详情失败-缺少必填字段",
+    "method": "POST",
+    "url": "/authority/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "user_type": "normal",
+      "model": "staff_manage"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 5001
+    },
+    "description": "缺少用户类型的权限添加应该失败",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "根据用户类型和模块查询权限成功",
+    "method": "POST",
+    "url": "/authority/query_by_user_type_and_model",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "user_type": "normal",
+      "model": "staff_manage"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "查询普通用户在员工管理模块的权限",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "查询不存在的权限配置",
+    "method": "POST",
+    "url": "/authority/query_by_user_type_and_model",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "user_type": "unknown",
+      "model": "unknown_model"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "查询不存在的权限配置返回空结果",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "根据用户类型查询权限列表成功",
+    "method": "GET",
+    "url": "/authority/query_by_user_type/normal",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "查询普通用户的所有权限配置列表",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "更新权限详情成功",
+    "method": "POST",
+    "url": "/authority/edit",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "id": 1,
+      "authority_content": "查询、添加、编辑、删除"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "更新现有权限配置的信息",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "设置员工为管理员成功",
+    "method": "POST",
+    "url": "/authority/set_admin/STAFF001",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "将指定员工设置为管理员权限",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "设置空员工ID为管理员失败",
+    "method": "POST",
+    "url": "/authority/set_admin/empty",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "设置空员工ID为管理员的处理结果",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "设置员工为普通用户成功",
+    "method": "POST",
+    "url": "/authority/set_normal/STAFF001",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "将指定员工设置为普通用户权限",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "为系统管理员添加权限",
+    "method": "POST",
+    "url": "/authority/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "user_type": "sys",
+      "model": "all",
+      "name": "所有模块",
+      "authority_content": "所有权限"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "为系统管理员添加所有模块的权限",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "为超级管理员添加权限",
+    "method": "POST",
+    "url": "/authority/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "user_type": "supersys",
+      "model": "system_manage",
+      "name": "系统管理模块",
+      "authority_content": "所有权限"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "为超级管理员添加系统管理权限",
+    "category": "authority",
+    "enabled": true
+  },
+  {
+    "name": "查询超级管理员权限列表",
+    "method": "GET",
+    "url": "/authority/query_by_user_type/supersys",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "查询超级管理员的所有权限配置",
+    "category": "authority",
+    "enabled": true
+  }
+]

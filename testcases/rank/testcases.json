@@ -1,0 +1,318 @@
+[
+  {
+    "name": "清理测试数据-删除高级工程师",
+    "method": "DELETE",
+    "url": "/rank/del/高级工程师",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理测试数据-删除高级工程师职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "创建职级成功",
+    "method": "POST",
+    "url": "/rank/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "rank_name": "高级工程师"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2001
+    },
+    "description": "创建新的职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "创建职级失败-职级名称已存在",
+    "method": "POST",
+    "url": "/rank/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "rank_name": "高级工程师"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2001
+    },
+    "description": "使用已存在的职级名称创建应该失败",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "创建职级失败-缺少必填字段",
+    "method": "POST",
+    "url": "/rank/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {},
+    "expectedStatus": 400,
+    "expectedBody": {
+      "status": 5001
+    },
+    "description": "缺少职级名称的创建应该失败",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "更新职级信息成功",
+    "method": "POST",
+    "url": "/rank/edit",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "rank_id": "R001",
+      "rank_name": "资深工程师"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "更新现有职级的信息",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "查询所有职级成功",
+    "method": "GET",
+    "url": "/rank/query/R001",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2001
+    },
+    "description": "查询特定职级信息",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "查询特定职级成功",
+    "method": "GET",
+    "url": "/rank/query/R001",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2001
+    },
+    "description": "根据职级ID查询特定职级信息",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "查询不存在的职级",
+    "method": "GET",
+    "url": "/rank/query/NOTEXIST",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2001
+    },
+    "description": "查询不存在的职级应该返回2001状态码",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "删除职级成功",
+    "method": "DELETE",
+    "url": "/rank/del/R002",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "删除指定的职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "删除不存在的职级",
+    "method": "DELETE",
+    "url": "/rank/del/NOTEXIST",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "删除不存在的职级也应该返回成功状态",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "清理测试数据-删除初级工程师",
+    "method": "DELETE",
+    "url": "/rank/del/初级工程师",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理测试数据-删除初级工程师职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "创建初级职级成功",
+    "method": "POST",
+    "url": "/rank/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "rank_name": "初级工程师"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2001
+    },
+    "description": "创建初级工程师职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "清理测试数据-删除中级工程师",
+    "method": "DELETE",
+    "url": "/rank/del/中级工程师",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理测试数据-删除中级工程师职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "创建中级职级成功",
+    "method": "POST",
+    "url": "/rank/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "rank_name": "中级工程师"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2001
+    },
+    "description": "创建中级工程师职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "清理测试数据-删除技术经理",
+    "method": "DELETE",
+    "url": "/rank/del/技术经理",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理测试数据-删除技术经理职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "创建管理职级成功",
+    "method": "POST",
+    "url": "/rank/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "rank_name": "技术经理"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2001
+    },
+    "description": "创建技术经理职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "清理测试数据-删除技术总监",
+    "method": "DELETE",
+    "url": "/rank/del/技术总监",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理测试数据-删除技术总监职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "创建高级管理职级成功",
+    "method": "POST",
+    "url": "/rank/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "rank_name": "技术总监"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2001
+    },
+    "description": "创建技术总监职级",
+    "category": "rank",
+    "enabled": true
+  },
+  {
+    "name": "批量查询职级成功",
+    "method": "GET",
+    "url": "/rank/query/R001",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "批量查询所有职级信息",
+    "category": "rank",
+    "enabled": false
+  }
+]

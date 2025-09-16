@@ -1,0 +1,204 @@
+[
+  {
+    "name": "创建通知公告成功",
+    "method": "POST",
+    "url": "/notification/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "notice_title": "系统维护通知",
+      "notice_content": "系统将于本周六凌晨2:00-4:00进行维护升级，请提前做好准备。",
+      "type": "系统通知",
+      "date": "2024-01-15"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "发布新的通知公告",
+    "category": "notification",
+    "enabled": true
+  },
+  {
+    "name": "创建紧急通知成功",
+    "method": "POST",
+    "url": "/notification/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "notice_title": "紧急通知",
+      "notice_content": "由于天气原因，今日下午全体员工提前下班。",
+      "type": "紧急通知",
+      "date": "2024-01-15"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "发布紧急通知，系统会发送短信提醒",
+    "category": "notification",
+    "enabled": true
+  },
+  {
+    "name": "创建通知公告失败-缺少必填字段",
+    "method": "POST",
+    "url": "/notification/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "notice_content": "缺少标题的通知",
+      "type": "系统通知",
+      "date": "2024-01-15"
+    },
+    "expectedStatus": 400,
+    "expectedBody": {
+      "status": 5001
+    },
+    "description": "缺少通知标题的创建应该失败",
+    "category": "notification",
+    "enabled": true
+  },
+  {
+    "name": "更新通知公告成功",
+    "method": "POST",
+    "url": "/notification/edit",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "id": 1,
+      "notice_id": "NOT001",
+      "notice_title": "更新后的系统维护通知",
+      "notice_content": "系统维护时间调整为本周日凌晨2:00-6:00，请提前做好准备。",
+      "type": "系统通知",
+      "date": "2024-01-15"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "更新现有通知公告的信息",
+    "category": "notification",
+    "enabled": true
+  },
+  {
+    "name": "根据标题查询通知公告成功",
+    "method": "GET",
+    "url": "/notification/query/系统通知",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "模糊查询包含'系统通知'的通知公告",
+    "category": "notification",
+    "enabled": true
+  },
+  {
+    "name": "查询不存在的通知公告",
+    "method": "GET",
+    "url": "/notification/query/不存在的通知",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "查询不存在的通知公告应该返回错误",
+    "category": "notification",
+    "enabled": true
+  },
+  {
+    "name": "删除通知公告成功",
+    "method": "DELETE",
+    "url": "/notification/delete/NOT001",
+    "headers": {
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "删除指定的通知公告",
+    "category": "notification",
+    "enabled": true
+  },
+  {
+    "name": "创建公司公告成功",
+    "method": "POST",
+    "url": "/notification/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "notice_title": "公司年会通知",
+      "notice_content": "公司年会将于2024年2月1日举行，请全体员工准时参加。",
+      "type": "公司公告",
+      "date": "2024-01-15"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "发布公司公告",
+    "category": "notification",
+    "enabled": true
+  },
+  {
+    "name": "创建部门通知成功",
+    "method": "POST",
+    "url": "/notification/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "notice_title": "技术部周会通知",
+      "notice_content": "技术部周会将于明日下午3点在会议室举行。",
+      "type": "部门通知",
+      "date": "2024-01-15"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "发布部门通知",
+    "category": "notification",
+    "enabled": true
+  },
+  {
+    "name": "更新通知状态为已过期",
+    "method": "POST",
+    "url": "/notification/edit",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "id": 2,
+      "notice_id": "NOT002",
+      "notice_title": "过期的通知",
+      "notice_content": "这条通知已经过期",
+      "type": "系统通知",
+      "date": "2024-01-01"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "更新通知的过期时间",
+    "category": "notification",
+    "enabled": true
+  }
+]

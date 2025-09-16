@@ -1,0 +1,16 @@
+{
+  "baseURL": "http://localhost:8888",
+  "testDirs": [
+    "account",
+    "staff", 
+    "department",
+    "salary",
+    "attendance",
+    "recruitment",
+    "notification",
+    "authority",
+    "rank"
+  ],
+  "timeout": 30,
+  "maxRetries": 1
+}

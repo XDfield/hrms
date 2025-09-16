@@ -7,3 +7,8 @@ views_old
 .Trashes
 .idea
 config/config-self.yaml
+config/config-test.yaml
+test-results.txt
+.roomodes
+.costrict
+build/
