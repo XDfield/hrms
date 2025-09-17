@@ -226,10 +226,7 @@ func findTestcaseFiles(dirs []string) ([]string, error) {
 			}
 
 			// 只处理JSON文件
-			if !info.IsDir() && strings.HasSuffix(info.Name(), ".json") &&
-				(strings.HasPrefix(info.Name(), "testcase") ||
-					strings.Contains(info.Name(), "_test") ||
-					strings.HasSuffix(info.Name(), "_tests.json")) {
+			if !info.IsDir() && strings.HasSuffix(info.Name(), ".json") {
 				files = append(files, path)
 			}
 
