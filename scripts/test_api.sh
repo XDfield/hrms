@@ -46,7 +46,7 @@ cleanup() {
     if [ ! -z "$SERVER_PID" ]; then
         kill $SERVER_PID 2>/dev/null || true
     fi
-    make clean
+    ./build.sh clean
     exit 0
 }
 
@@ -55,13 +55,20 @@ trap cleanup SIGINT SIGTERM
 
 # 检查依赖
 check_dependencies() {
-    local deps=("go" "curl" "make")
+    local deps=("go" "curl")
     for dep in "${deps[@]}"; do
         if ! command -v $dep &> /dev/null; then
             log_error "缺少依赖: $dep 未安装"
             exit 1
         fi
     done
+    
+    # 检查构建脚本是否存在
+    if [ ! -f "./build.sh" ]; then
+        log_error "构建脚本 build.sh 不存在"
+        exit 1
+    fi
+    
     log_success "所有依赖检查通过"
 }
 
@@ -120,13 +127,25 @@ main() {
     # 检查依赖
     check_dependencies
     
+    # 如果只是列出模块，则直接运行测试工具，不需要启动服务
+    if [ "$list_modules" = true ]; then
+        log_info "列出所有可用测试模块..."
+        cd testcases
+        if ! go run test_runner.go -l; then
+            log_error "列出模块失败!"
+            exit 1
+        fi
+        cd ..
+        return 0
+    fi
+    
     # 清理环境
     log_info "清理环境..."
-    make clean
+    ./build.sh clean
     
     # 编译项目
     log_info "编译项目..."
-    if ! make build; then
+    if ! ./build.sh build; then
         log_error "编译失败!"
         exit 1
     fi
@@ -151,8 +170,8 @@ main() {
             log_success "服务在第 $attempt 次尝试时启动成功!"
             break
         fi
-        log_info "第 $attempt 次尝试失败，等待2秒后重试..."
-        sleep 2
+        log_info "第 $attempt 次尝试失败，等待5秒后重试..."
+        sleep 5
         attempt=$((attempt + 1))
     done
     
@@ -175,9 +194,7 @@ main() {
     
     # 构建测试运行器参数
     local test_runner_args=""
-    if [ "$list_modules" = true ]; then
-        test_runner_args="-l"
-    elif [ -n "$test_module" ]; then
+    if [ -n "$test_module" ]; then
         test_runner_args="-m $test_module"
         log_info "指定测试模块: $test_module"
     elif [ -n "$test_dir" ]; then
@@ -186,7 +203,7 @@ main() {
     fi
     
     # 显示测试模块列表（如果没有指定具体模块或目录）
-    if [ -z "$test_module" ] && [ -z "$test_dir" ] && [ "$list_modules" = false ]; then
+    if [ -z "$test_module" ] && [ -z "$test_dir" ]; then
         log_info "可用的测试模块:"
         for dir in */; do
             if [ -f "${dir}testcases.json" ]; then

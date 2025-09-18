@@ -88,14 +88,14 @@ go run test_runner.go -h
 
 测试运行器支持以下环境变量：
 
-- `TEST_BASE_URL`: 测试服务器地址 (默认: http://localhost:8888)
+- `TEST_BASE_URL`: 测试服务器地址 (默认: http://localhost:8889)
 - `TEST_TIMEOUT`: 请求超时时间 (默认: 30秒)
 - `TEST_MAX_RETRIES`: 最大重试次数 (默认: 1次)
 
 也可以在 `.env` 文件中配置这些参数：
 
 ```env
-TEST_BASE_URL=http://localhost:8888
+TEST_BASE_URL=http://localhost:8889
 TEST_TIMEOUT=30
 TEST_MAX_RETRIES=1
 ```

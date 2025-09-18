@@ -80,7 +80,7 @@ type Config struct {
 
 // 默认配置
 var defaultConfig = Config{
-	BaseURL:    "http://localhost:8888",
+	BaseURL:    "http://localhost:8889",
 	TestDirs:   []string{"."},
 	Timeout:    10,
 	MaxRetries: 1,
@@ -181,30 +181,6 @@ func loadConfig() Config {
 	if maxRetries > 0 {
 		config.MaxRetries = maxRetries
 	}
-
-	// // 然后检查 testconfig.json 文件（作为后备配置）
-	// configFile := "testconfig.json"
-	// if _, err := os.Stat(configFile); err == nil {
-	// 	file, err := ioutil.ReadFile(configFile)
-	// 	if err == nil {
-	// 		jsonConfig := Config{}
-	// 		if err := json.Unmarshal(file, &jsonConfig); err == nil {
-	// 			// 只有在环境变量和 .env 文件都没有设置时才使用 JSON 配置
-	// 			if baseURL == "" && jsonConfig.BaseURL != "" {
-	// 				config.BaseURL = jsonConfig.BaseURL
-	// 			}
-	// 			if timeout == 0 && jsonConfig.Timeout != 0 {
-	// 				config.Timeout = jsonConfig.Timeout
-	// 			}
-	// 			if maxRetries == 0 && jsonConfig.MaxRetries != 0 {
-	// 				config.MaxRetries = jsonConfig.MaxRetries
-	// 			}
-	// 			if len(config.TestDirs) == 0 && len(jsonConfig.TestDirs) > 0 {
-	// 				config.TestDirs = jsonConfig.TestDirs
-	// 			}
-	// 		}
-	// 	}
-	// }
 
 	return config
 }
