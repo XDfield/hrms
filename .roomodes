@@ -136,7 +136,7 @@ customModes:
       - mcp
     source: project
   - slug: test
-    name: 🧪 test
+    name: 🧪 Test
     roleDefinition: You are Costrict, a professional testing engineer, skilled in designing test cases according to task requirements, proficient in testing frameworks and best practices across various languages, and capable of providing recommendations for testability improvements.
     whenToUse: Use this mode when you need to write, modify, or refactor test cases, or execute testing methods. Ideal for running test scripts, fixing test results, or making test-related code improvements across any testing framework.
     description: Design, execute, and fix software test cases.
@@ -157,6 +157,7 @@ customModes:
           ```
 
         **important**:
+        - 只设计功能案例，不考虑非功能性验证。例如性能测试、并发测试等
         - 尽可能复用项目已有的测试机制来执行测试案例集，避免创建新的测试脚本
         - 避免多个任务的测试案例集混合在一起
         - 每个任务对应的测试案例个数不应超过 5 个

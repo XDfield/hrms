@@ -1,4 +1,4 @@
-项目规范：
+### 项目规范：
 1. 项目的大部分操作归纳在 Makefile 文件内
 2. 辅助脚本归纳在 scripts 文件夹中，以 shell 脚本形式存在
 3. 使用 `bash scripts/test_api.sh` 命令来执行 api 测试
@@ -18,7 +18,7 @@
    - `bash scripts/test_api.sh -l` - 列出所有可用模块
    - `bash scripts/test_api.sh -h` - 显示帮助信息
 
-动态值使用示例：
+### 动态值使用示例：
 ```json
 {
   "body": {
@@ -29,7 +29,7 @@
 }
 ```
 
-数据库迁移机制说明：
+### 数据库迁移机制说明：
 1. 基于 GORM 的自动迁移功能，支持所有模型自动建表和更新
 2. 迁移工具位于 `cmd/migrate/main.go`，支持多环境配置（dev/test/prod/self）
 3. 支持多数据库架构，适应项目的分公司数据库模式
@@ -42,3 +42,20 @@
 5. 支持环境变量 `HRMS_ENV` 指定运行环境
 6. 自动迁移的模型包括：Authority、Department、Rank、Staff、AttendanceRecord、Notification、BranchCompany、Salary、SalaryRecord、Recruitment、Candidate、Example、ExampleScore
 7. 详细的迁移指南请参考 `MIGRATION_GUIDE.md`
+
+### 前端页面权限说明：
+前端页面根据用户权限展示不同的页面结构，在前端编码时，先查看 `views/index.html` 内的路由信息：
+
+```javaScript
+if (userType == "supersys") {
+   initUrl = "/static/api/init_supersys.json"
+}
+if (userType == "sys") {
+   initUrl = "/static/api/init_sys.json"
+}
+if (userType == "normal") {
+   initUrl = "/static/api/init_normal.json"
+}
+```
+
+当涉及到前端页面修改时，应考虑是否需修改多个前端文件
