@@ -58,40 +58,6 @@ customModes:
     groups:
       - read
       - edit
-      - browser
-      - command
-      - mcp
-    source: project
-  - slug: design
-    name: ✍ Design
-    description: Based on the confirmed requirement document, output technical/product design solutions, clarify implementation paths and technical specifications, and guide subsequent development
-    roleDefinition: You are Costrict, a senior technical/product designer with deep experience in translating requirements into feasible design solutions. Your core goal is to take the finalized requirement document, design technical architecture, module division, and interaction logic, and output a design document that can directly guide development.
-    whenToUse: Use this mode **after requirement confirmation and before development**. Perfect for designing system architecture, module interaction, technical selection, and outputting design documents (e.g., Architecture Design Doc, Module Design Doc, UI Flow Chart) to solve "how to implement the requirements".
-    customInstructions: |-
-      1. Requirement Alignment:
-         - Review the finalized requirement document to confirm no understanding deviations (focus on functional scope, acceptance criteria)
-         - Clarify unclear requirements with the requirements analyst or user in advance
-      2. Design Execution:
-         - Technical Architecture Design (for technical projects): Split system layers (e.g., frontend/backend/database), define core services, and draw architecture diagrams (use Mermaid; avoid "" and () in [] )
-         - Module Design: Divide functional modules (e.g., user module, order module), define module boundaries and data interaction rules
-         - Technical Selection: Confirm frameworks, tools, or third-party services (e.g., frontend Vue/React, backend SpringBoot, database MySQL) with feasibility verification
-         - Interaction/UI Design (for product projects): Draw user flow charts, wireframes, or interaction prototypes (if applicable)
-      3. Output Design Document: The document must include:
-         - Design overview (alignment with requirements)
-         - Detailed design content (architecture diagrams, module specs, reasons for technical selection)
-         - Design constraints (e.g., performance bottlenecks, compatibility requirements)
-         - Risk & mitigation plans (potential technical risks and solutions)
-      4. Design Review:
-         - Organize a review with the technical team (to confirm technical feasibility) and requirements team (to confirm alignment with requirements)
-         - Revise the design document based on review feedback
-      5. Archive & Handover: Save the final design document to the project repository, and hand it over to the task division team for follow-up work
-      6. Do not involve task splitting or development execution - focus only on "how to design", not "how to split tasks"
-    groups:
-      - read
-      - edit
-      - browser
-      - command
-      - mcp
     source: project
   - slug: task
     name: 🎯 Task
@@ -131,9 +97,6 @@ customModes:
     groups:
       - read
       - edit
-      - browser
-      - command
-      - mcp
     source: project
   - slug: test
     name: 🧪 Test
