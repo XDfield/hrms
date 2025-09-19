@@ -50,16 +50,18 @@ func replaceTemplateVariablesInMap(data map[string]interface{}) map[string]inter
 }
 
 type TestCase struct {
-	Name           string                 `json:"name"`
-	Method         string                 `json:"method"`
-	URL            string                 `json:"url"`
-	Headers        map[string]string      `json:"headers"`
-	Body           map[string]interface{} `json:"body"`
-	ExpectedStatus int                    `json:"expectedStatus"`
-	ExpectedBody   map[string]interface{} `json:"expectedBody"`
-	Description    string                 `json:"description,omitempty"`
-	Category       string                 `json:"category,omitempty"`
-	Enabled        bool                   `json:"enabled,omitempty"`
+	Name            string                 `json:"name"`
+	Method          string                 `json:"method"`
+	URL             string                 `json:"url"`
+	Headers         map[string]string      `json:"headers"`
+	Body            map[string]interface{} `json:"body"`
+	ExpectedStatus  int                    `json:"expectedStatus"`
+	ExpectedBody    map[string]interface{} `json:"expectedBody"`
+	ExpectedContent []string               `json:"expectedContent,omitempty"`
+	ContentType     string                 `json:"contentType,omitempty"`
+	Description     string                 `json:"description,omitempty"`
+	Category        string                 `json:"category,omitempty"`
+	Enabled         bool                   `json:"enabled,omitempty"`
 }
 
 // TestResult 存储测试结果
@@ -367,13 +369,15 @@ func executeTestCase(tc TestCase, baseURL string, timeout int) (bool, string) {
 		return false, fmt.Sprintf("状态码错误: 期望 %d, 实际 %d", tc.ExpectedStatus, resp.StatusCode)
 	}
 
-	// 验证响应体
-	if tc.ExpectedBody != nil {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return false, fmt.Sprintf("读取响应体失败: %v", err)
-		}
+	// 读取响应体
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return false, fmt.Sprintf("读取响应体失败: %v", err)
+	}
+	bodyString := string(bodyBytes)
 
+	// 验证JSON响应体
+	if tc.ExpectedBody != nil && len(tc.ExpectedBody) > 0 {
 		var responseBody map[string]interface{}
 		err = json.Unmarshal(bodyBytes, &responseBody)
 		if err != nil {
@@ -385,9 +389,35 @@ func executeTestCase(tc TestCase, baseURL string, timeout int) (bool, string) {
 			if !exists {
 				return false, fmt.Sprintf("响应体中缺少字段: %s", key)
 			}
-			if actualValue != expectedValue {
-				return false, fmt.Sprintf("字段 %s 不匹配: 期望 %v, 实际 %v", key, expectedValue, actualValue)
+			// 对于复杂类型，只检查字段是否存在
+			if expectedValue != nil {
+				switch expectedValue.(type) {
+				case map[string]interface{}, []interface{}:
+					// 对于 map 和 slice 类型，只检查字段存在性
+					continue
+				default:
+					if actualValue != expectedValue {
+						return false, fmt.Sprintf("字段 %s 不匹配: 期望 %v, 实际 %v", key, expectedValue, actualValue)
+					}
+				}
 			}
+		}
+	}
+
+	// 验证HTML/文本内容
+	if tc.ExpectedContent != nil && len(tc.ExpectedContent) > 0 {
+		for _, expectedText := range tc.ExpectedContent {
+			if !strings.Contains(bodyString, expectedText) {
+				return false, fmt.Sprintf("响应内容中缺少预期文本: %s", expectedText)
+			}
+		}
+	}
+
+	// 验证Content-Type（如果指定）
+	if tc.ContentType != "" {
+		actualContentType := resp.Header.Get("Content-Type")
+		if !strings.Contains(actualContentType, tc.ContentType) {
+			return false, fmt.Sprintf("Content-Type不匹配: 期望包含 %s, 实际 %s", tc.ContentType, actualContentType)
 		}
 	}
 

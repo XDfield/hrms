@@ -1,0 +1,252 @@
+[
+  {
+    "name": "面试记录列表查询成功",
+    "method": "GET",
+    "url": "/interview/records?page=1&limit=15",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "获取面试记录列表，验证基本查询功能",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试记录列表查询-按候选人姓名搜索",
+    "method": "GET",
+    "url": "/interview/records?candidate_name=张三&page=1&limit=15",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "通过候选人姓名进行模糊搜索",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试记录列表查询-按面试官姓名搜索",
+    "method": "GET",
+    "url": "/interview/records?interviewer_name=李四&page=1&limit=15",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "通过面试官姓名进行模糊搜索",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试记录列表查询-组合搜索条件",
+    "method": "GET",
+    "url": "/interview/records?candidate_name=测试&interviewer_name=面试官&status=1&page=1&limit=10",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "使用多个搜索条件进行组合查询",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试记录详情查询成功",
+    "method": "GET",
+    "url": "/interview/record/1",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "获取单个候选人的详细面试记录",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试评价更新成功-系统管理员",
+    "method": "PUT",
+    "url": "/interview/evaluation",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "candidate_id": 1,
+      "evaluation": "候选人技术能力强，沟通表达清晰，建议录用。测试时间：{{datetime}}"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "系统管理员更新面试评价",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试评价更新成功-普通用户",
+    "method": "PUT",
+    "url": "/interview/evaluation",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=normal_3117000001_C001_6Z2i6K+V5a6Y"
+    },
+    "body": {
+      "candidate_id": 2,
+      "evaluation": "候选人表现良好，具备基本技能要求。评价时间：{{timestamp}}"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "普通用户（面试官）更新自己负责的候选人评价",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试评价更新失败-缺少必填字段",
+    "method": "PUT",
+    "url": "/interview/evaluation",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "candidate_id": 1
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 5001
+    },
+    "description": "缺少评价内容字段的更新请求应该失败",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试评价更新失败-评价内容过长",
+    "method": "PUT",
+    "url": "/interview/evaluation",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "body": {
+      "candidate_id": 1,
+      "evaluation": "这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。这是一个超过1000字符限制的评价内容测试。"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 5001
+    },
+    "description": "评价内容超过1000字符限制应该失败",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试记录查询失败-未登录",
+    "method": "GET",
+    "url": "/interview/records",
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 401
+    },
+    "description": "未登录状态下访问面试记录应该返回401",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试评价更新失败-未登录",
+    "method": "PUT",
+    "url": "/interview/evaluation",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "candidate_id": 1,
+      "evaluation": "测试评价"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 401
+    },
+    "description": "未登录状态下更新面试评价应该返回401",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试评价更新失败-普通用户越权操作",
+    "method": "PUT",
+    "url": "/interview/evaluation",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=normal_3117000002_C001_6Z2i6K+V5a6Y"
+    },
+    "body": {
+      "candidate_id": 999,
+      "evaluation": "尝试编辑非自己负责的候选人评价"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 403
+    },
+    "description": "普通用户尝试编辑非自己负责的候选人评价应该返回403",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试记录详情查询失败-记录不存在",
+    "method": "GET",
+    "url": "/interview/record/99999",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 5000
+    },
+    "description": "查询不存在的面试记录应该返回错误",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试记录列表查询-分页测试",
+    "method": "GET",
+    "url": "/interview/records?page=2&limit=5",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "测试分页功能，获取第2页数据",
+    "category": "interview_record",
+    "enabled": true
+  },
+  {
+    "name": "面试记录列表查询-超级管理员权限",
+    "method": "GET",
+    "url": "/interview/records?page=1&limit=15",
+    "headers": {
+      "Cookie": "user_cookie=supersys_superadmin_C001_6LaF57qn566h55CG5ZGY"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "超级管理员查看所有面试记录",
+    "category": "interview_record",
+    "enabled": true
+  }
+]

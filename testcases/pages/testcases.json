@@ -1,0 +1,124 @@
+[
+  {
+    "name": "登录页面访问测试",
+    "method": "GET",
+    "url": "/views/login.html",
+    "headers": {},
+    "expectedStatus": 200,
+    "expectedContent": ["请登陆", "layui"],
+    "contentType": "text/html",
+    "description": "测试登录页面是否正常加载",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "主页面访问测试",
+    "method": "GET",
+    "url": "/index",
+    "headers": {},
+    "expectedStatus": 200,
+    "expectedContent": ["layui"],
+    "contentType": "text/html",
+    "description": "测试主页面是否正常加载",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "健康检查接口",
+    "method": "GET",
+    "url": "/ping",
+    "headers": {},
+    "expectedStatus": 200,
+    "expectedContent": ["员工管理", "layui"],
+    "contentType": "text/html",
+    "description": "测试服务健康状态",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "静态资源-CSS文件",
+    "method": "GET",
+    "url": "/static/lib/layui-v2.5.5/css/layui.css",
+    "headers": {},
+    "expectedStatus": 200,
+    "expectedContent": ["layui"],
+    "contentType": "text/css",
+    "description": "测试CSS静态资源加载",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "静态资源-Logo图片",
+    "method": "GET",
+    "url": "/static/images/logo.png",
+    "headers": {},
+    "expectedStatus": 200,
+    "contentType": "image/png",
+    "description": "测试图片静态资源加载",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "静态资源-API配置文件",
+    "method": "GET",
+    "url": "/static/api/init_sys.json",
+    "headers": {},
+    "expectedStatus": 200,
+    "expectedBody": {
+      "homeInfo": {},
+      "menuInfo": []
+    },
+    "contentType": "application/json",
+    "description": "测试API配置文件加载",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "权限页面重定向测试-员工管理",
+    "method": "GET",
+    "url": "/authority_render/admin_staff_manage",
+    "headers": {},
+    "expectedStatus": 200,
+    "expectedContent": ["请登陆"],
+    "contentType": "text/html",
+    "description": "无cookie访问权限页面应重定向到登录页",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "权限页面重定向测试-部门管理",
+    "method": "GET",
+    "url": "/authority_render/dep_manage",
+    "headers": {},
+    "expectedStatus": 200,
+    "expectedContent": ["请登陆"],
+    "contentType": "text/html",
+    "description": "无cookie访问权限页面应重定向到登录页",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "权限页面重定向测试-职级管理",
+    "method": "GET",
+    "url": "/authority_render/rank_manage",
+    "headers": {},
+    "expectedStatus": 200,
+    "expectedContent": ["请登陆"],
+    "contentType": "text/html",
+    "description": "无cookie访问权限页面应重定向到登录页",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "404页面测试",
+    "method": "GET",
+    "url": "/nonexistent-page",
+    "headers": {},
+    "expectedStatus": 404,
+    "expectedContent": ["404"],
+    "contentType": "text/html",
+    "description": "测试不存在页面的404响应",
+    "category": "pages",
+    "enabled": true
+  }
+]

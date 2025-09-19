@@ -14,17 +14,70 @@
    - `{{datetime}}` - 当前日期时间（格式：20060102150405）
    - `{{random}}` - 4位随机数
 5. 测试脚本支持多种使用方式：
-   - `bash scripts/test_api.sh` - 运行所有测试
+   - `bash scripts/test_api.sh` - 运行所有测试（API + 页面）
    - `bash scripts/test_api.sh -m account` - 运行指定模块测试
    - `bash scripts/test_api.sh -d account/` - 运行指定目录测试
    - `bash scripts/test_api.sh -l` - 列出所有可用模块
    - `bash scripts/test_api.sh -h` - 显示帮助信息
+   - `bash scripts/test_api.sh -p` - 运行API测试和页面测试
+   - `bash scripts/test_api.sh --pages-only` - 只运行页面访问性测试
+   - `bash scripts/test_api.sh --skip-pages` - 跳过页面测试，只运行API测试
+   - `bash scripts/test_api.sh --page-perf` - 运行页面性能测试
 
 测试案例管理：
 1. 测试案例位于 `testcases` 目录下，以 JSON 格式存储
 2. 按功能名组织测试目录，每个目录下包含多个测试案例 json 文件
 3. 测试目录名称、json 文件名统一使用英文小写，层级关系应为：`testcases/{功能名}/{json文件名}.json`
 4. 命名上应足够简约与直观，避免使用数字、特殊字符等
+
+### 页面访问性测试机制：
+页面测试支持HTML类型返回值验证，专门用于测试前端页面的可访问性和内容正确性。
+
+**测试案例结构：**
+```json
+{
+  "name": "页面测试名称",
+  "method": "GET",
+  "url": "/页面路径",
+  "headers": {},
+  "expectedStatus": 200,
+  "expectedContent": ["预期包含的文本1", "预期包含的文本2"],
+  "contentType": "text/html",
+  "description": "测试描述",
+  "category": "pages",
+  "enabled": true
+}
+```
+
+**支持的验证类型：**
+1. **JSON响应验证** - 使用 `expectedBody` 字段，适用于API接口
+2. **HTML内容验证** - 使用 `expectedContent` 字段，验证页面包含的文本内容
+3. **Content-Type验证** - 使用 `contentType` 字段，验证响应类型（如 text/html, application/json, text/css, image/png）
+4. **状态码验证** - 使用 `expectedStatus` 字段，验证HTTP响应状态
+
+**页面测试案例示例：**
+```json
+{
+  "name": "登录页面访问测试",
+  "method": "GET",
+  "url": "/views/login.html",
+  "headers": {},
+  "expectedStatus": 200,
+  "expectedContent": ["请登陆", "layui"],
+  "contentType": "text/html",
+  "description": "测试登录页面是否正常加载",
+  "category": "pages",
+  "enabled": true
+}
+```
+
+**页面测试覆盖范围：**
+- 登录页面访问测试
+- 主页面访问测试
+- 健康检查接口测试
+- 静态资源测试（CSS、图片、JSON配置文件）
+- 权限页面重定向测试
+- 404页面测试
 
 动态值使用示例：
 ```json

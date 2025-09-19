@@ -72,6 +72,7 @@ check_dependencies() {
     log_success "所有依赖检查通过"
 }
 
+
 # 显示帮助信息
 show_help() {
     echo "使用方法: $0 [选项]"
@@ -81,12 +82,20 @@ show_help() {
     echo "  -m, --module <模块> 指定要运行的测试模块"
     echo "  -d, --dir <目录>    指定要运行的测试模块目录"
     echo "  -l, --list          列出所有可用测试模块"
+    echo "  -p, --pages         运行页面访问性测试"
+    echo "  --pages-only        只运行页面测试，不运行API测试"
+    echo "  --skip-pages        跳过页面测试，只运行API测试"
+    echo "  --page-perf         运行页面性能测试"
     echo
     echo "示例:"
-    echo "  $0                    # 运行所有测试"
+    echo "  $0                    # 运行所有测试(API + 页面)"
     echo "  $0 -m account         # 只运行账户模块测试"
     echo "  $0 -d account/        # 只运行account目录下的测试"
     echo "  $0 -l                 # 列出所有模块"
+    echo "  $0 -p                 # 运行API测试和页面测试"
+    echo "  $0 --pages-only       # 只运行页面访问性测试"
+    echo "  $0 --skip-pages       # 跳过页面测试"
+    echo "  $0 --page-perf        # 运行页面性能测试"
 }
 
 # 主函数
@@ -95,6 +104,10 @@ main() {
     local test_module=""
     local test_dir=""
     local list_modules=false
+    local run_pages=false
+    local pages_only=false
+    local skip_pages=false
+    local page_perf=false
     
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -112,6 +125,24 @@ main() {
                 ;;
             -l|--list)
                 list_modules=true
+                shift
+                ;;
+            -p|--pages)
+                run_pages=true
+                shift
+                ;;
+            --pages-only)
+                pages_only=true
+                run_pages=true
+                shift
+                ;;
+            --skip-pages)
+                skip_pages=true
+                shift
+                ;;
+            --page-perf)
+                page_perf=true
+                run_pages=true
                 shift
                 ;;
             *)
@@ -181,10 +212,6 @@ main() {
         exit 1
     fi
     
-    # 运行API测试
-    log_info "运行API测试案例..."
-    cd testcases
-    
     # 设置测试环境变量
     export TEST_BASE_URL="http://localhost:$SERVER_PORT"
     export TEST_TIMEOUT=30
@@ -192,32 +219,64 @@ main() {
     
     log_info "测试配置: BASE_URL=$TEST_BASE_URL, TIMEOUT=$TEST_TIMEOUT, MAX_RETRIES=$TEST_MAX_RETRIES"
     
-    # 构建测试运行器参数
-    local test_runner_args=""
-    if [ -n "$test_module" ]; then
-        test_runner_args="-m $test_module"
-        log_info "指定测试模块: $test_module"
-    elif [ -n "$test_dir" ]; then
-        test_runner_args="-d $test_dir"
-        log_info "指定测试目录: $test_dir"
+    local api_test_failed=false
+    local page_test_failed=false
+    
+    # 运行API测试（除非指定只运行页面测试）
+    if [ "$pages_only" = false ]; then
+        log_info "运行API测试案例..."
+        cd testcases
+        
+        # 构建测试运行器参数
+        local test_runner_args=""
+        if [ -n "$test_module" ]; then
+            test_runner_args="-m $test_module"
+            log_info "指定测试模块: $test_module"
+        elif [ -n "$test_dir" ]; then
+            test_runner_args="-d $test_dir"
+            log_info "指定测试目录: $test_dir"
+        fi
+        
+        # 显示测试模块列表（如果没有指定具体模块或目录）
+        if [ -z "$test_module" ] && [ -z "$test_dir" ]; then
+            log_info "可用的测试模块:"
+            for dir in */; do
+                if [ -f "${dir}testcases.json" ]; then
+                    module_name=$(basename "$dir")
+                    test_count=$(grep -c '"name"' "${dir}testcases.json" 2>/dev/null || echo "0")
+                    log_info "  - $module_name ($test_count 个测试案例)"
+                fi
+            done
+        fi
+        
+        # 运行测试并实时显示输出
+        log_info "开始执行API测试..."
+        if ! go run test_runner.go $test_runner_args 2>&1 | tee ../$TEST_REPORT; then
+            log_error "API测试失败! 查看 $TEST_REPORT 获取详细信息"
+            api_test_failed=true
+        fi
+        
+        cd ..
     fi
     
-    # 显示测试模块列表（如果没有指定具体模块或目录）
-    if [ -z "$test_module" ] && [ -z "$test_dir" ]; then
-        log_info "可用的测试模块:"
-        for dir in */; do
-            if [ -f "${dir}testcases.json" ]; then
-                module_name=$(basename "$dir")
-                test_count=$(grep -c '"name"' "${dir}testcases.json" 2>/dev/null || echo "0")
-                log_info "  - $module_name ($test_count 个测试案例)"
-            fi
-        done
+    # 运行页面测试（如果启用）
+    if [ "$run_pages" = true ] || [ "$pages_only" = true ]; then
+        log_info "运行页面访问性测试..."
+        cd testcases
+        
+        # 运行页面测试模块
+        log_info "开始执行页面测试..."
+        if ! go run test_runner.go -m pages 2>&1 | tee -a ../$TEST_REPORT; then
+            log_error "页面测试失败!"
+            page_test_failed=true
+        fi
+        
+        cd ..
     fi
     
-    # 运行测试并实时显示输出
-    log_info "开始执行测试..."
-    if ! go run test_runner.go $test_runner_args 2>&1 | tee ../$TEST_REPORT; then
-        log_error "API测试失败! 查看 $TEST_REPORT 获取详细信息"
+    # 检查测试结果
+    if [ "$api_test_failed" = true ] || [ "$page_test_failed" = true ]; then
+        log_error "测试执行失败!"
         kill $SERVER_PID 2>/dev/null || true
         exit 1
     fi
