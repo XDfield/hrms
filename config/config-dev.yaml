@@ -1,12 +1,6 @@
 gin:
   port: 8888
 db:
-  user: root
-  password: 123
-  host: 127.0.0.1
-  port: 3306
-  dbName: hrms_C001,hrms_C002
-mongo:
-  ip: 127.0.0.1
-  port: 27017
-  dataset: hrms
+  type: sqlite
+  path: ./data  # SQLite 数据库文件存储路径，相对于项目根目录
+  dbName: hrms_C001,hrms_C002  # 数据库名称列表，将创建对应的 .db 文件

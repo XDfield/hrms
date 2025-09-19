@@ -197,6 +197,21 @@
     "enabled": true
   },
   {
+    "name": "清理测试部门员工数据",
+    "method": "DELETE",
+    "url": "/staff/del/H99999",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理可能存在于测试部门的员工数据，确保后续测试的可预测性",
+    "category": "staff",
+    "enabled": true
+  },
+  {
     "name": "根据部门查询员工成功",
     "method": "GET",
     "url": "/staff/query_by_dep/测试部门",
@@ -205,9 +220,9 @@
     },
     "expectedStatus": 200,
     "expectedBody": {
-      "status": 2000
+      "status": 2001
     },
-    "description": "根据部门名称查询该部门的员工列表",
+    "description": "根据部门名称查询该部门的员工列表（该部门无员工时返回2001）",
     "category": "staff",
     "enabled": true
   },

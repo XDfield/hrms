@@ -7,11 +7,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -198,56 +200,93 @@ func htmlInit(server *gin.Engine) {
 }
 
 func InitGorm() error {
-	// "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+	dbType := strings.ToLower(resource.HrmsConf.Db.Type)
+	if dbType == "" {
+		dbType = "mysql" // 默认使用 MySQL
+	}
+
 	// 对每个分公司数据库进行连接
 	dbNames := resource.HrmsConf.Db.DbName
 	dbNameList := strings.Split(dbNames, ",")
+
 	for index, dbName := range dbNameList {
-		dsn := fmt.Sprintf(
-			"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
-			resource.HrmsConf.Db.User,
-			resource.HrmsConf.Db.Password,
-			resource.HrmsConf.Db.Host,
-			resource.HrmsConf.Db.Port,
-			dbName,
-		)
-		db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-			NamingStrategy: schema.NamingStrategy{
-				// 全局禁止表名复数
-				SingularTable: true,
-			},
-			// 日志等级
-			Logger: logger.Default.LogMode(logger.Info),
-		})
-		if err != nil {
-			log.Printf("[InitGorm] err = %v", err)
-			return err
+		var db *gorm.DB
+		var err error
+
+		// 根据数据库类型选择不同的连接方式
+		switch dbType {
+		case "sqlite":
+			// SQLite 连接
+			var dbPath string
+			if resource.HrmsConf.Db.Path != "" {
+				// 使用配置的路径，支持相对路径和绝对路径
+				if filepath.IsAbs(resource.HrmsConf.Db.Path) {
+					dbPath = filepath.Join(resource.HrmsConf.Db.Path, dbName+".db")
+				} else {
+					dbPath = filepath.Join(".", resource.HrmsConf.Db.Path, dbName+".db")
+				}
+			} else {
+				// 默认路径：./data/数据库名.db
+				dbPath = filepath.Join(".", "data", dbName+".db")
+			}
+
+			// 确保目录存在
+			dir := filepath.Dir(dbPath)
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				log.Printf("[InitGorm] 创建SQLite数据库目录失败: %v", err)
+				return err
+			}
+
+			db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{
+				NamingStrategy: schema.NamingStrategy{
+					// 全局禁止表名复数
+					SingularTable: true,
+				},
+				// 日志等级
+				Logger: logger.Default.LogMode(logger.Info),
+			})
+			if err != nil {
+				log.Printf("[InitGorm] SQLite连接失败: %v", err)
+				return err
+			}
+			log.Printf("[InitGorm] SQLite数据库%v连接成功，路径: %v", dbName, dbPath)
+
+		default:
+			// MySQL 连接（默认）
+			dsn := fmt.Sprintf(
+				"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
+				resource.HrmsConf.Db.User,
+				resource.HrmsConf.Db.Password,
+				resource.HrmsConf.Db.Host,
+				resource.HrmsConf.Db.Port,
+				dbName,
+			)
+			db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+				NamingStrategy: schema.NamingStrategy{
+					// 全局禁止表名复数
+					SingularTable: true,
+				},
+				// 日志等级
+				Logger: logger.Default.LogMode(logger.Info),
+			})
+			if err != nil {
+				log.Printf("[InitGorm] MySQL连接失败: %v", err)
+				return err
+			}
+			log.Printf("[InitGorm] MySQL数据库%v连接成功", dbName)
 		}
+
 		// 添加到映射表中
 		resource.DbMapper[dbName] = db
 		// 第一个是默认DB，用以启动程序选择分公司
 		if index == 0 {
 			resource.DefaultDb = db
 		}
-		log.Printf("[InitGorm] 分公司数据库%v注册成功", dbName)
 	}
-	//fmt.Println(resource.DbMapper["hrms_C001"])
-	log.Printf("[InitGorm] success")
+
+	log.Printf("[InitGorm] 数据库初始化成功，类型: %v", dbType)
 	return nil
 }
-
-//func InitMongo() error {
-//	mongo := resource.HrmsConf.Mongo
-//	var err error
-//	resource.MongoClient, err = qmgo.NewClient(context.Background(), &qmgo.Config{
-//		Uri:      fmt.Sprintf("mongodb://%v:%v", mongo.IP, mongo.Port),
-//		Database: mongo.Dataset,
-//	})
-//	if err != nil {
-//		return err
-//	}
-//	return nil
-//}
 
 func main() {
 	if err := InitConfig(); err != nil {
@@ -259,7 +298,4 @@ func main() {
 	if err := InitGin(); err != nil {
 		log.Fatal(err)
 	}
-	//if err := InitMongo(); err != nil {
-	//	log.Fatal(err)
-	//}
 }

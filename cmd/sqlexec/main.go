@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -21,11 +23,13 @@ type Config struct {
 		Port int64 `json:"port"`
 	} `json:"gin"`
 	Db struct {
+		Type     string `json:"type"` // 数据库类型: mysql, sqlite
 		User     string `json:"user"`
 		Password string `json:"password"`
 		Host     string `json:"host"`
 		Port     int64  `json:"port"`
 		DbName   string `json:"dbName"`
+		Path     string `json:"path"` // SQLite 数据库文件路径
 	} `json:"db"`
 }
 
@@ -51,6 +55,8 @@ func InitConfig() (*Config, error) {
 		vip.SetConfigName("config-prod")
 	case "self":
 		vip.SetConfigName("config-self")
+	case "sqlite":
+		vip.SetConfigName("config-sqlite")
 	default:
 		vip.SetConfigName("config-dev")
 	}
@@ -70,23 +76,67 @@ func InitConfig() (*Config, error) {
 
 // 连接数据库
 func InitDB(config *Config, dbName string) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		config.Db.User,
-		config.Db.Password,
-		config.Db.Host,
-		config.Db.Port,
-		dbName,
-	)
+	dbType := strings.ToLower(config.Db.Type)
+	if dbType == "" {
+		dbType = "mysql" // 默认使用 MySQL
+	}
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true, // 全局禁止表名复数
-		},
-		Logger: logger.Default.LogMode(logger.Info),
-	})
+	var db *gorm.DB
+	var err error
 
-	if err != nil {
-		return nil, fmt.Errorf("数据库连接失败: %v", err)
+	switch dbType {
+	case "sqlite":
+		// SQLite 连接
+		var dbPath string
+		if config.Db.Path != "" {
+			// 使用配置的路径，支持相对路径和绝对路径
+			if filepath.IsAbs(config.Db.Path) {
+				dbPath = filepath.Join(config.Db.Path, dbName+".db")
+			} else {
+				dbPath = filepath.Join(".", config.Db.Path, dbName+".db")
+			}
+		} else {
+			// 默认路径：./data/数据库名.db
+			dbPath = filepath.Join(".", "data", dbName+".db")
+		}
+
+		// 确保目录存在
+		dir := filepath.Dir(dbPath)
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return nil, fmt.Errorf("创建SQLite数据库目录失败: %v", err)
+		}
+
+		db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true, // 全局禁止表名复数
+			},
+			Logger: logger.Default.LogMode(logger.Info),
+		})
+		if err != nil {
+			return nil, fmt.Errorf("SQLite连接失败: %v", err)
+		}
+		log.Printf("SQLite数据库连接成功，路径: %v", dbPath)
+
+	default:
+		// MySQL 连接（默认）
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+			config.Db.User,
+			config.Db.Password,
+			config.Db.Host,
+			config.Db.Port,
+			dbName,
+		)
+
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true, // 全局禁止表名复数
+			},
+			Logger: logger.Default.LogMode(logger.Info),
+		})
+		if err != nil {
+			return nil, fmt.Errorf("MySQL连接失败: %v", err)
+		}
+		log.Printf("MySQL数据库连接成功")
 	}
 
 	return db, nil
@@ -327,8 +377,8 @@ func main() {
 	flag.Parse()
 
 	if help {
-		fmt.Println("MySQL SQL 执行工具")
-		fmt.Println("基于项目 GORM 框架和配置文件")
+		fmt.Println("数据库 SQL 执行工具")
+		fmt.Println("基于项目 GORM 框架和配置文件，支持 MySQL 和 SQLite")
 		fmt.Println()
 		fmt.Println("用法:")
 		fmt.Println("  sqlexec [选项]")
@@ -341,12 +391,17 @@ func main() {
 		fmt.Println("  -i                 进入交互式模式")
 		fmt.Println()
 		fmt.Println("示例:")
+		fmt.Println("  # MySQL 示例")
 		fmt.Println("  sqlexec -db hrms_C001 -sql \"SELECT * FROM staff LIMIT 10\"")
 		fmt.Println("  sqlexec -db hrms_C001 -file ./sql/query.sql")
 		fmt.Println("  sqlexec -db hrms_C001 -i")
 		fmt.Println()
+		fmt.Println("  # SQLite 示例（需要设置 HRMS_ENV=sqlite）")
+		fmt.Println("  HRMS_ENV=sqlite sqlexec -db hrms_C001 -sql \"SELECT * FROM staff LIMIT 10\"")
+		fmt.Println("  HRMS_ENV=sqlite sqlexec -db hrms_C001 -i")
+		fmt.Println()
 		fmt.Println("环境变量:")
-		fmt.Println("  HRMS_ENV           指定配置环境 (dev/test/prod/self，默认: self)")
+		fmt.Println("  HRMS_ENV           指定配置环境 (dev/test/prod/self/sqlite，默认: self)")
 		return
 	}
 
