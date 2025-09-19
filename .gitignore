@@ -13,3 +13,4 @@ test-results.txt
 # .roomodes
 .costrict
 build/
+bin/

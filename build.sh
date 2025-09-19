@@ -82,6 +82,8 @@ show_help() {
     echo "  migrate-reset  - 重置数据库（删除所有表）"
     echo "  migrate-db DB  - 迁移指定数据库"
     echo "  migrate-reset-db DB - 重置指定数据库"
+    echo "  build-sqlexec  - 构建SQL执行工具"
+    echo "  sqlexec        - 运行SQL执行工具（交互式）"
     echo "  seed           - 填充测试数据"
     echo "  info           - 查看项目信息"
     echo "  dev            - 启动开发模式（热重载）"
@@ -331,6 +333,28 @@ migrate_reset_db() {
     ./build/migrate -reset -db "${db}"
 }
 
+# 构建SQL执行工具
+build_sqlexec() {
+    log_info "构建SQL执行工具..."
+    mkdir -p build
+    ${GO} build ${GOFLAGS} -o build/sqlexec cmd/sqlexec/main.go
+    log_success "SQL执行工具构建完成: build/sqlexec"
+}
+
+# 运行SQL执行工具（交互式模式）
+sqlexec() {
+    local db=$1
+    if [ -z "$db" ]; then
+        log_error "请指定数据库名称"
+        echo "用法: $0 sqlexec <数据库名>"
+        echo "示例: $0 sqlexec hrms_C001"
+        exit 1
+    fi
+    log_info "启动SQL执行工具（交互式模式）..."
+    build_sqlexec
+    ./build/sqlexec -db "${db}" -i
+}
+
 # 填充测试数据
 seed() {
     log_info "填充测试数据..."
@@ -487,6 +511,12 @@ main() {
             ;;
         "build-migrate")
             build_migrate
+            ;;
+        "build-sqlexec")
+            build_sqlexec
+            ;;
+        "sqlexec")
+            sqlexec "$2"
             ;;
         "seed")
             seed

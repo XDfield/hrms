@@ -37,7 +37,6 @@
 
 ### 数据库说明：
 数据库信息存储在 `config` 目录下，根据环境分配置文件管理。
-**important**: 禁止直接编写 sql 语句插入，这样不便于环境之间的迁移。需要做字段变更的话，应使用迁移机制。
 
 迁移机制：
 1. 基于 GORM 的自动迁移功能，支持所有模型自动建表和更新
@@ -51,6 +50,20 @@
    - `./build.sh migrate-reset-db hrms_C001` - 重置指定数据库
 5. 支持环境变量 `HRMS_ENV` 指定运行环境
 6. 详细的迁移指南请参考 `MIGRATION_GUIDE.md`
+
+SQL 执行机制：
+1. 基于 GORM 框架和项目配置的 SQL 执行工具，位于 `cmd/sqlexec/main.go`
+2. 支持多种执行模式：单条 SQL、文件批量执行、交互式模式
+3. 自动加载项目配置文件，支持多环境和多数据库
+4. SQL 执行命令集成在构建脚本中，提供便捷的操作方式：
+   - `./build.sh build-sqlexec` - 构建 SQL 执行工具
+   - `./build.sh sqlexec hrms_C001` - 启动交互式 SQL 执行模式
+   - `./build/sqlexec -db hrms_C001 -sql "SELECT * FROM staff LIMIT 10"` - 执行单条 SQL
+   - `./build/sqlexec -db hrms_C001 -file ./sql/queries.sql` - 从文件批量执行 SQL
+   - `./build/sqlexec -db hrms_C001 -i` - 进入交互式模式
+5. 支持查询结果格式化显示，自动识别查询和非查询语句
+6. 完善的错误处理和日志记录，确保操作安全性
+7. 详细的使用说明请参考 `docs/sqlexec-usage.md`
 
 ### 前端页面权限说明：
 前端页面根据用户权限展示不同的页面结构，在 `views/index.html` 内进行不同的路由转发：
@@ -68,3 +81,98 @@ if (userType == "normal") {
 ```
 
 **important**: 当涉及到前端页面修改时，应先查看 `static/api/init_sys.json` 与 `static/api/init_normal.json` 两个路由文件，确认是否需同步修改多个前端文件，避免修改遗漏
+
+### 权限机制说明：
+
+#### 权限体系架构
+1. **三级权限体系**：
+   - `supersys` - 超级管理员：拥有系统管理权限，可管理所有分公司
+   - `sys` - 系统管理员：拥有单个分公司的完整管理权限
+   - `normal` - 普通用户：拥有有限的业务操作权限
+
+2. **权限数据模型**：
+   - [`Authority`](model/account.go:13) 表：存储用户基本权限信息（staff_id, user_type）
+   - [`AuthorityDetail`](model/authority.go:3) 表：存储细粒度权限配置（user_type, model, authority_content）
+
+#### AuthorityDetail 表设计与新增页面规范
+
+**AuthorityDetail 表结构**：
+- `id` - 主键ID
+- `user_type` - 用户类型（supersys/sys/normal）
+- `model` - 功能模块标识（如：staff_manage, department_manage）
+- `name` - 功能模块中文名称
+- `authority_content` - 权限内容描述（如：查询、添加、编辑、删除）
+
+**新增页面时的 AuthorityDetail 考虑事项**：
+
+1. **模块标识规范**：
+   - 新增功能页面时，必须在 AuthorityDetail 表中定义对应的 `model` 标识
+   - `model` 命名规范：使用英文小写+下划线，如 `staff_manage`、`salary_detail`
+   - 确保 `model` 标识在系统中唯一，避免冲突
+
+2. **权限配置完整性**：
+   ```sql
+   -- 新增功能模块时，需要为三种用户类型都配置权限
+   INSERT INTO authority_details (user_type, model, name, authority_content) VALUES
+   ('supersys', 'new_module', '新功能模块', '所有权限'),
+   ('sys', 'new_module', '新功能模块', '查询、添加、编辑、删除'),
+   ('normal', 'new_module', '新功能模块', '查询');
+   ```
+
+3. **前端菜单同步更新**：
+   - 新增页面后，必须同步更新对应的前端配置文件：
+     - `static/api/init_supersys.json` - 超级管理员菜单
+     - `static/api/init_sys.json` - 系统管理员菜单
+     - `static/api/init_normal.json` - 普通用户菜单
+   - 菜单项的 `href` 应与 AuthorityDetail 的 `model` 保持关联
+
+4. **权限验证实现**：
+   ```go
+   // 在新增的 handler 中实现权限检查
+   func NewModuleHandler(c *gin.Context) {
+       // 1. 基础鉴权：检查数据库连接
+       db := resource.HrmsDB(c)
+       if db == nil {
+           c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+           return
+       }
+       
+       // 2. 细粒度权限检查（可选）
+       // 根据用户类型和模块标识查询具体权限
+       // service.CheckModulePermission(c, "new_module", "add")
+   }
+   ```
+
+#### 权限验证机制
+1. **Cookie 鉴权**：
+   - 格式：`user_cookie=用户名_密码_分公司ID_编码`
+   - 通过 [`resource.HrmsDB()`](resource/resource.go:31) 解析 cookie 获取分公司数据库连接
+   - Cookie 格式验证：必须包含至少3个下划线分隔的部分
+
+2. **数据库连接鉴权**：
+   - 所有业务操作前必须通过 [`resource.HrmsDB(c)`](resource/resource.go:31) 获取数据库连接
+   - 连接失败返回 [`resource.ErrUnauthorized`](resource/resource.go:15) 错误
+   - 支持多分公司数据库隔离，通过 [`DbMapper`](resource/resource.go:21) 管理
+
+#### 开发规范
+1. **权限检查模式**：
+   ```go
+   // 标准权限检查模式
+   db := resource.HrmsDB(c)
+   if db == nil {
+       c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+       return
+   }
+   ```
+
+2. **错误处理规范**：
+   - 统一使用 [`resource.ErrUnauthorized`](resource/resource.go:15) 表示鉴权失败
+   - 返回 HTTP 401 状态码和标准错误格式
+   - 记录详细的鉴权失败日志
+
+3. **新增页面检查清单**：
+   - [ ] 在 AuthorityDetail 表中配置三种用户类型的权限
+   - [ ] 更新对应的前端菜单配置文件
+   - [ ] 在 handler 中实现基础权限验证
+   - [ ] 添加权限相关的测试用例
+   - [ ] 确保 model 标识的唯一性和规范性
