@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/qiniu/qmgo"
 	"gorm.io/gorm"
 )
 
@@ -53,23 +52,16 @@ func HrmsDB(c *gin.Context) *gorm.DB {
 }
 
 type Db struct {
+	Type     string `json:"type"` // 数据库类型: mysql, sqlite
 	User     string `json:"user"`
 	Password string `json:"password"`
 	Host     string `json:"host"`
 	Port     int64  `json:"port"`
 	DbName   string `json:"dbNname"`
+	Path     string `json:"path"` // SQLite 数据库文件路径
 }
-
-type Mongo struct {
-	IP      string `json:"ip"`
-	Port    int64  `json:"port"`
-	Dataset string `json:"dataset"`
-}
-
-var MongoClient *qmgo.Client
 
 type Config struct {
-	Gin   `json:"gin"`
-	Db    `json:"db"`
-	Mongo `json:"mongo"`
+	Gin `json:"gin"`
+	Db  `json:"db"`
 }

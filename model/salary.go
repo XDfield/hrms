@@ -18,8 +18,8 @@ type Salary struct {
 }
 
 type SalaryCreateDTO struct {
-	StaffId    string `gorm:"column:staff_id" json:"staff_id"`
-	StaffName  string `gorm:"column:staff_name" json:"staff_name"`
+	StaffId    string `gorm:"column:staff_id" json:"staff_id" binding:"required"`
+	StaffName  string `gorm:"column:staff_name" json:"staff_name" binding:"required"`
 	Base       int64  `gorm:"column:base" json:"base"`
 	Subsidy    int64  `gorm:"column:subsidy" json:"subsidy"`
 	Bonus      int64  `gorm:"column:bonus" json:"bonus"`

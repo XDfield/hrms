@@ -6,7 +6,3 @@ db:
   host: 127.0.0.1
   port: 3306
   dbName: hrms_C001,hrms_C002
-mongo:
-  ip: 127.0.0.1
-  port: 27017
-  dataset: hrms

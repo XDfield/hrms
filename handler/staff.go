@@ -208,16 +208,19 @@ func StaffQuery(c *gin.Context) {
 func getRuleByStaffId(c *gin.Context, staffId string) string {
 	var authority model.Authority
 	var userTypeName string
-	if err := resource.HrmsDB(c).Where("staff_id = ?", staffId).Find(&authority).Error; err == nil {
-		switch authority.UserType {
-		case "supersys":
-			userTypeName = "超级管理员"
-		case "sys":
-			userTypeName = "系统管理员"
-		case "normal":
-			userTypeName = "普通员工"
-		default:
-			userTypeName = "未知"
+	db := resource.HrmsDB(c)
+	if db != nil {
+		if err := db.Where("staff_id = ?", staffId).Find(&authority).Error; err == nil {
+			switch authority.UserType {
+			case "supersys":
+				userTypeName = "超级管理员"
+			case "sys":
+				userTypeName = "系统管理员"
+			case "normal":
+				userTypeName = "普通员工"
+			default:
+				userTypeName = "未知"
+			}
 		}
 	}
 	return userTypeName
@@ -236,6 +239,12 @@ func convert2VO(c *gin.Context, staffs []model.Staff) []model.StaffVO {
 }
 
 func StaffQueryByName(c *gin.Context) {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+
 	var total int64 = 1
 	// 分页
 	start, limit := service.AcceptPage(c)
@@ -245,16 +254,16 @@ func StaffQueryByName(c *gin.Context) {
 	if staffName == "all" {
 		// 查询全部
 		if start == -1 && start == -1 {
-			resource.HrmsDB(c).Where("staff_id != 'root' and staff_id != 'admin'").Find(&staffs)
+			db.Where("staff_id != 'root' and staff_id != 'admin'").Find(&staffs)
 		} else {
-			resource.HrmsDB(c).Where("staff_id != 'root' and staff_id != 'admin'").Offset(start).Limit(limit).Find(&staffs)
+			db.Where("staff_id != 'root' and staff_id != 'admin'").Offset(start).Limit(limit).Find(&staffs)
 		}
 		if len(staffs) == 0 {
 			// 不存在
 			code = 2001
 		}
 		// 总记录数
-		resource.HrmsDB(c).Model(&model.Staff{}).Where("staff_id != 'root' and staff_id != 'admin'").Count(&total)
+		db.Model(&model.Staff{}).Where("staff_id != 'root' and staff_id != 'admin'").Count(&total)
 		c.JSON(http.StatusOK, gin.H{
 			"status": code,
 			"total":  total,
@@ -262,7 +271,7 @@ func StaffQueryByName(c *gin.Context) {
 		})
 		return
 	}
-	resource.HrmsDB(c).Where("staff_name like ?", "%"+staffName+"%").Where("staff_id != 'root' and staff_id != 'admin'").Find(&staffs)
+	db.Where("staff_name like ?", "%"+staffName+"%").Where("staff_id != 'root' and staff_id != 'admin'").Find(&staffs)
 	if len(staffs) == 0 {
 		// 不存在
 		code = 2001
@@ -287,7 +296,12 @@ func StaffQueryByDep(c *gin.Context) {
 		reqSql += fmt.Sprintf(` limit %v,%v`, start, limit)
 	}
 	reqSql = fmt.Sprintf(reqSql, "%"+depName+"%")
-	resource.HrmsDB(c).Raw(reqSql).Scan(&staffs)
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+	db.Raw(reqSql).Scan(&staffs)
 	if len(staffs) == 0 {
 		// 不存在
 		code = 2001
@@ -301,8 +315,14 @@ func StaffQueryByDep(c *gin.Context) {
 }
 
 func StaffDel(c *gin.Context) {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+
 	staffId := c.Param("staff_id")
-	if err := resource.HrmsDB(c).Where("staff_id = ?", staffId).Delete(&model.Staff{}).Error; err != nil {
+	if err := db.Where("staff_id = ?", staffId).Delete(&model.Staff{}).Error; err != nil {
 		log.Printf("[StaffDel] err = %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": 5001,
@@ -311,7 +331,7 @@ func StaffDel(c *gin.Context) {
 		return
 	}
 	// 密码删除
-	if err := resource.HrmsDB(c).Where("staff_id = ?", staffId).Delete(&model.Authority{}).Error; err != nil {
+	if err := db.Where("staff_id = ?", staffId).Delete(&model.Authority{}).Error; err != nil {
 		log.Printf("[StaffDel] err = %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": 5001,

@@ -34,7 +34,13 @@ func CreateAttendanceRecord(c *gin.Context, dto *model.AttendanceRecordCreateDTO
 }
 
 func DelAttendRecordByAttendId(c *gin.Context, attendanceId string) error {
-	if err := resource.HrmsDB(c).Where("attendance_id = ?", attendanceId).Delete(&model.AttendanceRecord{}).
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("DelAttendRecordByAttendId: 数据库连接为空，鉴权失败")
+		return resource.ErrUnauthorized
+	}
+
+	if err := db.Where("attendance_id = ?", attendanceId).Delete(&model.AttendanceRecord{}).
 		Error; err != nil {
 		log.Printf("DelAttendRecordByAttendId err = %v", err)
 		return err
@@ -43,9 +49,15 @@ func DelAttendRecordByAttendId(c *gin.Context, attendanceId string) error {
 }
 
 func UpdateAttendRecordById(c *gin.Context, dto *model.AttendanceRecordEditDTO) error {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("UpdateAttendRecordById: 数据库连接为空，鉴权失败")
+		return resource.ErrUnauthorized
+	}
+
 	var attentRecord model.AttendanceRecord
 	Transfer(&dto, &attentRecord)
-	if err := resource.HrmsDB(c).Model(&model.AttendanceRecord{}).Where("id = ?", attentRecord.ID).
+	if err := db.Model(&model.AttendanceRecord{}).Where("id = ?", attentRecord.ID).
 		Update("staff_id", attentRecord.StaffId).
 		Update("staff_name", attentRecord.StaffName).
 		Update("overtime_days", attentRecord.OvertimeDays).
@@ -96,6 +108,12 @@ func GetAttendRecordByStaffId(c *gin.Context, staffId string, start int, limit i
 }
 
 func GetAttendRecordHistoryByStaffId(c *gin.Context, staffId string, start int, limit int) ([]*model.AttendanceRecord, int64, error) {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("GetAttendRecordHistoryByStaffId: 数据库连接为空，鉴权失败")
+		return nil, 0, resource.ErrUnauthorized
+	}
+
 	var records []*model.AttendanceRecord
 	var err error
 	sqlReq1 := `select * from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
@@ -105,24 +123,24 @@ and attend.date = salary.salary_date where salary.is_pay = 2 order by attend.dat
 	if start == -1 && limit == -1 {
 		// 不加分页
 		if staffId != "all" {
-			err = resource.HrmsDB(c).Raw(sqlReq1, staffId).Find(&records).Error
+			err = db.Raw(sqlReq1, staffId).Find(&records).Error
 		} else {
-			err = resource.HrmsDB(c).Raw(sqlReq2).Find(&records).Error
+			err = db.Raw(sqlReq2).Find(&records).Error
 		}
 
 	} else {
 		// 加分页
 		if staffId != "all" {
-			err = resource.HrmsDB(c).Raw(sqlReq1, staffId).Offset(start).Limit(limit).Find(&records).Error
+			err = db.Raw(sqlReq1, staffId).Offset(start).Limit(limit).Find(&records).Error
 		} else {
-			err = resource.HrmsDB(c).Raw(sqlReq2).Offset(start).Limit(limit).Find(&records).Error
+			err = db.Raw(sqlReq2).Offset(start).Limit(limit).Find(&records).Error
 		}
 	}
 	if err != nil {
 		return nil, 0, err
 	}
 	var total int64
-	resource.HrmsDB(c).Model(&model.AttendanceRecord{}).Count(&total)
+	db.Model(&model.AttendanceRecord{}).Count(&total)
 	if staffId != "all" {
 		total = int64(len(records))
 	}
@@ -132,7 +150,12 @@ and attend.date = salary.salary_date where salary.is_pay = 2 order by attend.dat
 // 如果支付过则返回true
 func GetAttendRecordIsPayByStaffIdAndDate(c *gin.Context, staffId string, date string) bool {
 	var total int64
-	resource.HrmsDB(c).Model(&model.SalaryRecord{}).Where("staff_id = ? and salary_date = ? and is_pay = 2", staffId, date).Count(&total)
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("GetAttendRecordIsPayByStaffIdAndDate: 数据库连接为空，鉴权失败")
+		return false
+	}
+	db.Model(&model.SalaryRecord{}).Where("staff_id = ? and salary_date = ? and is_pay = 2", staffId, date).Count(&total)
 	return total != 0
 }
 

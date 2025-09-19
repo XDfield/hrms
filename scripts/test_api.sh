@@ -18,9 +18,20 @@ fi
 # 从环境变量中获取配置，如果未设置则使用默认值
 BINARY_NAME=${APP_NAME:-"hrms_app"}
 BUILD_DIR=${BUILD_DIR:-"build"}
-SERVER_PORT=${SERVER_PORT:-"8889"}
-TEST_REPORT=${TEST_REPORT:-"test-results.txt"}
 HRMS_ENV=${HRMS_ENV:-"test"}
+# 从环境配置文件中读取端口配置
+CONFIG_FILE="$PROJECT_ROOT/config/config-$HRMS_ENV.yaml"
+if [ -f "$CONFIG_FILE" ]; then
+    CONFIG_PORT=$(grep -A 5 "gin:" "$CONFIG_FILE" | grep "port:" | awk '{print $2}' | tr -d '[:space:]')
+    if [ -n "$CONFIG_PORT" ]; then
+        SERVER_PORT=${SERVER_PORT:-"$CONFIG_PORT"}
+    else
+        SERVER_PORT=${SERVER_PORT:-"8889"}
+    fi
+else
+    SERVER_PORT=${SERVER_PORT:-"8889"}
+fi
+TEST_REPORT=${TEST_REPORT:-"test-results.txt"}
 
 # 输出带颜色的消息
 log_info() {

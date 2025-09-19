@@ -30,12 +30,18 @@ func DelSalary(c *gin.Context) {
 }
 
 func CreateSalary(c *gin.Context) {
+	// 鉴权检查
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
 	// 参数绑定
 	var dto model.SalaryCreateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		log.Printf("[CreateSalary] err = %v", err)
 		c.JSON(200, gin.H{
-			"status": 5001,
+			"status": 5002,
 			"result": err.Error(),
 		})
 		return

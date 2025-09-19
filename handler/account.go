@@ -98,11 +98,33 @@ func Login(c *gin.Context) {
 		})
 		return
 	}
+
+	// 额外检查数据库连接是否为空
+	if hrmsDB == nil {
+		log.Printf("[Login err, 数据库连接为空, dbName = %v]", dbName)
+		c.JSON(200, gin.H{
+			"status": 5000,
+			"result": "数据库连接失败",
+		})
+		return
+	}
+
 	log.Printf("[handler.Login] login R = %v", loginR)
 	var loginDb model.Authority
 	var staff model.Staff
-	hrmsDB.Where("staff_id = ? and user_password = ?",
-		loginR.UserNo, service.MD5(loginR.UserPassword)).First(&loginDb)
+
+	// 查询用户认证信息，添加错误处理
+	err := hrmsDB.Where("staff_id = ? and user_password = ?",
+		loginR.UserNo, service.MD5(loginR.UserPassword)).First(&loginDb).Error
+	if err != nil {
+		log.Printf("[handler.Login] 数据库查询失败: %v", err)
+		c.JSON(200, gin.H{
+			"status": 2001,
+			"result": "check fail",
+		})
+		return
+	}
+
 	if loginDb.StaffId != loginR.UserNo {
 		log.Printf("[handler.Login] user login fail, user = %v", loginR)
 		c.JSON(200, gin.H{
@@ -111,7 +133,17 @@ func Login(c *gin.Context) {
 		})
 		return
 	}
-	hrmsDB.Where("staff_id = ?", loginDb.StaffId).Find(&staff)
+
+	// 查询员工信息，添加错误处理
+	err = hrmsDB.Where("staff_id = ?", loginDb.StaffId).First(&staff).Error
+	if err != nil {
+		log.Printf("[handler.Login] 查询员工信息失败: %v", err)
+		c.JSON(200, gin.H{
+			"status": 2001,
+			"result": "staff not found",
+		})
+		return
+	}
 
 	log.Printf("[handler.Login] user login success, user = %v", loginR)
 	// set cookie user_cookie=角色_工号_分公司ID_员工姓名(base64编码)
