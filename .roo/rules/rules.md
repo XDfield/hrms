@@ -4,6 +4,8 @@
 3. 使用 `bash scripts/test_api.sh` 命令来执行 api 测试
 
 ### 测试机制说明：
+执行测试时，无需提前编译与启动服务，直接执行测试脚本即可。
+
 1. 支持指定模块目录单独测试，使用 `-d` 参数指定目录
 2. 支持指定模块名称测试，使用 `-m` 参数指定模块
 3. 支持列出所有可用模块，使用 `-l` 参数
@@ -176,3 +178,128 @@ if (userType == "normal") {
    - [ ] 在 handler 中实现基础权限验证
    - [ ] 添加权限相关的测试用例
    - [ ] 确保 model 标识的唯一性和规范性
+
+### Cookie 机制说明：
+
+#### Cookie 组装机制
+1. **Cookie 格式规范**：
+   ```
+   user_cookie=用户类型_员工工号_分公司ID_员工姓名(base64编码)
+   ```
+   - 格式：`{user_type}_{staff_id}_{branch_id}_{staff_name_base64}`
+   - 示例：`sys_3117000001_C001_5byg5Yqh5ZGY` (其中最后部分是"管理员"的base64编码)
+
+2. **Cookie 组装过程**：
+   - 登录验证成功后，在 [`handler/account.go:118`](handler/account.go:118) 中组装cookie
+   - 使用 [`c.SetCookie()`](handler/account.go:118) 方法设置cookie
+   - 员工姓名使用 [`base64.StdEncoding.EncodeToString()`](handler/account.go:119) 进行编码
+   - Cookie路径设置为 `/`，域名设置为 `*`，非安全连接，非HttpOnly
+
+3. **Cookie 组装代码示例**：
+   ```go
+   // 在 handler/account.go 的 Login 函数中
+   c.SetCookie("user_cookie",
+       fmt.Sprintf("%v_%v_%v_%v",
+           loginDb.UserType,    // 用户类型：supersys/sys/normal
+           loginDb.StaffId,     // 员工工号
+           loginR.BranchId,     // 分公司ID
+           base64.StdEncoding.EncodeToString([]byte(staff.StaffName))), // base64编码的员工姓名
+       0, "/", "*", false, false)
+   ```
+
+#### Cookie 使用机制
+1. **后端Cookie解析**：
+   - 通过 [`resource.HrmsDB(c)`](resource/resource.go:31) 函数解析cookie获取数据库连接
+   - Cookie格式验证：必须包含至少3个下划线分隔的部分
+   - 提取分公司ID：`parts[2]`，用于构造数据库名称 `hrms_{branch_id}`
+   - 从 [`DbMapper`](resource/resource.go:21) 中获取对应的数据库连接
+
+2. **Cookie解析代码流程**：
+   ```go
+   // 在 resource/resource.go 的 HrmsDB 函数中
+   func HrmsDB(c *gin.Context) *gorm.DB {
+       cookie, err := c.Cookie("user_cookie")
+       if err != nil || cookie == "" {
+           return nil  // Cookie不存在或为空
+       }
+       
+       parts := strings.Split(cookie, "_")
+       if len(parts) < 3 {
+           return nil  // Cookie格式错误
+       }
+       
+       branchId := parts[2]  // 提取分公司ID
+       dbName := fmt.Sprintf("hrms_%v", branchId)
+       if db, ok := DbMapper[dbName]; ok {
+           return db  // 返回对应的数据库连接
+       }
+       return nil
+   }
+   ```
+
+3. **前端Cookie读取**：
+   - 使用JavaScript函数 [`getCookie2()`](views/index.html:180) 读取cookie值
+   - 通过 `split("_")` 方法解析cookie各部分：
+     - `parts[0]` - 用户类型 (supersys/sys/normal)
+     - `parts[1]` - 员工工号
+     - `parts[2]` - 分公司ID
+     - `parts[3]` - base64编码的员工姓名
+   - 员工姓名需要使用 [`BASE64.decode()`](views/normal_attendance_record_add.html:94) 解码
+
+4. **前端Cookie使用示例**：
+   ```javascript
+   // 获取cookie值
+   function getCookie2(cname) {
+       var name = cname + "=";
+       var ca = document.cookie.split(';');
+       for(var i=0; i<ca.length; i++) {
+           var c = ca[i].trim();
+           if (c.indexOf(name)==0) return c.substring(name.length,c.length);
+       }
+       return "";
+   }
+   
+   // 解析cookie获取员工信息
+   var staffId = getCookie2("user_cookie").split("_")[1];        // 员工工号
+   var staffName = getCookie2("user_cookie").split("_")[3];      // base64编码的姓名
+   staffName = BASE64.decode(staffName);                         // 解码员工姓名
+   ```
+
+#### Cookie 安全机制
+1. **Cookie验证流程**：
+   - 每个需要鉴权的API都必须调用 [`resource.HrmsDB(c)`](resource/resource.go:31)
+   - Cookie不存在或格式错误时返回 `nil`，触发401未授权错误
+   - 分公司ID不存在于 [`DbMapper`](resource/resource.go:21) 中时拒绝访问
+
+2. **Cookie失效机制**：
+   - 登出时调用 [`Quit()`](handler/account.go:126) 函数
+   - 设置cookie值为 `"null"`，过期时间为 `-1`，立即失效
+   - 代码：`c.SetCookie("user_cookie", "null", -1, "/", "*", false, false)`
+
+3. **多分公司隔离**：
+   - 通过cookie中的分公司ID实现数据库级别的隔离
+   - 不同分公司使用不同的数据库实例：`hrms_C001`, `hrms_C002` 等
+   - 确保用户只能访问所属分公司的数据
+
+#### 开发规范
+1. **Cookie依赖检查**：
+   ```go
+   // 标准的cookie鉴权模式
+   db := resource.HrmsDB(c)
+   if db == nil {
+       c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+       return
+   }
+   ```
+
+2. **前端页面权限控制**：
+   - 根据cookie中的用户类型 `parts[0]` 加载不同的菜单配置
+   - `supersys` → `init_supersys.json`
+   - `sys` → `init_sys.json`
+   - `normal` → `init_normal.json`
+
+3. **Cookie调试注意事项**：
+   - Cookie格式必须严格遵循 `用户类型_工号_分公司ID_姓名base64` 格式
+   - 分公司ID必须在系统的 [`DbMapper`](resource/resource.go:21) 中存在
+   - 员工姓名的base64编码/解码要配对使用
+   - 前端获取cookie时注意处理空值和格式错误的情况

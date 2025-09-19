@@ -96,6 +96,7 @@ func InitDB(config *Config, dbName string) (*gorm.DB, error) {
 func getModels() []interface{} {
 	return []interface{}{
 		&model.Authority{},
+		&model.AuthorityDetail{},
 		&model.Department{},
 		&model.Rank{},
 		&model.Staff{},

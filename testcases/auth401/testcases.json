@@ -95,7 +95,7 @@
     "method": "GET",
     "url": "/index",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "description": "使用有效cookie访问首页接口应该成功",
@@ -107,7 +107,7 @@
     "method": "GET",
     "url": "/authority_render/staff_manage",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "description": "使用有效cookie访问权限渲染接口应该成功",

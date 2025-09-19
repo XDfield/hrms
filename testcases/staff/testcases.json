@@ -4,7 +4,7 @@
     "method": "DELETE",
     "url": "/staff/del/H34709",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -20,7 +20,7 @@
     "url": "/staff/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "staff_name": "测试员工_NEW",
@@ -54,7 +54,7 @@
     "url": "/staff/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "staff_name": "重复员工",
@@ -88,7 +88,7 @@
     "url": "/staff/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "staff_name": "不完整员工"
@@ -107,7 +107,7 @@
     "url": "/staff/edit",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "staff_id": "STAFF001",
@@ -141,7 +141,7 @@
     "method": "GET",
     "url": "/staff/query/all",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -156,7 +156,7 @@
     "method": "GET",
     "url": "/staff/query/H14774",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -171,7 +171,7 @@
     "method": "GET",
     "url": "/staff/query/NOTEXIST",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -186,7 +186,7 @@
     "method": "GET",
     "url": "/staff/query_by_name/测试",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -201,7 +201,7 @@
     "method": "GET",
     "url": "/staff/query_by_dep/测试部门",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -216,7 +216,7 @@
     "method": "GET",
     "url": "/staff/query_by_staff_id/H14774",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -231,7 +231,7 @@
     "method": "POST",
     "url": "/staff/excel_export",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {

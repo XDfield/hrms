@@ -5,7 +5,7 @@
     "url": "/authority/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "user_type": "normal",
@@ -27,7 +27,7 @@
     "url": "/authority/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "user_type": "normal",
@@ -47,7 +47,7 @@
     "url": "/authority/query_by_user_type_and_model",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "user_type": "normal",
@@ -67,7 +67,7 @@
     "url": "/authority/query_by_user_type_and_model",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "user_type": "unknown",
@@ -86,7 +86,7 @@
     "method": "GET",
     "url": "/authority/query_by_user_type/normal",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -102,7 +102,7 @@
     "url": "/authority/edit",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "id": 1,
@@ -121,7 +121,7 @@
     "method": "POST",
     "url": "/authority/set_admin/STAFF001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -136,7 +136,7 @@
     "method": "POST",
     "url": "/authority/set_admin/empty",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -151,7 +151,7 @@
     "method": "POST",
     "url": "/authority/set_normal/STAFF001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -167,7 +167,7 @@
     "url": "/authority/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "user_type": "sys",
@@ -189,7 +189,7 @@
     "url": "/authority/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "user_type": "supersys",
@@ -210,7 +210,7 @@
     "method": "GET",
     "url": "/authority/query_by_user_type/supersys",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {

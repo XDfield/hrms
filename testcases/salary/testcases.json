@@ -4,7 +4,7 @@
     "method": "DELETE",
     "url": "/salary/delete/SAL001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -20,7 +20,7 @@
     "url": "/salary/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "staff_id": "STAFF_NEW_001",
@@ -50,7 +50,7 @@
     "method": "DELETE",
     "url": "/salary/delete/SAL002",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -66,7 +66,7 @@
     "url": "/salary/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "staff_id": "STAFF_EMPTY_TEST",
@@ -86,7 +86,7 @@
     "url": "/salary/edit",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "id": 1,
@@ -117,7 +117,7 @@
     "method": "GET",
     "url": "/salary/query/STAFF_NEW_001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -132,7 +132,7 @@
     "method": "DELETE",
     "url": "/salary/delete/SAL003",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -147,7 +147,7 @@
     "method": "GET",
     "url": "/salary/query/NOTEXIST",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -162,7 +162,7 @@
     "method": "DELETE",
     "url": "/salary/delete/SAL001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -177,7 +177,7 @@
     "method": "GET",
     "url": "/salary_record/query/STAFF_TEST_001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -192,7 +192,7 @@
     "method": "GET",
     "url": "/salary_record/get_salary_record_is_pay_by_id/1",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -207,7 +207,7 @@
     "method": "GET",
     "url": "/salary_record/pay_salary_record_by_id/1",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -222,7 +222,7 @@
     "method": "GET",
     "url": "/salary_record/query_history/STAFF_NEW_001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {

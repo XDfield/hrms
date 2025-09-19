@@ -5,7 +5,7 @@
     "url": "/recruitment/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "job_name": "软件工程师",
@@ -37,7 +37,7 @@
     "url": "/recruitment/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "job_describe": "缺少职位名称"
@@ -56,7 +56,7 @@
     "url": "/recruitment/edit",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "id": 1,
@@ -88,7 +88,7 @@
     "method": "GET",
     "url": "/recruitment/query/工程师",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -103,7 +103,7 @@
     "method": "GET",
     "url": "/recruitment/query/不存在的职位",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -118,7 +118,7 @@
     "method": "DELETE",
     "url": "/recruitment/delete/REC001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -134,7 +134,7 @@
     "url": "/recruitment/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "job_name": "前端开发实习生",
@@ -166,7 +166,7 @@
     "url": "/recruitment/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "job_name": "项目经理",
@@ -198,7 +198,7 @@
     "url": "/recruitment/edit",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "id": 2,

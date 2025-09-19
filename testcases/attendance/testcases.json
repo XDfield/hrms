@@ -4,7 +4,7 @@
     "method": "GET",
     "url": "/attendance_record/query/STAFF_TEST_001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -20,7 +20,7 @@
     "url": "/attendance_record/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "staff_id": "STAFF_TEST_001",
@@ -43,7 +43,7 @@
     "method": "GET",
     "url": "/attendance_record/query/STAFF_TEST_002",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -59,7 +59,7 @@
     "url": "/attendance_record/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "staff_id": "STAFF_TEST_002",
@@ -83,7 +83,7 @@
     "url": "/attendance_record/edit",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "id": 1,
@@ -107,7 +107,7 @@
     "method": "GET",
     "url": "/attendance_record/query/STAFF_TEST_001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -122,7 +122,7 @@
     "method": "GET",
     "url": "/attendance_record/query_history/STAFF_TEST_001",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -137,7 +137,7 @@
     "method": "GET",
     "url": "/attendance_record/query/NOTEXIST",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -152,7 +152,7 @@
     "method": "DELETE",
     "url": "/attendance_record/delete/attendance_record_1312703383",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -167,7 +167,7 @@
     "method": "GET",
     "url": "/attendance_record/get_attend_record_is_pay/STAFF_TEST_001/2024-01-15",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -182,7 +182,7 @@
     "method": "GET",
     "url": "/attendance_record/approve/query/admin",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -197,7 +197,7 @@
     "method": "GET",
     "url": "/attendance_record/approve_accept/attendance_record_4102312311",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -212,7 +212,7 @@
     "method": "GET",
     "url": "/attendance_record/approve_accept/attendance_record_633645483",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -227,7 +227,7 @@
     "method": "GET",
     "url": "/attendance_record/approve_reject/attendance_record_3016468782",
     "headers": {
-      "Cookie": "user_cookie=admin_admin_C001_5YWs5Y4o"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -242,7 +242,7 @@
     "method": "GET",
     "url": "/attendance_record/query/STAFF_TEST_003",
     "headers": {
-      "Cookie": "user_cookie=admin_e00cf25ad42683b3df678c61f42c6bda_C001"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -258,7 +258,7 @@
     "url": "/attendance_record/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_e00cf25ad42683b3df678c61f42c6bda_C001"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "staff_id": "STAFF_TEST_003",
@@ -281,7 +281,7 @@
     "method": "GET",
     "url": "/attendance_record/query/STAFF_TEST_004",
     "headers": {
-      "Cookie": "user_cookie=admin_e00cf25ad42683b3df678c61f42c6bda_C001"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "expectedStatus": 200,
     "expectedBody": {
@@ -297,7 +297,7 @@
     "url": "/attendance_record/create",
     "headers": {
       "Content-Type": "application/json",
-      "Cookie": "user_cookie=admin_e00cf25ad42683b3df678c61f42c6bda_C001"
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
     "body": {
       "staff_id": "STAFF_TEST_004",
