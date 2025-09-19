@@ -3,14 +3,15 @@ package handler
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"hrms/model"
 	"hrms/resource"
 	"hrms/service"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func Ping(c *gin.Context) {

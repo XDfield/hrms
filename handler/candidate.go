@@ -1,11 +1,14 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"hrms/model"
+	"hrms/resource"
 	"hrms/service"
 	"log"
+	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CreateCandidate(c *gin.Context) {
@@ -22,6 +25,10 @@ func CreateCandidate(c *gin.Context) {
 	// 业务处理
 	err := service.CreateCandidate(c, &dto)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[CreateCandidate] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -66,6 +73,10 @@ func UpdateCandidateById(c *gin.Context) {
 	// 业务处理
 	err := service.UpdateCandidateById(c, &dto)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[UpdateCandidateById] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -107,6 +118,10 @@ func GetCandidateByName(c *gin.Context) {
 	// 业务处理
 	list, total, err := service.GetCandidateByName(c, name, start, limit)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[GetCandidateByName] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5000,

@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/tealeg/xlsx"
 	"hrms/model"
 	"hrms/resource"
 	"io/ioutil"
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/tealeg/xlsx"
 )
 
 func CreateExample(c *gin.Context, dto *model.ExampleCreateDTO) error {
@@ -216,27 +217,32 @@ func GetExampleHistoryByName(c *gin.Context, name string, start int, limit int) 
 func GetExampleHistoryByStaffId(c *gin.Context, staffId string, start int, limit int) ([]*model.ExampleScore, int64, error) {
 	var records []*model.ExampleScore
 	var err error
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("GetExampleHistoryByStaffId: 数据库连接为空，鉴权失败")
+		return nil, 0, resource.ErrUnauthorized // 返回鉴权失败错误
+	}
 	if start == -1 && limit == -1 {
 		// 不加分页
 		if staffId != "all" {
-			err = resource.HrmsDB(c).Where("staff_id = ?", staffId).Order("date desc").Find(&records).Error
+			err = db.Where("staff_id = ?", staffId).Order("date desc").Find(&records).Error
 		} else {
-			err = resource.HrmsDB(c).Order("date desc").Find(&records).Error
+			err = db.Order("date desc").Find(&records).Error
 		}
 
 	} else {
 		// 加分页
 		if staffId != "all" {
-			err = resource.HrmsDB(c).Where("staff_id = ?", staffId).Order("date desc").Offset(start).Limit(limit).Find(&records).Error
+			err = db.Where("staff_id = ?", staffId).Order("date desc").Offset(start).Limit(limit).Find(&records).Error
 		} else {
-			err = resource.HrmsDB(c).Order("date desc").Offset(start).Limit(limit).Find(&records).Error
+			err = db.Order("date desc").Offset(start).Limit(limit).Find(&records).Error
 		}
 	}
 	if err != nil {
 		return nil, 0, err
 	}
 	var total int64
-	resource.HrmsDB(c).Model(&model.ExampleScore{}).Count(&total)
+	db.Model(&model.ExampleScore{}).Count(&total)
 	if staffId != "all" {
 		total = int64(len(records))
 	}

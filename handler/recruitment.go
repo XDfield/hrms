@@ -1,10 +1,13 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"hrms/model"
+	"hrms/resource"
 	"hrms/service"
 	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CreateRecruitment(c *gin.Context) {
@@ -21,6 +24,10 @@ func CreateRecruitment(c *gin.Context) {
 	// 业务处理
 	err := service.CreateRecruitment(c, &dto)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[CreateRecruitment] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -34,6 +41,13 @@ func CreateRecruitment(c *gin.Context) {
 }
 
 func UpdateRecruitmentById(c *gin.Context) {
+	// 先进行鉴权检查
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+
 	// 参数绑定
 	var dto model.RecruitmentEditDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -47,6 +61,10 @@ func UpdateRecruitmentById(c *gin.Context) {
 	// 业务处理
 	err := service.UpdateRecruitmentById(c, &dto)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[UpdateRecruitmentById] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -66,6 +84,10 @@ func GetRecruitmentByJobName(c *gin.Context) {
 	// 业务处理
 	list, total, err := service.GetRecruitmentByJobName(c, staffId, start, limit)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[GetRecruitmentByJobName] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5000,

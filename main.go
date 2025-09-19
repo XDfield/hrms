@@ -85,12 +85,14 @@ func routerInit(server *gin.Engine) {
 	departGroup.DELETE("/del/:dep_id", handler.DepartDel)
 	departGroup.POST("/edit", handler.DepartEdit)
 	departGroup.GET("/query/:dep_id", handler.DepartQuery)
+	departGroup.GET("/query", handler.DepartQuery)
 	// 职级相关
 	rankGroup := server.Group("/rank")
 	rankGroup.POST("/create", handler.RankCreate)
 	rankGroup.DELETE("/del/:rank_id", handler.RankDel)
 	rankGroup.POST("/edit", handler.RankEdit)
 	rankGroup.GET("/query/:rank_id", handler.RankQuery)
+	rankGroup.GET("/query", handler.RankQuery)
 	// 员工信息相关
 	staffGroup := server.Group("/staff")
 	staffGroup.POST("/create", handler.StaffCreate)
@@ -98,6 +100,7 @@ func routerInit(server *gin.Engine) {
 	staffGroup.DELETE("/del/:staff_id", handler.StaffDel)
 	staffGroup.POST("/edit", handler.StaffEdit)
 	staffGroup.GET("/query/:staff_id", handler.StaffQuery)
+	staffGroup.GET("/query", handler.StaffQuery)
 	staffGroup.GET("/query_by_name/:staff_name", handler.StaffQueryByName)
 	staffGroup.GET("/query_by_dep/:dep_name", handler.StaffQueryByDep)
 	staffGroup.GET("/query_by_staff_id/:staff_id", handler.StaffQueryByStaffId)
@@ -119,6 +122,7 @@ func routerInit(server *gin.Engine) {
 	notificationGroup.DELETE("/delete/:notice_id", handler.DeleteNotificationById)
 	notificationGroup.POST("/edit", handler.UpdateNotificationById)
 	notificationGroup.GET("/query/:notice_title", handler.GetNotificationByTitle)
+	notificationGroup.GET("/query", handler.GetNotificationByTitle)
 	// 分公司相关
 	companyGroup := server.Group("/company")
 	companyGroup.GET("/query", handler.BranchCompanyQuery)
@@ -128,6 +132,7 @@ func routerInit(server *gin.Engine) {
 	salaryGroup.DELETE("/delete/:salary_id", handler.DelSalary)
 	salaryGroup.POST("/edit", handler.UpdateSalaryById)
 	salaryGroup.GET("/query/:staff_id", handler.GetSalaryByStaffId)
+	salaryGroup.GET("/query", handler.GetSalaryByStaffId)
 	// 薪资发放相关
 	salaryRecordGroup := server.Group("/salary_record")
 	//salaryRecordGroup.POST("/create", handler.CreateSalaryRecord)
@@ -143,6 +148,7 @@ func routerInit(server *gin.Engine) {
 	attendGroup.DELETE("/delete/:attendance_id", handler.DelAttendRecordByAttendId)
 	attendGroup.POST("/edit", handler.UpdateAttendRecordById)
 	attendGroup.GET("/query/:staff_id", handler.GetAttendRecordByStaffId)
+	attendGroup.GET("/query", handler.GetAttendRecordByStaffId)
 	attendGroup.GET("/query_history/:staff_id", handler.GetAttendRecordHistoryByStaffId)
 	attendGroup.GET("/get_attend_record_is_pay/:staff_id/:date", handler.GetAttendRecordIsPayByStaffIdAndDate)
 	attendGroup.GET("/approve/query/:leader_staff_id", handler.GetAttendRecordApproveByLeaderStaffId)
@@ -154,6 +160,7 @@ func routerInit(server *gin.Engine) {
 	recruitmentGroup.DELETE("/delete/:recruitment_id", handler.DelRecruitmentByRecruitmentId)
 	recruitmentGroup.POST("/edit", handler.UpdateRecruitmentById)
 	recruitmentGroup.GET("/query/:job_name", handler.GetRecruitmentByJobName)
+	recruitmentGroup.GET("/query", handler.GetRecruitmentByJobName)
 	// 候选人管理相关
 	candidateGroup := server.Group("/candidate")
 	candidateGroup.POST("/create", handler.CreateCandidate)

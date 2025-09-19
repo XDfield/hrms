@@ -1,10 +1,13 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"hrms/model"
+	"hrms/resource"
 	"hrms/service"
 	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func AddAuthorityDetail(c *gin.Context) {
@@ -19,6 +22,10 @@ func AddAuthorityDetail(c *gin.Context) {
 	}
 	err := service.AddAuthorityDetail(c, &authorityDetailDTO)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[AddAuthorityDetail] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -43,6 +50,10 @@ func GetAuthorityDetailByUserTypeAndModel(c *gin.Context) {
 	}
 	content, err := service.GetAuthorityDetailByUserTypeAndModel(c, &dto)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[GetAuthorityDetailByUserTypeAndModel] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -62,6 +73,10 @@ func GetAuthorityDetailListByUserType(c *gin.Context) {
 	userType := c.Param("user_type")
 	detailList, total, err := service.GetAuthorityDetailListByUserType(c, userType, start, limit)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[GetAuthorityDetailByUserTypeAndModel] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -77,6 +92,13 @@ func GetAuthorityDetailListByUserType(c *gin.Context) {
 }
 
 func UpdateAuthorityDetailById(c *gin.Context) {
+	// 先进行鉴权检查
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+
 	// 参数绑定
 	var dto model.UpdateAuthorityDetailDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -90,6 +112,10 @@ func UpdateAuthorityDetailById(c *gin.Context) {
 	// 业务处理
 	err := service.UpdateAuthorityDetailById(c, &dto)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[UpdateAuthorityDetailById] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -113,6 +139,10 @@ func SetAdminByStaffId(c *gin.Context) {
 		return
 	}
 	if err := service.SetAdminByStaffId(c, staffId); err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[SetAdminByStaffId] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -136,6 +166,10 @@ func SetNormalByStaffId(c *gin.Context) {
 		return
 	}
 	if err := service.SetNormalByStaffId(c, staffId); err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[SetNormalByStaffId] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,

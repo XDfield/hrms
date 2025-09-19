@@ -3,23 +3,30 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"hrms/model"
 	"hrms/resource"
 	"log"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func CreateAttendanceRecord(c *gin.Context, dto *model.AttendanceRecordCreateDTO) error {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("CreateAttendanceRecord: 数据库连接为空，鉴权失败")
+		return resource.ErrUnauthorized
+	}
+
 	var total int64
-	resource.HrmsDB(c).Model(&model.AttendanceRecord{}).Where("staff_id = ? and date = ?", dto.StaffId, dto.Date).Count(&total)
+	db.Model(&model.AttendanceRecord{}).Where("staff_id = ? and date = ?", dto.StaffId, dto.Date).Count(&total)
 	if total != 0 {
 		return errors.New(fmt.Sprintf("该月考勤数据已经存在"))
 	}
 	var attendanceRecord model.AttendanceRecord
 	Transfer(&dto, &attendanceRecord)
 	attendanceRecord.AttendanceId = RandomID("attendance_record")
-	if err := resource.HrmsDB(c).Create(&attendanceRecord).Error; err != nil {
+	if err := db.Create(&attendanceRecord).Error; err != nil {
 		log.Printf("CreateAttendanceRecord err = %v", err)
 		return err
 	}
@@ -56,27 +63,32 @@ func UpdateAttendRecordById(c *gin.Context, dto *model.AttendanceRecordEditDTO) 
 func GetAttendRecordByStaffId(c *gin.Context, staffId string, start int, limit int) ([]*model.AttendanceRecord, int64, error) {
 	var records []*model.AttendanceRecord
 	var err error
+	db := resource.HrmsDB(c)
+	if db == nil {
+		return nil, 0, resource.ErrUnauthorized
+	}
+
 	if start == -1 && limit == -1 {
 		// 不加分页
 		if staffId != "all" {
-			err = resource.HrmsDB(c).Where("staff_id = ?", staffId).Order("date desc").Find(&records).Error
+			err = db.Where("staff_id = ?", staffId).Order("date desc").Find(&records).Error
 		} else {
-			err = resource.HrmsDB(c).Order("date desc").Find(&records).Error
+			err = db.Order("date desc").Find(&records).Error
 		}
 
 	} else {
 		// 加分页
 		if staffId != "all" {
-			err = resource.HrmsDB(c).Where("staff_id = ?", staffId).Offset(start).Limit(limit).Order("date desc").Find(&records).Error
+			err = db.Where("staff_id = ?", staffId).Offset(start).Limit(limit).Order("date desc").Find(&records).Error
 		} else {
-			err = resource.HrmsDB(c).Offset(start).Limit(limit).Order("date desc").Find(&records).Error
+			err = db.Offset(start).Limit(limit).Order("date desc").Find(&records).Error
 		}
 	}
 	if err != nil {
 		return nil, 0, err
 	}
 	var total int64
-	resource.HrmsDB(c).Model(&model.AttendanceRecord{}).Count(&total)
+	db.Model(&model.AttendanceRecord{}).Count(&total)
 	if staffId != "all" {
 		total = int64(len(records))
 	}
@@ -128,7 +140,12 @@ func GetAttendRecordIsPayByStaffIdAndDate(c *gin.Context, staffId string, date s
 func GetAttendRecordApproveByLeaderStaffId(c *gin.Context, leaderStaffId string) ([]*model.AttendanceRecord, int64, error) {
 	// 查询下属staff_id
 	var staffs []*model.Staff
-	resource.HrmsDB(c).Where("leader_staff_id = ?", leaderStaffId).Find(&staffs)
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("GetAttendRecordApproveByLeaderStaffId: 数据库连接为空，鉴权失败")
+		return nil, 0, resource.ErrUnauthorized // 返回鉴权失败错误
+	}
+	db.Where("leader_staff_id = ?", leaderStaffId).Find(&staffs)
 	if len(staffs) == 0 {
 		return nil, 0, nil
 	}
@@ -138,7 +155,7 @@ func GetAttendRecordApproveByLeaderStaffId(c *gin.Context, leaderStaffId string)
 	for _, staff := range staffs {
 		var attend []*model.AttendanceRecord
 		staffId := staff.StaffId
-		resource.HrmsDB(c).Where("staff_id = ? and approve = 0", staffId).Find(&attend)
+		db.Where("staff_id = ? and approve = 0", staffId).Find(&attend)
 		if attend != nil {
 			attends = append(attends, attend...)
 		}
@@ -152,7 +169,12 @@ func GetAttendRecordApproveByLeaderStaffId(c *gin.Context, leaderStaffId string)
 
 // 通过考勤审批信息，修改考勤信息为通过，并且按该员工工资套账进行相应的薪资详情计算，得到五险一金税后薪资
 func Compute(c *gin.Context, attendId string) error {
-	err := resource.HrmsDB(c).Transaction(func(tx *gorm.DB) error {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("Compute: 数据库连接为空，鉴权失败")
+		return resource.ErrUnauthorized // 返回鉴权失败错误
+	}
+	err := db.Transaction(func(tx *gorm.DB) error {
 		// 更新考勤信息为审批通过状态
 		if err := tx.Model(&model.AttendanceRecord{}).Where("attendance_id = ?", attendId).Update("approve", 1).Error; err != nil {
 			return err

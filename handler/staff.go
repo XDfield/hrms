@@ -3,10 +3,6 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/tealeg/xlsx"
-	"golang.org/x/sync/errgroup"
-	"gorm.io/gorm"
 	"hrms/model"
 	"hrms/resource"
 	"hrms/service"
@@ -15,9 +11,21 @@ import (
 	"net/http"
 	"strings"
 	"sync/atomic"
+
+	"github.com/gin-gonic/gin"
+	"github.com/tealeg/xlsx"
+	"golang.org/x/sync/errgroup"
+	"gorm.io/gorm"
 )
 
 func StaffCreate(c *gin.Context) {
+	// 先进行鉴权检查
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+
 	var staffCreateDto model.StaffCreateDTO
 	if err := c.BindJSON(&staffCreateDto); err != nil {
 		log.Printf("[StaffCreate] err = %v", err)
@@ -30,6 +38,10 @@ func StaffCreate(c *gin.Context) {
 	log.Printf("[StaffCreate staff = %v]", staffCreateDto)
 	// 创建员工信息落表
 	if staff, err := buildStaffInfoSaveDB(c, staffCreateDto); err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[StaffCreate err = %v]", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": 5001,
@@ -65,13 +77,18 @@ func buildStaffInfoSaveDB(c *gin.Context, staffCreateDto model.StaffCreateDTO) (
 		EntryDate:     service.Str2Time(staffCreateDto.EntryDateStr, 0),
 	}
 	var exist int64
-	resource.HrmsDB(c).Model(&model.Staff{}).Where("identity_num = ? or staff_id = ?", staffCreateDto.IdentityNum, staffID).Count(&exist)
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("buildStaffInfoSaveDB: 数据库连接为空，鉴权失败")
+		return staff, resource.ErrUnauthorized
+	}
+	db.Model(&model.Staff{}).Where("identity_num = ? or staff_id = ?", staffCreateDto.IdentityNum, staffID).Count(&exist)
 	if exist != 0 {
 		return staff, errors.New("已经存在该员工")
 	}
 	// 查询leader名称
 	var leader model.Staff
-	resource.HrmsDB(c).Where("staff_id = ?", staffCreateDto.LeaderStaffId).Find(&leader)
+	db.Where("staff_id = ?", staffCreateDto.LeaderStaffId).Find(&leader)
 	staff.LeaderName = leader.StaffName
 	// 创建登陆信息，密码为身份证后六位
 	identLen := len(staff.IdentityNum)
@@ -82,7 +99,7 @@ func buildStaffInfoSaveDB(c *gin.Context, staffCreateDto model.StaffCreateDTO) (
 		//Aval:         1,
 		UserType: "normal", // 暂时只能创建普通员工
 	}
-	err := resource.HrmsDB(c).Transaction(func(tx *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&staff).Error; err != nil {
 			return err
 		}
@@ -127,9 +144,14 @@ func StaffEdit(c *gin.Context) {
 	}
 	// 查询leader名称
 	var leader model.Staff
-	resource.HrmsDB(c).Where("staff_id = ?", staffEditDTO.LeaderStaffId).Find(&leader)
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+	db.Where("staff_id = ?", staffEditDTO.LeaderStaffId).Find(&leader)
 	staff.LeaderName = leader.StaffName
-	resource.HrmsDB(c).Model(&model.Staff{}).Where("staff_id = ?", staffEditDTO.StaffId).
+	db.Model(&model.Staff{}).Where("staff_id = ?", staffEditDTO.StaffId).
 		Updates(&staff)
 	c.JSON(200, gin.H{
 		"status": 2000,
@@ -137,6 +159,13 @@ func StaffEdit(c *gin.Context) {
 }
 
 func StaffQuery(c *gin.Context) {
+	// 先进行鉴权检查
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+
 	var total int64 = 1
 	// 分页
 	start, limit := service.AcceptPage(c)
@@ -146,16 +175,16 @@ func StaffQuery(c *gin.Context) {
 	if staffId == "all" {
 		// 查询全部
 		if start == -1 && start == -1 {
-			resource.HrmsDB(c).Where("staff_id != 'root' and staff_id != 'admin'").Find(&staffs)
+			db.Where("staff_id != 'root' and staff_id != 'admin'").Find(&staffs)
 		} else {
-			resource.HrmsDB(c).Where("staff_id != 'root' and staff_id != 'admin'").Offset(start).Limit(limit).Find(&staffs)
+			db.Where("staff_id != 'root' and staff_id != 'admin'").Offset(start).Limit(limit).Find(&staffs)
 		}
 		if len(staffs) == 0 {
 			// 不存在
 			code = 2001
 		}
 		// 总记录数
-		resource.HrmsDB(c).Model(&model.Staff{}).Where("staff_id != 'root' and staff_id != 'admin'").Count(&total)
+		db.Model(&model.Staff{}).Where("staff_id != 'root' and staff_id != 'admin'").Count(&total)
 		c.JSON(http.StatusOK, gin.H{
 			"status": code,
 			"total":  total,
@@ -163,7 +192,7 @@ func StaffQuery(c *gin.Context) {
 		})
 		return
 	}
-	resource.HrmsDB(c).Where("staff_id = ? and staff_id != 'root' and staff_id != 'admin'", staffId).Find(&staffs)
+	db.Where("staff_id = ? and staff_id != 'root' and staff_id != 'admin'", staffId).Find(&staffs)
 	if len(staffs) == 0 {
 		// 不存在
 		code = 2001
@@ -300,7 +329,12 @@ func StaffQueryByStaffId(c *gin.Context) {
 	code := 2000
 	staffId := c.Param("staff_id")
 	var staffs []model.Staff
-	resource.HrmsDB(c).Where("staff_id = ?", staffId).Find(&staffs)
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+	db.Where("staff_id = ?", staffId).Find(&staffs)
 	if len(staffs) == 0 {
 		// 不存在
 		code = 2001
@@ -431,7 +465,12 @@ func ExcelExport(c *gin.Context) {
 
 func getDepID(c *gin.Context, depName string) string {
 	var dep model.Department
-	if err := resource.HrmsDB(c).Model(&model.Department{}).Where("dep_name = ?", depName).Take(&dep).Error; err != nil {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("getDepID: 数据库连接为空，鉴权失败")
+		return "-1" // 鉴权失败时返回 -1
+	}
+	if err := db.Model(&model.Department{}).Where("dep_name = ?", depName).Take(&dep).Error; err != nil {
 		return "-1"
 	}
 	return dep.DepId
@@ -439,7 +478,12 @@ func getDepID(c *gin.Context, depName string) string {
 
 func getRankID(c *gin.Context, rankName string) string {
 	var rank model.Rank
-	if err := resource.HrmsDB(c).Model(&model.Rank{}).Where("rank_name = ?", rankName).Take(&rank).Error; err != nil {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("getRankID: 数据库连接为空，鉴权失败")
+		return "-1" // 鉴权失败时返回 -1
+	}
+	if err := db.Model(&model.Rank{}).Where("rank_name = ?", rankName).Take(&rank).Error; err != nil {
 		return "-1"
 	}
 	return rank.RankId

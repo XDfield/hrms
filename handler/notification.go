@@ -1,10 +1,13 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"hrms/model"
+	"hrms/resource"
 	"hrms/service"
 	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CreateNotification(c *gin.Context) {
@@ -20,6 +23,10 @@ func CreateNotification(c *gin.Context) {
 	// 业务处理
 	err := service.CreateNotification(c, &notificationDTO)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[CreateNotification] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -55,6 +62,10 @@ func GetNotificationByTitle(c *gin.Context) {
 	// 业务处理
 	notifications, total, err := service.GetNotificationByTitle(c, noticeTitle, start, limit)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[DeleteNotificationById] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -71,6 +82,13 @@ func GetNotificationByTitle(c *gin.Context) {
 }
 
 func UpdateNotificationById(c *gin.Context) {
+	// 先进行鉴权检查
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+
 	var dto model.NotificationEditDTO
 	if err := c.BindJSON(&dto); err != nil {
 		log.Printf("[UpdateNotificationById] err = %v", err)
@@ -83,6 +101,10 @@ func UpdateNotificationById(c *gin.Context) {
 	// 业务处理
 	err := service.UpdateNotificationById(c, &dto)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[UpdateNotificationById] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,

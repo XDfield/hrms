@@ -1,11 +1,14 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"hrms/model"
+	"hrms/resource"
 	"hrms/service"
 	"log"
+	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func DelSalary(c *gin.Context) {
@@ -40,6 +43,10 @@ func CreateSalary(c *gin.Context) {
 	// 业务处理
 	err := service.CreateSalary(c, &dto)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[CreateSalary] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -66,6 +73,10 @@ func UpdateSalaryById(c *gin.Context) {
 	// 业务处理
 	err := service.UpdateSalaryById(c, &dto)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[UpdateSalaryById] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5002,
@@ -85,6 +96,10 @@ func GetSalaryByStaffId(c *gin.Context) {
 	// 业务处理
 	list, total, err := service.GetSalaryByStaffId(c, staffId, start, limit)
 	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
 		log.Printf("[GetSalaryByStaffId] err = %v", err)
 		c.JSON(200, gin.H{
 			"status": 5000,

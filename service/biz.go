@@ -5,14 +5,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	httpReq "github.com/kirinlabs/HttpRequest"
 	"hrms/model"
 	"hrms/resource"
 	"log"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	httpReq "github.com/kirinlabs/HttpRequest"
 )
 
 func AcceptPage(c *gin.Context) (int, int) {
@@ -96,13 +97,23 @@ func SexInt2Str(sex int64) string {
 
 func GetDepNameByDepId(c *gin.Context, depId string) string {
 	var dep model.Department
-	resource.HrmsDB(c).Where("dep_id = ?", depId).Find(&dep)
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("GetDepNameByDepId: 数据库连接为空，鉴权失败")
+		return "" // 鉴权失败时返回空字符串
+	}
+	db.Where("dep_id = ?", depId).Find(&dep)
 	return dep.DepName
 }
 
 func GetRankNameRankDepId(c *gin.Context, rankId string) string {
 	var rank model.Rank
-	resource.HrmsDB(c).Where("rank_id = ?", rankId).Find(&rank)
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("GetRankNameRankDepId: 数据库连接为空，鉴权失败")
+		return "" // 鉴权失败时返回空字符串
+	}
+	db.Where("rank_id = ?", rankId).Find(&rank)
 	return rank.RankName
 }
 

@@ -1,11 +1,13 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"hrms/model"
 	"hrms/resource"
 	"hrms/service"
 	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func RankCreate(c *gin.Context) {
@@ -19,7 +21,12 @@ func RankCreate(c *gin.Context) {
 		return
 	}
 	var exist int64
-	resource.HrmsDB(c).Model(&model.Rank{}).Where("rank_name = ?", rankCreateDto.RankName).Count(&exist)
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+	db.Model(&model.Rank{}).Where("rank_name = ?", rankCreateDto.RankName).Count(&exist)
 	if exist != 0 {
 		c.JSON(200, gin.H{
 			"status": 2001,
@@ -31,7 +38,7 @@ func RankCreate(c *gin.Context) {
 		RankId:   service.RandomID("rank"),
 		RankName: rankCreateDto.RankName,
 	}
-	resource.HrmsDB(c).Create(&rank)
+	db.Create(&rank)
 	c.JSON(200, gin.H{
 		"status": 2000,
 		"msg":    rank,
@@ -48,7 +55,12 @@ func RankEdit(c *gin.Context) {
 		})
 		return
 	}
-	resource.HrmsDB(c).Model(&model.Rank{}).Where("rank_id = ?", rankEditDTO.RankId).
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+	db.Model(&model.Rank{}).Where("rank_id = ?", rankEditDTO.RankId).
 		Updates(&model.Rank{RankName: rankEditDTO.RankName})
 	c.JSON(200, gin.H{
 		"status": 2000,
@@ -62,19 +74,24 @@ func RankQuery(c *gin.Context) {
 	code := 2000
 	rankId := c.Param("rank_id")
 	var ranks []model.Rank
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
 	if rankId == "all" {
 		// 查询全部
 		if start == -1 && start == -1 {
-			resource.HrmsDB(c).Find(&ranks)
+			db.Find(&ranks)
 		} else {
-			resource.HrmsDB(c).Offset(start).Limit(limit).Find(&ranks)
+			db.Offset(start).Limit(limit).Find(&ranks)
 		}
 		if len(ranks) == 0 {
 			// 不存在
 			code = 2001
 		}
 		// 总记录数
-		resource.HrmsDB(c).Model(&model.Rank{}).Count(&total)
+		db.Model(&model.Rank{}).Count(&total)
 		c.JSON(200, gin.H{
 			"status": code,
 			"total":  total,
@@ -82,7 +99,7 @@ func RankQuery(c *gin.Context) {
 		})
 		return
 	}
-	resource.HrmsDB(c).Where("rank_id = ?", rankId).Find(&ranks)
+	db.Where("rank_id = ?", rankId).Find(&ranks)
 	if len(ranks) == 0 {
 		// 不存在
 		code = 2001
@@ -97,7 +114,12 @@ func RankQuery(c *gin.Context) {
 
 func RankDel(c *gin.Context) {
 	rankId := c.Param("rank_id")
-	if err := resource.HrmsDB(c).Where("rank_id = ?", rankId).Delete(&model.Rank{}).Error; err != nil {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		return
+	}
+	if err := db.Where("rank_id = ?", rankId).Delete(&model.Rank{}).Error; err != nil {
 		log.Printf("[RankDel] err = %v", err)
 		c.JSON(500, gin.H{
 			"status": 5001,
