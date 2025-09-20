@@ -17,6 +17,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	_ "modernc.org/sqlite"
 )
 
 func InitConfig() error {
@@ -237,7 +238,10 @@ func InitGorm() error {
 				return err
 			}
 
-			db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{
+			db, err = gorm.Open(sqlite.Dialector{
+				DriverName: "sqlite",
+				DSN:        dbPath + "?_pragma=foreign_keys(1)",
+			}, &gorm.Config{
 				NamingStrategy: schema.NamingStrategy{
 					// 全局禁止表名复数
 					SingularTable: true,
