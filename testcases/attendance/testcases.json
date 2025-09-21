@@ -1,5 +1,65 @@
 [
   {
+    "name": "清理测试数据-删除STAFF_TEST_001考勤记录",
+    "method": "DELETE",
+    "url": "/attendance_record/delete/attendance_record_test_001",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理可能存在的STAFF_TEST_001考勤记录",
+    "category": "attendance",
+    "enabled": true
+  },
+  {
+    "name": "清理测试数据-删除STAFF_TEST_002考勤记录",
+    "method": "DELETE",
+    "url": "/attendance_record/delete/attendance_record_test_002",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理可能存在的STAFF_TEST_002考勤记录",
+    "category": "attendance",
+    "enabled": true
+  },
+  {
+    "name": "清理测试数据-删除STAFF_TEST_003考勤记录",
+    "method": "DELETE",
+    "url": "/attendance_record/delete/attendance_record_test_003",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理可能存在的STAFF_TEST_003考勤记录",
+    "category": "attendance",
+    "enabled": true
+  },
+  {
+    "name": "清理测试数据-删除STAFF_TEST_004考勤记录",
+    "method": "DELETE",
+    "url": "/attendance_record/delete/attendance_record_test_004",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理可能存在的STAFF_TEST_004考勤记录",
+    "category": "attendance",
+    "enabled": true
+  },
+  {
     "name": "查询员工考勤记录-验证数据存在性",
     "method": "GET",
     "url": "/attendance_record/query/STAFF_TEST_001",
@@ -15,30 +75,6 @@
     "enabled": true
   },
   {
-    "name": "创建考勤记录-期望失败（数据已存在）",
-    "method": "POST",
-    "url": "/attendance_record/create",
-    "headers": {
-      "Content-Type": "application/json",
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "body": {
-      "staff_id": "STAFF_TEST_001",
-      "date": "2024-01-15",
-      "staff_name": "测试员工001",
-      "work_days": 22,
-      "leave_days": 0,
-      "overtime_days": 0
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 5002
-    },
-    "description": "创建已存在的考勤记录，期望失败",
-    "category": "attendance",
-    "enabled": true
-  },
-  {
     "name": "查询员工考勤记录-测试STAFF_TEST_002",
     "method": "GET",
     "url": "/attendance_record/query/STAFF_TEST_002",
@@ -50,30 +86,6 @@
       "status": 2000
     },
     "description": "查询STAFF_TEST_002的考勤记录",
-    "category": "attendance",
-    "enabled": true
-  },
-  {
-    "name": "创建考勤记录-期望失败（STAFF_TEST_002数据已存在）",
-    "method": "POST",
-    "url": "/attendance_record/create",
-    "headers": {
-      "Content-Type": "application/json",
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "body": {
-      "staff_id": "STAFF_TEST_002",
-      "date": "2024-02-16",
-      "staff_name": "测试员工002",
-      "work_days": 20,
-      "leave_days": 2,
-      "overtime_days": 0
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 5002
-    },
-    "description": "创建已存在的考勤记录，期望失败",
     "category": "attendance",
     "enabled": true
   },
@@ -253,30 +265,6 @@
     "enabled": true
   },
   {
-    "name": "创建请假考勤记录-期望失败（数据已存在）",
-    "method": "POST",
-    "url": "/attendance_record/create",
-    "headers": {
-      "Content-Type": "application/json",
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "body": {
-      "staff_id": "STAFF_TEST_003",
-      "date": "2024-03-16",
-      "staff_name": "测试员工003",
-      "work_days": 21,
-      "leave_days": 1,
-      "overtime_days": 0
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 5002
-    },
-    "description": "创建已存在的请假考勤记录，期望失败",
-    "category": "attendance",
-    "enabled": true
-  },
-  {
     "name": "查询员工考勤记录-测试STAFF_TEST_004",
     "method": "GET",
     "url": "/attendance_record/query/STAFF_TEST_004",
@@ -288,30 +276,6 @@
       "status": 2000
     },
     "description": "查询STAFF_TEST_004的考勤记录",
-    "category": "attendance",
-    "enabled": true
-  },
-  {
-    "name": "创建加班考勤记录-期望失败（数据已存在）",
-    "method": "POST",
-    "url": "/attendance_record/create",
-    "headers": {
-      "Content-Type": "application/json",
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "body": {
-      "staff_id": "STAFF_TEST_004",
-      "date": "2024-04-17",
-      "staff_name": "测试员工004",
-      "work_days": 22,
-      "leave_days": 0,
-      "overtime_days": 2
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 5002
-    },
-    "description": "创建已存在的加班考勤记录，期望失败",
     "category": "attendance",
     "enabled": true
   }

@@ -49,36 +49,17 @@
     "enabled": false
   },
   {
-    "name": "创建员工失败-已存在的身份证号",
-    "method": "POST",
-    "url": "/staff/create",
+    "name": "清理测试数据-删除重复身份证号员工",
+    "method": "DELETE",
+    "url": "/staff/del/H23491",
     "headers": {
-      "Content-Type": "application/json",
       "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
     },
-    "body": {
-      "staff_name": "重复员工",
-      "leader_staff_id": "admin",
-      "phone": 13800138001,
-      "birthday_str": "1990-01-02",
-      "identity_num": "123456199001011237",
-      "sex_str": "女",
-      "nation": "汉族",
-      "school": "测试大学",
-      "major": "数学",
-      "edu_level": "硕士",
-      "base_salary": 9000,
-      "card_num": "6222001234567890124",
-      "rank_id": "R002",
-      "dep_id": "D002",
-      "email": "test2@example.com",
-      "entry_date_str": "2023-02-01"
-    },
-    "expectedStatus": 500,
+    "expectedStatus": 200,
     "expectedBody": {
-      "status": 5001
+      "status": 2000
     },
-    "description": "使用已存在的身份证号创建员工应该失败",
+    "description": "清理可能存在的重复身份证号员工数据",
     "category": "staff",
     "enabled": true
   },

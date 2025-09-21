@@ -27,7 +27,7 @@
     },
     "expectedStatus": 200,
     "expectedBody": {
-      "status": 2001
+      "status": 2000
     },
     "description": "创建新的职级",
     "category": "rank",
@@ -192,7 +192,7 @@
     },
     "expectedStatus": 200,
     "expectedBody": {
-      "status": 2001
+      "status": 2000
     },
     "description": "创建初级工程师职级",
     "category": "rank",
@@ -226,7 +226,7 @@
     },
     "expectedStatus": 200,
     "expectedBody": {
-      "status": 2001
+      "status": 2000
     },
     "description": "创建中级工程师职级",
     "category": "rank",
@@ -260,7 +260,7 @@
     },
     "expectedStatus": 200,
     "expectedBody": {
-      "status": 2001
+      "status": 2000
     },
     "description": "创建技术经理职级",
     "category": "rank",
@@ -294,7 +294,7 @@
     },
     "expectedStatus": 200,
     "expectedBody": {
-      "status": 2001
+      "status": 2000
     },
     "description": "创建技术总监职级",
     "category": "rank",

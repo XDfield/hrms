@@ -61,6 +61,7 @@ show_help() {
     echo "  build          - 构建当前平台的可执行文件"
     echo "  build-all      - 构建所有平台的可执行文件"
     echo "  run            - 运行开发服务器"
+    echo "  run-dev        - 运行开发环境服务器"
     echo "  run-prod       - 运行生产环境服务器"
     echo "  run-self       - 运行自定义配置服务器"
     echo "  test           - 运行测试"
@@ -467,6 +468,9 @@ main() {
             build_all
             ;;
         "run")
+            run_dev
+            ;;
+        "run-dev")
             run_dev
             ;;
         "run-prod")

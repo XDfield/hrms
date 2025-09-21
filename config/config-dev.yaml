@@ -3,4 +3,4 @@ gin:
 db:
   type: sqlite
   path: ./data  # SQLite 数据库文件存储路径，相对于项目根目录
-  dbName: hrms_C001,hrms_C002  # 数据库名称列表，将创建对应的 .db 文件
+  dbName: hrms_C001

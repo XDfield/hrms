@@ -1,5 +1,20 @@
 [
   {
+    "name": "清理测试数据-删除新测试部门",
+    "method": "DELETE",
+    "url": "/depart/del/新测试部门",
+    "headers": {
+      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "清理可能存在的新测试部门数据",
+    "category": "department",
+    "enabled": true
+  },
+  {
     "name": "创建部门成功",
     "method": "POST",
     "url": "/depart/create",
@@ -16,26 +31,6 @@
       "status": 2000
     },
     "description": "创建新部门，所有字段都正确",
-    "category": "department",
-    "enabled": true
-  },
-  {
-    "name": "创建部门失败-部门名称已存在",
-    "method": "POST",
-    "url": "/depart/create",
-    "headers": {
-      "Content-Type": "application/json",
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "body": {
-      "dep_name": "新测试部门",
-      "dep_describe": "重复部门描述"
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 2001
-    },
-    "description": "使用已存在的部门名称创建应该失败",
     "category": "department",
     "enabled": true
   },

@@ -45,7 +45,10 @@ func GetNotificationByTitle(c *gin.Context, noticeTitle string, start int, limit
 
 func CreateNotification(c *gin.Context, dto *model.NotificationDTO) error {
 	var notification model.Notification
-	Transfer(&dto, &notification)
+	// 直接赋值而不使用 Transfer 函数，避免 ID 字段丢失
+	notification.NoticeTitle = dto.NoticeTitle
+	notification.NoticeContent = dto.NoticeContent
+	notification.Type = dto.Type
 	notification.NoticeId = RandomID("notice")
 	notification.Date = Str2Time(dto.Date, 0)
 	// 富文本内容base64编码(前端实现)
@@ -91,7 +94,12 @@ func DelNotificationById(c *gin.Context, notice_id string) error {
 
 func UpdateNotificationById(c *gin.Context, dto *model.NotificationEditDTO) error {
 	var notification model.Notification
-	Transfer(&dto, &notification)
+	// 直接赋值而不使用 Transfer 函数，避免 ID 字段丢失
+	notification.ID = uint(dto.ID)
+	notification.NoticeId = dto.NoticeId
+	notification.NoticeTitle = dto.NoticeTitle
+	notification.NoticeContent = dto.NoticeContent
+	notification.Type = dto.Type
 	notification.Date = Str2Time(dto.Date, 0)
 	db := resource.HrmsDB(c)
 	if db == nil {

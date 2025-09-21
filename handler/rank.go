@@ -113,13 +113,24 @@ func RankQuery(c *gin.Context) {
 }
 
 func RankDel(c *gin.Context) {
-	rankId := c.Param("rank_id")
+	rankParam := c.Param("rank_id")
 	db := resource.HrmsDB(c)
 	if db == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
 		return
 	}
-	if err := db.Where("rank_id = ?", rankId).Delete(&model.Rank{}).Error; err != nil {
+
+	// 智能识别参数：如果包含中文或不是标准ID格式，则按名称删除
+	var err error
+	if len(rankParam) > 0 && (containsChinese(rankParam) || !isStandardRankId(rankParam)) {
+		// 按职级名称删除
+		err = db.Where("rank_name = ?", rankParam).Delete(&model.Rank{}).Error
+	} else {
+		// 按职级ID删除
+		err = db.Where("rank_id = ?", rankParam).Delete(&model.Rank{}).Error
+	}
+
+	if err != nil {
 		log.Printf("[RankDel] err = %v", err)
 		c.JSON(500, gin.H{
 			"status": 5001,
@@ -130,4 +141,36 @@ func RankDel(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"status": 2000,
 	})
+}
+
+// 检查字符串是否包含中文字符
+func containsChinese(str string) bool {
+	for _, r := range str {
+		if r >= 0x4e00 && r <= 0x9fff {
+			return true
+		}
+	}
+	return false
+}
+
+// 检查是否是标准的rank_id格式（如 R001, rank_123456789）
+func isStandardRankId(str string) bool {
+	// 标准格式：R + 数字 或 rank_ + 数字
+	if len(str) >= 2 && str[0] == 'R' {
+		for _, r := range str[1:] {
+			if r < '0' || r > '9' {
+				return false
+			}
+		}
+		return true
+	}
+	if len(str) > 5 && str[:5] == "rank_" {
+		for _, r := range str[5:] {
+			if r < '0' || r > '9' {
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
