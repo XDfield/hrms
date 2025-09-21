@@ -53,18 +53,46 @@ func base64Decode(name string) string {
 func RenderAuthority(c *gin.Context) {
 	cookie, err := c.Cookie("user_cookie")
 	if err != nil || cookie == "" {
-		c.HTML(http.StatusOK, "login.html", nil)
+		// 检查Accept头判断是否为API请求
+		accept := c.GetHeader("Accept")
+		if strings.Contains(accept, "application/json") || c.Query("format") == "json" {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+		} else {
+			c.HTML(http.StatusOK, "login.html", nil)
+		}
 		return
 	}
+
+	// 验证cookie格式
+	parts := strings.Split(cookie, "_")
+	if len(parts) < 3 {
+		accept := c.GetHeader("Accept")
+		if strings.Contains(accept, "application/json") || c.Query("format") == "json" {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Invalid cookie format"})
+		} else {
+			c.HTML(http.StatusOK, "login.html", nil)
+		}
+		return
+	}
+
 	modelName := c.Param("modelName")
-	userType := strings.Split(cookie, "_")[0]
+	userType := parts[0]
 	dto := &model.GetAuthorityDetailDTO{
 		UserType: userType,
 		Model:    modelName,
 	}
 	autoContent, err := service.GetAuthorityDetailByUserTypeAndModel(c, dto)
 	if err != nil {
-		c.HTML(http.StatusOK, "login.html", nil)
+		accept := c.GetHeader("Accept")
+		if strings.Contains(accept, "application/json") || c.Query("format") == "json" {
+			if err == resource.ErrUnauthorized {
+				c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			} else {
+				c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Authorization failed"})
+			}
+		} else {
+			c.HTML(http.StatusOK, "login.html", nil)
+		}
 		return
 	}
 	autoMap := make(map[string]bool)

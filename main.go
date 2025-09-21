@@ -173,6 +173,11 @@ func routerInit(server *gin.Engine) {
 	candidateGroup.GET("/query_by_staff_id/:staff_id", handler.GetCandidateByStaffId)
 	candidateGroup.GET("/reject/:id", handler.SetCandidateRejectById)
 	candidateGroup.GET("/accept/:id", handler.SetCandidateAcceptById)
+	// 面试记录管理相关
+	interviewGroup := server.Group("/interview")
+	interviewGroup.GET("/records", handler.GetInterviewRecords)
+	interviewGroup.GET("/evaluation/:id", handler.GetInterviewEvaluation)
+	interviewGroup.PUT("/evaluation", handler.UpdateInterviewEvaluation)
 	// 考试管理相关
 	exampleGroup := server.Group("/example")
 	exampleGroup.POST("/create", handler.CreateExample)

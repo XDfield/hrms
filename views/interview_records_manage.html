@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>面试记录管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+        {{ if .query }}
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">候选人姓名</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="candidate_name" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">面试官姓名</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="staff_name" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">面试状态</label>
+                        <div class="layui-input-inline">
+                            <select name="status" lay-search="">
+                                <option value="">全部状态</option>
+                                <option value="0">面试中</option>
+                                <option value="1">已拒绝</option>
+                                <option value="2">已录取</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+        {{ else }}
+        {{ end }}
+
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="refresh"><i class="layui-icon layui-icon-refresh"></i> 刷新</button>
+            </div>
+        </script>
+
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+        <script type="text/html" id="currentTableBar">
+            {{ if .query }}
+            <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="viewEvaluation">查看评价</a>
+            {{ else }}
+            {{ end }}
+
+            {{ if .update }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="editEvaluation">编辑评价</a>
+            {{ else }}
+            {{ end }}
+        </script>
+
+    </div>
+</div>
+
+<!-- 查看评价弹窗 -->
+<div id="viewEvaluationDialog" style="display: none; padding: 20px;">
+    <div class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">候选人姓名：</label>
+            <div class="layui-input-block">
+                <span id="view_candidate_name"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">应聘职位：</label>
+            <div class="layui-input-block">
+                <span id="view_job_name"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">面试官：</label>
+            <div class="layui-input-block">
+                <span id="view_staff_name"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">面试状态：</label>
+            <div class="layui-input-block">
+                <span id="view_status"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">面试评价：</label>
+            <div class="layui-input-block">
+                <div id="view_evaluation" style="border: 1px solid #e6e6e6; padding: 10px; min-height: 100px; background-color: #f9f9f9;"></div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">更新时间：</label>
+            <div class="layui-input-block">
+                <span id="view_updated_at"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑评价弹窗 -->
+<div id="editEvaluationDialog" style="display: none; padding: 20px;">
+    <form class="layui-form" lay-filter="editEvaluationForm">
+        <input type="hidden" name="id" id="edit_id">
+        <div class="layui-form-item">
+            <label class="layui-form-label">候选人姓名：</label>
+            <div class="layui-input-block">
+                <span id="edit_candidate_name"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">应聘职位：</label>
+            <div class="layui-input-block">
+                <span id="edit_job_name"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">面试官：</label>
+            <div class="layui-input-block">
+                <span id="edit_staff_name"></span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">面试评价：</label>
+            <div class="layui-input-block">
+                <textarea name="evaluation" id="edit_evaluation" placeholder="请输入面试评价" class="layui-textarea" style="min-height: 120px;"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="submitEvaluation">保存评价</button>
+                <button type="button" class="layui-btn layui-btn-primary" id="cancelEdit">取消</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="/static/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+
+<script>
+    {{ if .query }}
+    layui.use(['form', 'table', 'layer'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table,
+            layer = layui.layer;
+
+        // 状态名称转换函数
+        function getStatusName(status) {
+            switch(status) {
+                case 0: return "面试中";
+                case 1: return "已拒绝";
+                case 2: return "已录取";
+                default: return "未知状态";
+            }
+        }
+
+        // 渲染表格
+        table.render({
+            elem: '#currentTableId',
+            url: '/interview/records',
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print', {
+                title: '提示',
+                layEvent: 'LAYTABLE_TIPS',
+                icon: 'layui-icon-tips'
+            }],
+            cols: [[
+                {field: 'id', width: 60, title: 'ID', sort: true, hide: true},
+                {width: 60, title: '序号', sort: true, type: 'numbers'},
+                {field: 'name', width: 100, title: '候选人姓名'},
+                {field: 'job_name', width: 130, title: '应聘职位'},
+                {field: 'staff_name', width: 200, title: '面试官信息'},
+                {field: 'status_name', width: 90, title: '面试状态', templet: function(d) {
+                    var statusClass = '';
+                    switch(d.status) {
+                        case 0: statusClass = 'layui-bg-blue'; break;
+                        case 1: statusClass = 'layui-bg-red'; break;
+                        case 2: statusClass = 'layui-bg-green'; break;
+                    }
+                    return '<span class="layui-badge ' + statusClass + '">' + d.status_name + '</span>';
+                }},
+                {field: 'evaluation', width: 200, title: '面试评价', templet: function(d) {
+                    if (!d.evaluation || d.evaluation.trim() === '') {
+                        return '<span style="color: #999;">暂无评价</span>';
+                    }
+                    var shortText = d.evaluation.length > 30 ? d.evaluation.substring(0, 30) + '...' : d.evaluation;
+                    return '<span title="' + d.evaluation + '">' + shortText + '</span>';
+                }},
+                {field: 'created_at', width: 150, title: '创建时间', templet: function(d) {
+                    return d.created_at ? d.created_at.substring(0, 16) : '';
+                }},
+                {field: 'updated_at', width: 150, title: '更新时间', templet: function(d) {
+                    return d.updated_at ? d.updated_at.substring(0, 16) : '';
+                }},
+                {title: '操作', minWidth: 180, toolbar: '#currentTableBar', align: "center", fixed: 'right'}
+            ]],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 10,
+            page: true,
+            skin: 'line',
+            parseData: function(res) {
+                var code = 0, msg = "获取数据成功";
+                if (res.status != 2000) {
+                    code = -1;
+                    msg = "数据不存在";
+                }
+                return {
+                    "code": code,
+                    "msg": msg,
+                    "count": res.total,
+                    "data": res.msg
+                };
+            }
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var searchParams = {};
+            if (data.field.candidate_name) {
+                searchParams.candidate_name = data.field.candidate_name;
+            }
+            if (data.field.staff_name) {
+                searchParams.staff_name = data.field.staff_name;
+            }
+            if (data.field.status) {
+                searchParams.status = data.field.status;
+            }
+
+            table.reload('currentTableId', {
+                where: searchParams,
+                page: {
+                    curr: 1
+                }
+            }, 'data');
+            
+            layer.msg("搜索完成");
+            return false;
+        });
+
+        // 监听工具栏事件
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'refresh') {
+                table.reload('currentTableId', {
+                    page: {
+                        curr: 1
+                    }
+                }, 'data');
+                layer.msg("数据已刷新");
+            }
+        });
+
+        // 监听行工具事件
+        table.on('tool(currentTableFilter)', function (obj) {
+            var data = obj.data;
+            
+            if (obj.event === 'viewEvaluation') {
+                // 查看评价
+                $.ajax({
+                    type: "GET",
+                    url: "/interview/evaluation/" + data.id,
+                    success: function (response) {
+                        if (response.status == 2000) {
+                            var detail = response.msg;
+                            $('#view_candidate_name').text(detail.candidate_name);
+                            $('#view_job_name').text(detail.job_name);
+                            $('#view_staff_name').text(detail.staff_name);
+                            $('#view_status').text(getStatusName(detail.status));
+                            $('#view_evaluation').html(detail.evaluation || '<span style="color: #999;">暂无评价</span>');
+                            $('#view_updated_at').text(detail.updated_at);
+
+                            layer.open({
+                                type: 1,
+                                title: '查看面试评价',
+                                content: $('#viewEvaluationDialog'),
+                                area: ['600px', '500px'],
+                                maxmin: true,
+                                shadeClose: true
+                            });
+                        } else {
+                            layer.msg("获取评价详情失败");
+                        }
+                    },
+                    error: function () {
+                        layer.msg("系统异常");
+                    }
+                });
+            } else if (obj.event === 'editEvaluation') {
+                // 编辑评价
+                $.ajax({
+                    type: "GET",
+                    url: "/interview/evaluation/" + data.id,
+                    success: function (response) {
+                        if (response.status == 2000) {
+                            var detail = response.msg;
+                            $('#edit_id').val(detail.id);
+                            $('#edit_candidate_name').text(detail.candidate_name);
+                            $('#edit_job_name').text(detail.job_name);
+                            $('#edit_staff_name').text(detail.staff_name);
+                            $('#edit_evaluation').val(detail.evaluation || '');
+
+                            layer.open({
+                                type: 1,
+                                title: '编辑面试评价',
+                                content: $('#editEvaluationDialog'),
+                                area: ['600px', '450px'],
+                                maxmin: true,
+                                shadeClose: false,
+                                success: function(layero, index) {
+                                    // 绑定取消按钮事件
+                                    $('#cancelEdit').on('click', function() {
+                                        layer.close(index);
+                                    });
+                                }
+                            });
+                        } else {
+                            layer.msg("获取评价详情失败");
+                        }
+                    },
+                    error: function () {
+                        layer.msg("系统异常");
+                    }
+                });
+            }
+        });
+
+        // 监听评价提交
+        form.on('submit(submitEvaluation)', function(data) {
+            var formData = {
+                id: parseInt($('#edit_id').val()),
+                evaluation: data.field.evaluation
+            };
+
+            $.ajax({
+                type: "PUT",
+                url: "/interview/evaluation",
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    if (response.status == 2000) {
+                        layer.msg("评价更新成功");
+                        layer.closeAll();
+                        // 刷新表格
+                        table.reload('currentTableId', {}, 'data');
+                    } else {
+                        layer.msg(response.result || "更新失败");
+                    }
+                },
+                error: function () {
+                    layer.msg("系统异常");
+                }
+            });
+            return false;
+        });
+
+    });
+    {{ else }}
+    alert("你没有数据查询权限");
+    {{ end }}
+</script>
+
+</body>
+</html>

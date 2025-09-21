@@ -1,0 +1,174 @@
+[
+  {
+    "name": "删除测试面试记录数据-清理环境",
+    "method": "DELETE",
+    "url": "/candidate/delete/test_candidate_{{datetime}}",
+    "headers": {
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "expectedStatus": 200,
+    "description": "清理可能存在的测试数据，确保测试环境干净",
+    "category": "interview_records",
+    "enabled": true
+  },
+  {
+    "name": "创建测试候选人数据-准备面试记录",
+    "method": "POST",
+    "url": "/candidate/create",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "body": {
+      "candidate_id": "test_candidate_{{datetime}}",
+      "name": "候选人_{{random}}",
+      "job_name": "软件工程师",
+      "staff_id": "3117000001",
+      "evaluation": "初步面试评价内容_{{random}}",
+      "status": 0
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "创建测试用的候选人数据，用于面试记录测试",
+    "category": "interview_records",
+    "enabled": true
+  },
+  {
+    "name": "面试记录列表查询-基本功能",
+    "method": "GET",
+    "url": "/interview/records?page=1&limit=10",
+    "headers": {
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "测试面试记录列表查询基本功能，验证分页参数",
+    "category": "interview_records",
+    "enabled": true
+  },
+  {
+    "name": "面试记录列表查询-候选人姓名搜索",
+    "method": "GET",
+    "url": "/interview/records?candidate_name=测试候选人&page=1&limit=10",
+    "headers": {
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "测试按候选人姓名搜索面试记录功能",
+    "category": "interview_records",
+    "enabled": true
+  },
+  {
+    "name": "面试记录列表查询-面试官姓名搜索",
+    "method": "GET",
+    "url": "/interview/records?staff_name=管理员&page=1&limit=10",
+    "headers": {
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "测试按面试官姓名搜索面试记录功能",
+    "category": "interview_records",
+    "enabled": true
+  },
+  {
+    "name": "面试记录列表查询-状态筛选",
+    "method": "GET",
+    "url": "/interview/records?status=0,1&page=1&limit=10",
+    "headers": {
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "测试按面试状态筛选面试记录功能",
+    "category": "interview_records",
+    "enabled": true
+  },
+  {
+    "name": "面试评价详情查询-成功",
+    "method": "GET",
+    "url": "/interview/evaluation/1",
+    "headers": {
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "测试查看面试评价详情功能",
+    "category": "interview_records",
+    "enabled": true
+  },
+  {
+    "name": "面试评价更新-成功",
+    "method": "PUT",
+    "url": "/interview/evaluation",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "body": {
+      "id": 1,
+      "evaluation": "更新后的面试评价内容：候选人技术能力优秀，沟通能力良好，建议录用。更新时间：{{datetime}}"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 2000
+    },
+    "description": "测试更新面试评价功能",
+    "category": "interview_records",
+    "enabled": true
+  },
+  {
+    "name": "面试评价更新-参数错误",
+    "method": "PUT",
+    "url": "/interview/evaluation",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "body": {
+      "evaluation": "缺少ID参数的评价更新"
+    },
+    "expectedStatus": 200,
+    "expectedBody": {
+      "status": 5001
+    },
+    "description": "测试面试评价更新参数验证",
+    "category": "interview_records",
+    "enabled": true
+  },
+  {
+    "name": "面试记录权限验证-未授权访问",
+    "method": "GET",
+    "url": "/interview/records",
+    "headers": {},
+    "expectedStatus": 401,
+    "description": "测试未登录用户访问面试记录的权限控制",
+    "category": "interview_records",
+    "enabled": true
+  },
+  {
+    "name": "清理测试数据-删除测试候选人",
+    "method": "DELETE",
+    "url": "/candidate/delete/test_candidate_{{datetime}}",
+    "headers": {
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "expectedStatus": 200,
+    "description": "清理测试过程中创建的候选人数据",
+    "category": "interview_records",
+    "enabled": true
+  }
+]

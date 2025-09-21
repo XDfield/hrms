@@ -90,6 +90,12 @@
               "href": "/authority_render/normal_candidate_manage",
               "icon": "fa fa-tachometer",
               "target": "_self"
+            },
+            {
+              "title": "面试记录管理",
+              "href": "/authority_render/interview_records_manage",
+              "icon": "fa fa-tachometer",
+              "target": "_self"
             }
           ]
         },

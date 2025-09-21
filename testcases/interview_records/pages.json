@@ -1,0 +1,69 @@
+[
+  {
+    "name": "面试记录管理页面访问测试",
+    "method": "GET",
+    "url": "/authority_render/interview_records_manage",
+    "headers": {
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "expectedStatus": 200,
+    "expectedContent": ["面试记录管理", "候选人姓名", "面试官姓名", "面试状态"],
+    "contentType": "text/html",
+    "description": "测试面试记录管理页面是否正常加载并包含必要元素",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "面试记录管理页面-系统管理员权限",
+    "method": "GET",
+    "url": "/authority_render/interview_records_manage",
+    "headers": {
+      "Cookie": "user_cookie=sys_3117000001_C001_5byg5Yqh5ZGY"
+    },
+    "expectedStatus": 200,
+    "expectedContent": ["面试记录管理", "编辑", "查看"],
+    "contentType": "text/html",
+    "description": "测试系统管理员访问面试记录页面时显示编辑权限",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "面试记录管理页面-普通用户权限",
+    "method": "GET",
+    "url": "/authority_render/interview_records_manage",
+    "headers": {
+      "Cookie": "user_cookie=normal_3117000002_C001_5pmu6YCa55So5oi3"
+    },
+    "expectedStatus": 200,
+    "expectedContent": ["面试记录管理"],
+    "contentType": "text/html",
+    "description": "测试普通用户访问面试记录页面的权限控制",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "面试记录管理页面-未授权访问",
+    "method": "GET",
+    "url": "/authority_render/interview_records_manage?format=json",
+    "headers": {
+      "Accept": "application/json"
+    },
+    "expectedStatus": 401,
+    "description": "测试未登录用户访问面试记录页面时的权限控制",
+    "category": "pages",
+    "enabled": true
+  },
+  {
+    "name": "面试记录管理页面-无效Cookie访问",
+    "method": "GET",
+    "url": "/authority_render/interview_records_manage?format=json",
+    "headers": {
+      "Cookie": "user_cookie=invalid_cookie",
+      "Accept": "application/json"
+    },
+    "expectedStatus": 401,
+    "description": "测试无效Cookie访问面试记录页面时的权限控制",
+    "category": "pages",
+    "enabled": true
+  }
+]
