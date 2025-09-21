@@ -107,7 +107,10 @@ func InitDB(config *Config, dbName string) (*gorm.DB, error) {
 			return nil, fmt.Errorf("创建SQLite数据库目录失败: %v", err)
 		}
 
-		db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{
+		db, err = gorm.Open(sqlite.Dialector{
+			DriverName: "sqlite",
+			DSN:        dbPath + "?_pragma=foreign_keys(1)",
+		}, &gorm.Config{
 			NamingStrategy: schema.NamingStrategy{
 				SingularTable: true, // 全局禁止表名复数
 			},

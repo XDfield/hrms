@@ -93,6 +93,43 @@
 ### 数据库说明：
 数据库信息存储在 `config` 目录下，根据环境分配置文件管理。
 
+#### SQLite 驱动机制：
+项目使用纯 Go 实现的 SQLite 驱动，无需 CGO 依赖：
+
+1. **驱动选择**：
+   - 使用 `modernc.org/sqlite` 驱动（纯 Go 实现，无需 CGO）
+   - 配合 `gorm.io/driver/sqlite` 作为 GORM 适配器
+   - 导入方式：`_ "modernc.org/sqlite"`
+
+2. **数据库连接配置**：
+   ```go
+   db, err := gorm.Open(sqlite.Dialector{
+       DriverName: "sqlite",
+       DSN:        dbPath + "?_pragma=foreign_keys(1)",
+   }, &gorm.Config{
+       NamingStrategy: schema.NamingStrategy{
+           SingularTable: true,  // 全局禁止表名复数
+       },
+       Logger: logger.Default.LogMode(logger.Info),
+   })
+   ```
+
+3. **数据库文件路径规则**：
+   - 默认路径：`./data/{数据库名}.db`
+   - 支持配置文件中的 `path` 字段自定义路径
+   - 自动创建目录结构，权限设置为 `0755`
+   - 启用外键约束：`?_pragma=foreign_keys(1)`
+
+4. **创建空白数据库**：
+   - 使用 GORM 连接即可自动创建空白 SQLite 文件
+   - 无需额外的 SQL 初始化语句
+   - 支持多分公司数据库隔离：`hrms_C001.db`, `hrms_C002.db` 等
+
+5. **编译要求**：
+   - 无需设置 `CGO_ENABLED=1`
+   - 支持交叉编译
+   - 二进制文件无外部依赖
+
 迁移机制：
 1. 基于 GORM 的自动迁移功能，支持所有模型自动建表和更新
 2. 迁移工具位于 `cmd/migrate/main.go`，支持多环境配置（dev/test/prod/self）

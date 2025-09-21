@@ -103,7 +103,7 @@
     },
     "expectedStatus": 200,
     "expectedBody": {
-      "status": 2000
+      "status": 2001
     },
     "description": "根据部门ID查询特定部门信息",
     "category": "department",

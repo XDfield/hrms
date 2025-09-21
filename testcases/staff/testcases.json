@@ -190,7 +190,7 @@
     },
     "expectedStatus": 200,
     "expectedBody": {
-      "status": 2000
+      "status": 2001
     },
     "description": "根据员工姓名模糊查询员工列表",
     "category": "staff",

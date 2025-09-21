@@ -341,6 +341,14 @@ build_sqlexec() {
     log_success "SQL执行工具构建完成: build/sqlexec"
 }
 
+# 构建数据库创建工具
+build_createdb() {
+    log_info "构建数据库创建工具..."
+    mkdir -p build
+    ${GO} build ${GOFLAGS} -o build/createdb cmd/createdb/main.go
+    log_success "数据库创建工具构建完成: build/createdb"
+}
+
 # 运行SQL执行工具（交互式模式）
 sqlexec() {
     local db=$1
@@ -353,6 +361,21 @@ sqlexec() {
     log_info "启动SQL执行工具（交互式模式）..."
     build_sqlexec
     ./build/sqlexec -db "${db}" -i
+}
+
+# 创建空白SQLite数据库
+createdb() {
+    local dbs=$1
+    if [ -z "$dbs" ]; then
+        log_error "请指定数据库名称"
+        echo "用法: $0 createdb <数据库名>"
+        echo "示例: $0 createdb hrms_C001"
+        echo "      $0 createdb hrms_C001,hrms_C002"
+        exit 1
+    fi
+    log_info "创建空白SQLite数据库: ${dbs}"
+    build_createdb
+    ./build/createdb -db "${dbs}"
 }
 
 # 填充测试数据
@@ -517,6 +540,12 @@ main() {
             ;;
         "sqlexec")
             sqlexec "$2"
+            ;;
+        "build-createdb")
+            build_createdb
+            ;;
+        "createdb")
+            createdb "$2"
             ;;
         "seed")
             seed
