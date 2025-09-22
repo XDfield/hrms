@@ -5,7 +5,7 @@
   - 确保数据模型可独立运行和测试
   - _需求：[FR-001, FR-002, FR-003, FR-005]_
 
-- [x] 2. 实现【面试记录后端API】功能子需求
+- [ ] 2. 实现【面试记录后端API】功能子需求
   - 实现面试记录列表查询接口GET /interview/records，支持分页和多条件筛选
   - 实现面试评价详情查询接口GET /interview/evaluation/{id}，获取指定面试记录详细评价
   - 实现面试评价更新接口PUT /interview/evaluation，支持面试评价内容修改

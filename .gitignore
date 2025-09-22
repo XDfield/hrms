@@ -11,7 +11,6 @@ config/config-self.yaml
 config/config-test.yaml
 test-results.txt
 # .roomodes
-.costrict
 build/
 bin/
 hrms_C001_backup*
