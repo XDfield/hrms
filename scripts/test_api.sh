@@ -18,7 +18,7 @@ fi
 # 从环境变量中获取配置，如果未设置则使用默认值
 BINARY_NAME=${APP_NAME:-"hrms_app"}
 BUILD_DIR=${BUILD_DIR:-"build"}
-HRMS_ENV=${HRMS_ENV:-"test"}
+HRMS_ENV=${HRMS_ENV:-"dev"}
 # 从环境配置文件中读取端口配置
 CONFIG_FILE="$PROJECT_ROOT/config/config-$HRMS_ENV.yaml"
 if [ -f "$CONFIG_FILE" ]; then
@@ -73,13 +73,13 @@ check_dependencies() {
             exit 1
         fi
     done
-    
+
     # 检查构建脚本是否存在
     if [ ! -f "./build.sh" ]; then
         log_error "构建脚本 build.sh 不存在"
         exit 1
     fi
-    
+
     log_success "所有依赖检查通过"
 }
 
@@ -119,7 +119,7 @@ main() {
     local pages_only=false
     local skip_pages=false
     local page_perf=false
-    
+
     while [[ $# -gt 0 ]]; do
         case $1 in
             -h|--help)
@@ -163,12 +163,12 @@ main() {
                 ;;
         esac
     done
-    
+
     log_info "开始HRMS项目自动化测试..."
-    
+
     # 检查依赖
     check_dependencies
-    
+
     # 如果只是列出模块，则直接运行测试工具，不需要启动服务
     if [ "$list_modules" = true ]; then
         log_info "列出所有可用测试模块..."
@@ -180,11 +180,11 @@ main() {
         cd ..
         return 0
     fi
-    
+
     # 清理环境
     log_info "清理环境..."
     ./build.sh clean
-    
+
     # 编译项目
     log_info "编译项目..."
     if ! ./build.sh build; then
@@ -192,18 +192,18 @@ main() {
         exit 1
     fi
     log_success "编译成功!"
-    
+
     # 启动服务
     log_info "启动服务..."
     cd $PROJECT_ROOT
     HRMS_ENV=$HRMS_ENV $BUILD_DIR/$BINARY_NAME &
     SERVER_PID=$!
     log_info "服务进程ID: $SERVER_PID"
-    
+
     # 等待服务启动
     log_info "等待服务启动..."
     sleep 5
-    
+
     # 多次尝试检查服务状态
     local max_attempts=10
     local attempt=1
@@ -216,28 +216,28 @@ main() {
         sleep 5
         attempt=$((attempt + 1))
     done
-    
+
     if [ $attempt -gt $max_attempts ]; then
         log_error "服务在 $max_attempts 次尝试后仍未启动!"
         kill $SERVER_PID 2>/dev/null || true
         exit 1
     fi
-    
+
     # 设置测试环境变量
     export TEST_BASE_URL="http://localhost:$SERVER_PORT"
     export TEST_TIMEOUT=30
     export TEST_MAX_RETRIES=1
-    
+
     log_info "测试配置: BASE_URL=$TEST_BASE_URL, TIMEOUT=$TEST_TIMEOUT, MAX_RETRIES=$TEST_MAX_RETRIES"
-    
+
     local api_test_failed=false
     local page_test_failed=false
-    
+
     # 运行API测试（除非指定只运行页面测试）
     if [ "$pages_only" = false ]; then
         log_info "运行API测试案例..."
         cd testcases
-        
+
         # 构建测试运行器参数
         local test_runner_args=""
         if [ -n "$test_module" ]; then
@@ -247,7 +247,7 @@ main() {
             test_runner_args="-d $test_dir"
             log_info "指定测试目录: $test_dir"
         fi
-        
+
         # 显示测试模块列表（如果没有指定具体模块或目录）
         if [ -z "$test_module" ] && [ -z "$test_dir" ]; then
             log_info "可用的测试模块:"
@@ -259,67 +259,67 @@ main() {
                 fi
             done
         fi
-        
+
         # 运行测试并实时显示输出
         log_info "开始执行API测试..."
         if ! go run test_runner.go $test_runner_args 2>&1 | tee ../$TEST_REPORT; then
             log_error "API测试失败! 查看 $TEST_REPORT 获取详细信息"
             api_test_failed=true
         fi
-        
+
         cd ..
     fi
-    
+
     # 运行页面测试（如果启用）
     if [ "$run_pages" = true ] || [ "$pages_only" = true ]; then
         log_info "运行页面访问性测试..."
         cd testcases
-        
+
         # 运行页面测试模块
         log_info "开始执行页面测试..."
         if ! go run test_runner.go -m pages 2>&1 | tee -a ../$TEST_REPORT; then
             log_error "页面测试失败!"
             page_test_failed=true
         fi
-        
+
         cd ..
     fi
-    
+
     # 检查测试结果
     if [ "$api_test_failed" = true ] || [ "$page_test_failed" = true ]; then
         log_error "测试执行失败!"
         kill $SERVER_PID 2>/dev/null || true
         exit 1
     fi
-    
+
     # # 检查测试结果
     # if [ -f ../$TEST_REPORT ]; then
     #     local total_tests=$(grep -c "🧪 测试" ../$TEST_REPORT 2>/dev/null || echo "0")
     #     local passed_tests=$(grep -c "✅" ../$TEST_REPORT 2>/dev/null || echo "0")
     #     local failed_tests=$(grep -c "❌" ../$TEST_REPORT 2>/dev/null || echo "0")
     #     local skipped_tests=$(grep -c "⏭️" ../$TEST_REPORT 2>/dev/null || echo "0")
-        
+
     #     log_info "API测试完成统计:"
     #     log_info "  - 总计: $total_tests 个测试案例"
     #     log_info "  - 通过: ${GREEN}$passed_tests${NC} 个"
     #     log_info "  - 失败: ${RED}$failed_tests${NC} 个"
     #     log_info "  - 跳过: ${YELLOW}$skipped_tests${NC} 个"
-        
+
     #     # 计算通过率
     #     if [ "$total_tests" -gt 0 ]; then
     #         local pass_rate=$(awk "BEGIN {printf \"%.1f\", ($passed_tests/$total_tests)*100}")
     #         log_info "  - 通过率: $pass_rate%"
     #     fi
-        
+
     #     # 显示各模块测试结果
     #     log_info "各模块测试结果:"
     #     grep "🏷️  类别:" ../$TEST_REPORT | while read -r line; do
     #         log_info "  $line"
     #     done
     # fi
-    
+
     cd ..
-    
+
     # 停止服务
     log_info "停止服务..."
     if [ ! -z "$SERVER_PID" ]; then
