@@ -115,8 +115,8 @@ create_new_database() {
         rm "${TEMP_DB}"
     fi
     
-    # 设置环境变量使用 self 配置（已配置为 SQLite）
-    export HRMS_ENV=self
+    # 设置环境变量使用 dev 配置（已配置为 SQLite）
+    export HRMS_ENV=dev
     
     # 使用项目的 createdb 工具创建空数据库
     cd "${PROJECT_ROOT}"
@@ -132,8 +132,8 @@ create_new_database() {
 execute_init_sql() {
     log_info "执行初始化 SQL: ${INIT_SQL}"
     
-    # 设置环境变量使用 self 配置（已配置为 SQLite）
-    export HRMS_ENV=self
+    # 设置环境变量使用 dev 配置（已配置为 SQLite）
+    export HRMS_ENV=dev
     
     cd "${PROJECT_ROOT}"
     if "${BUILD_DIR}/sqlexec" -db "${TEMP_DB_NAME}" -file "${INIT_SQL}"; then
