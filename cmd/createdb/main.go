@@ -42,7 +42,7 @@ func InitConfig() (*Config, error) {
 	// 环境判断
 	env := os.Getenv("HRMS_ENV")
 	if env == "" {
-		env = "sqlite" // 默认使用 SQLite 环境
+		env = "dev"
 	}
 
 	switch env {
@@ -54,10 +54,8 @@ func InitConfig() (*Config, error) {
 		vip.SetConfigName("config-prod")
 	case "self":
 		vip.SetConfigName("config-self")
-	case "sqlite":
-		vip.SetConfigName("config-sqlite")
 	default:
-		vip.SetConfigName("config-sqlite")
+		vip.SetConfigName("config-dev")
 	}
 
 	log.Printf("当前环境: %s", env)

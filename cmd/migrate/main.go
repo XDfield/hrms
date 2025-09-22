@@ -44,7 +44,7 @@ func InitConfig() (*Config, error) {
 	// 环境判断
 	env := os.Getenv("HRMS_ENV")
 	if env == "" {
-		env = "self" // 默认个人环境
+		env = "dev" // 默认个人环境
 	}
 
 	switch env {
@@ -56,8 +56,6 @@ func InitConfig() (*Config, error) {
 		vip.SetConfigName("config-prod")
 	case "self":
 		vip.SetConfigName("config-self")
-	case "sqlite":
-		vip.SetConfigName("config-sqlite")
 	default:
 		vip.SetConfigName("config-dev")
 	}
