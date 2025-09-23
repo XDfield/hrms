@@ -1,5 +1,17 @@
 [
   {
+    "name": "根路径重定向测试",
+    "method": "GET",
+    "url": "/",
+    "headers": {},
+    "expectedStatus": 200,
+    "expectedContent": ["layui"],
+    "contentType": "text/html",
+    "description": "测试访问根路径时是否正确重定向到/index页面",
+    "category": "pages",
+    "enabled": true
+  },
+  {
     "name": "登录页面访问测试",
     "method": "GET",
     "url": "/views/login.html",
