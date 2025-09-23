@@ -18,7 +18,7 @@ fi
 # 从环境变量中获取配置，如果未设置则使用默认值
 BINARY_NAME=${APP_NAME:-"hrms_app"}
 BUILD_DIR=${BUILD_DIR:-"build"}
-HRMS_ENV=${HRMS_ENV:-"dev"}
+HRMS_ENV=${HRMS_ENV:-"test"}
 # 从环境配置文件中读取端口配置
 CONFIG_FILE="$PROJECT_ROOT/config/config-$HRMS_ENV.yaml"
 if [ -f "$CONFIG_FILE" ]; then
