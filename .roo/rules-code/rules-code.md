@@ -270,10 +270,10 @@ if (userType == "normal") {
 2. **权限配置完整性**：
    ```sql
    -- 新增功能模块时，需要为三种用户类型都配置权限
-   INSERT INTO authority_details (user_type, model, name, authority_content) VALUES
-   ('supersys', 'new_module', '新功能模块', '所有权限'),
-   ('sys', 'new_module', '新功能模块', '查询、添加、编辑、删除'),
-   ('normal', 'new_module', '新功能模块', '查询');
+   INSERT INTO authority_detail (user_type, model, name, authority_content) VALUES
+   ('supersys', 'new_module', '新功能模块', 'create|delete|update|query'),
+   ('sys', 'new_module', '新功能模块', 'create|delete|update|query'),
+   ('normal', 'new_module', '新功能模块', 'query');
    ```
 
 3. **前端菜单同步更新**：
