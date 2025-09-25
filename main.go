@@ -72,6 +72,10 @@ func InitGin() error {
 }
 
 func routerInit(server *gin.Engine) {
+	// 根路径重定向到首页
+	server.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/index")
+	})
 	// 测试
 	server.GET("/ping", handler.Ping)
 	// 权限重定向
