@@ -11,7 +11,7 @@
       "status": 2000
     },
     "description": "清理可能存在的STAFF_TEST_001考勤记录",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -26,7 +26,7 @@
       "status": 2000
     },
     "description": "清理可能存在的STAFF_TEST_002考勤记录",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -41,7 +41,7 @@
       "status": 2000
     },
     "description": "清理可能存在的STAFF_TEST_003考勤记录",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -56,7 +56,7 @@
       "status": 2000
     },
     "description": "清理可能存在的STAFF_TEST_004考勤记录",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -71,7 +71,7 @@
       "status": 2000
     },
     "description": "查询员工考勤记录，验证基础数据是否存在",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -86,7 +86,7 @@
       "status": 2000
     },
     "description": "查询STAFF_TEST_002的考勤记录",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -111,7 +111,7 @@
       "status": 2000
     },
     "description": "更新现有考勤记录的信息",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -126,7 +126,7 @@
       "status": 2000
     },
     "description": "查询指定员工的考勤记录列表",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -141,7 +141,7 @@
       "status": 2000
     },
     "description": "查询指定员工的历史考勤记录",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -156,7 +156,7 @@
       "status": 2000
     },
     "description": "查询不存在员工的考勤记录应该返回空列表",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -171,7 +171,7 @@
       "status": 2000
     },
     "description": "删除指定的考勤记录",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -186,67 +186,7 @@
       "status": 2000
     },
     "description": "查询指定日期的考勤记录是否已发放薪资",
-    "category": "attendance",
-    "enabled": true
-  },
-  {
-    "name": "查询领导待审批考勤记录成功",
-    "method": "GET",
-    "url": "/attendance_record/approve/query/admin",
-    "headers": {
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 2000
-    },
-    "description": "查询指定领导需要审批的考勤记录",
-    "category": "attendance",
-    "enabled": true
-  },
-  {
-    "name": "审批通过考勤记录成功",
-    "method": "GET",
-    "url": "/attendance_record/approve_accept/attendance_record_4102312311",
-    "headers": {
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 2000
-    },
-    "description": "审批通过已存在的考勤记录，期望成功（使用系统中已存在的考勤记录）",
-    "category": "attendance",
-    "enabled": false
-  },
-  {
-    "name": "审批通过考勤记录-期望失败（缺少薪资套账）",
-    "method": "GET",
-    "url": "/attendance_record/approve_accept/attendance_record_633645483",
-    "headers": {
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 5000
-    },
-    "description": "审批通过考勤记录，期望失败（员工缺少薪资套账）",
-    "category": "attendance",
-    "enabled": false
-  },
-  {
-    "name": "审批拒绝考勤记录成功",
-    "method": "GET",
-    "url": "/attendance_record/approve_reject/attendance_record_3016468782",
-    "headers": {
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 2000
-    },
-    "description": "审批拒绝指定的考勤记录",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -261,7 +201,7 @@
       "status": 2000
     },
     "description": "查询STAFF_TEST_003的考勤记录",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   },
   {
@@ -276,7 +216,7 @@
       "status": 2000
     },
     "description": "查询STAFF_TEST_004的考勤记录",
-    "category": "attendance",
+    "category": "attendance_record",
     "enabled": true
   }
 ]

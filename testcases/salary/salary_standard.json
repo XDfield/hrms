@@ -11,7 +11,7 @@
       "status": 2000
     },
     "description": "清理测试数据-删除STAFF001的薪资标准",
-    "category": "salary",
+    "category": "salary_standard",
     "enabled": true
   },
   {
@@ -42,7 +42,7 @@
       "status": 2000
     },
     "description": "创建新的薪资标准",
-    "category": "salary",
+    "category": "salary_standard",
     "enabled": false
   },
   {
@@ -57,7 +57,7 @@
       "status": 2000
     },
     "description": "清理测试数据-删除空员工ID的薪资标准",
-    "category": "salary",
+    "category": "salary_standard",
     "enabled": true
   },
   {
@@ -77,7 +77,7 @@
       "status": 5002
     },
     "description": "缺少员工ID的薪资创建（当前代码未添加validate:required标签，不会触发验证失败）",
-    "category": "salary",
+    "category": "salary_standard",
     "enabled": true
   },
   {
@@ -109,7 +109,7 @@
       "status": 2000
     },
     "description": "更新现有薪资标准的信息",
-    "category": "salary",
+    "category": "salary_standard",
     "enabled": true
   },
   {
@@ -124,7 +124,7 @@
       "status": 2000
     },
     "description": "查询指定员工的薪资标准列表",
-    "category": "salary",
+    "category": "salary_standard",
     "enabled": true
   },
   {
@@ -139,7 +139,7 @@
       "status": 2000
     },
     "description": "清理测试数据-确保NOTEXIST员工无薪资数据",
-    "category": "salary",
+    "category": "salary_standard",
     "enabled": true
   },
   {
@@ -154,7 +154,7 @@
       "status": 2000
     },
     "description": "查询不存在员工的薪资标准应该返回空结果",
-    "category": "salary",
+    "category": "salary_standard",
     "enabled": true
   },
   {
@@ -169,67 +169,7 @@
       "status": 2000
     },
     "description": "删除指定的薪资标准",
-    "category": "salary",
-    "enabled": true
-  },
-  {
-    "name": "查询员工薪资记录成功",
-    "method": "GET",
-    "url": "/salary_record/query/STAFF_TEST_001",
-    "headers": {
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 2000
-    },
-    "description": "查询指定员工的薪资发放记录",
-    "category": "salary",
-    "enabled": true
-  },
-  {
-    "name": "查询薪资记录是否已发放",
-    "method": "GET",
-    "url": "/salary_record/get_salary_record_is_pay_by_id/1",
-    "headers": {
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 2000
-    },
-    "description": "查询指定薪资记录是否已发放",
-    "category": "salary",
-    "enabled": true
-  },
-  {
-    "name": "跳过-发放薪资存在代码缺陷",
-    "method": "GET",
-    "url": "/salary_record/pay_salary_record_by_id/1",
-    "headers": {
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 2000
-    },
-    "description": "跳过-发放薪资存在数组越界缺陷（代码未检查查询结果长度直接访问salarys[0]）",
-    "category": "salary",
-    "enabled": false
-  },
-  {
-    "name": "查询已发放薪资记录成功",
-    "method": "GET",
-    "url": "/salary_record/query_history/STAFF_NEW_001",
-    "headers": {
-      "Cookie": "user_cookie=sys_admin_C001_5YWs5Y4o"
-    },
-    "expectedStatus": 200,
-    "expectedBody": {
-      "status": 2000
-    },
-    "description": "查询指定员工的已发放薪资记录",
-    "category": "salary",
+    "category": "salary_standard",
     "enabled": true
   }
 ]

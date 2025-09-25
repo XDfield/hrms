@@ -8,18 +8,18 @@
 ### 测试机制说明：
 执行测试时，无需提前编译与启动服务，直接执行测试脚本即可。
 
-1. 支持指定模块目录单独测试，使用 `-d` 参数指定目录
-2. 支持指定模块名称测试，使用 `-m` 参数指定模块
-3. 支持列出所有可用模块，使用 `-l` 参数
+1. 支持指定功能目录单独测试，使用 `-d` 参数指定目录
+2. 支持指定功能点名称测试，使用 `-m` 参数指定功能点
+3. 支持列出所有可用功能点，使用 `-l` 参数
 4. 支持动态值模板，避免测试数据冲突，确保可重复执行：
    - `{{timestamp}}` - 当前时间戳（秒级）
    - `{{datetime}}` - 当前日期时间（格式：20060102150405）
    - `{{random}}` - 4位随机数
 5. 测试脚本支持多种使用方式：
    - `bash scripts/test_api.sh` - 运行所有测试（API + 页面）
-   - `bash scripts/test_api.sh -m account` - 运行指定模块测试
+   - `bash scripts/test_api.sh -m user_login` - 运行指定功能点测试
    - `bash scripts/test_api.sh -d account/` - 运行指定目录测试
-   - `bash scripts/test_api.sh -l` - 列出所有可用模块
+   - `bash scripts/test_api.sh -l` - 列出所有可用功能点
    - `bash scripts/test_api.sh -h` - 显示帮助信息
    - `bash scripts/test_api.sh -p` - 运行API测试和页面测试
    - `bash scripts/test_api.sh --pages-only` - 只运行页面访问性测试
@@ -30,7 +30,70 @@
 1. 测试案例位于 `testcases` 目录下，以 JSON 格式存储
 2. 按功能名组织测试目录，每个目录下包含多个测试案例 json 文件
 3. 测试目录名称、json 文件名统一使用英文小写，层级关系应为：`testcases/{功能名}/{json文件名}.json`
-4. 命名上应足够简约与直观，避免使用数字、特殊字符等
+4. {功能名}目录名称要对应tasks.md中的任务名称，避免不同task任务共用同一个测试案例
+5. 命名上应足够简约与直观，避免使用数字、特殊字符等
+
+### 测试案例功能点分类规范：
+所有测试案例必须根据具体功能点设置 `category` 字段，支持按功能点分开测试。
+
+**功能点分类体系（可扩展）：**
+
+以下是当前已定义的部分功能点分类，**新增测试案例时可根据实际需要创建新的功能点分类**：
+
+**用户认证与授权类：**
+- `user_login` - 用户登录功能
+- `user_logout` - 用户登出功能
+- `user_permission` - 用户权限验证
+- `api_authentication` - API接口鉴权
+- `page_authentication` - 页面访问鉴权
+
+**业务功能类：**
+- `staff_crud` - 员工增删改操作
+- `staff_query` - 员工查询功能
+- `staff_excel` - 员工Excel导入导出
+- `department_crud` - 部门增删改查
+- `salary_standard` - 薪资标准管理
+- `salary_record` - 薪资发放记录
+- `attendance_record` - 考勤记录管理
+- `attendance_approval` - 考勤审批流程
+- `recruitment_crud` - 招聘信息增删改查
+- `rank_crud` - 职级增删改查
+- `authority_crud` - 权限配置增删改查
+- `authority_user` - 用户权限管理
+- `notification_crud` - 通知公告增删改查
+
+**页面功能类：**
+- `page_navigation` - 页面导航功能
+- `page_error` - 错误页面处理
+- `page_redirect` - 页面重定向
+- `static_resources` - 静态资源加载
+
+**系统功能类：**
+- `system_health` - 系统健康检查
+- `login_flow` - 登录流程验证
+
+**扩展新功能点：**
+当需要添加新的测试功能时，可以创建新的功能点分类，建议遵循以下命名规范：
+- 使用英文小写+下划线格式，如 `new_feature_test`
+- 名称应简洁明了，能准确描述功能特性
+- 避免与现有功能点重复或产生歧义
+
+**功能点测试使用方法：**
+```bash
+# 测试特定功能点
+bash scripts/test_api.sh -m user_login
+bash scripts/test_api.sh -m staff_crud
+bash scripts/test_api.sh -m api_authentication
+
+# 列出所有可用功能点
+bash scripts/test_api.sh -l
+```
+
+**测试案例 category 字段要求：**
+1. 每个测试案例必须包含 `category` 字段
+2. `category` 值可使用上述已定义的功能点分类，也可根据需要创建新的功能点分类
+3. 同一功能的测试案例应使用相同的 `category` 值
+4. 功能点名称使用英文小写+下划线格式，如 `user_login`、`staff_crud`
 
 ### 页面访问性测试机制：
 页面测试支持HTML类型返回值验证，专门用于测试前端页面的可访问性和内容正确性。
@@ -46,7 +109,7 @@
   "expectedContent": ["预期包含的文本1", "预期包含的文本2"],
   "contentType": "text/html",
   "description": "测试描述",
-  "category": "pages",
+  "category": "page_navigation",
   "enabled": true
 }
 ```
@@ -68,7 +131,7 @@
   "expectedContent": ["请登陆", "layui"],
   "contentType": "text/html",
   "description": "测试登录页面是否正常加载",
-  "category": "pages",
+  "category": "page_navigation",
   "enabled": true
 }
 ```
