@@ -15,7 +15,7 @@ import (
 )
 
 func Ping(c *gin.Context) {
-	c.HTML(http.StatusOK, "staff_manage.html", gin.H{
+	HTMLWithNoCache(c, http.StatusOK, "staff_manage.html", gin.H{
 		"create": true,
 	})
 }
@@ -24,7 +24,7 @@ func Index(c *gin.Context) {
 	// 判断是否存在cookie
 	cookie, err := c.Cookie("user_cookie")
 	if err != nil || cookie == "" {
-		c.HTML(http.StatusOK, "login.html", nil)
+		HTMLWithNoCache(c, http.StatusOK, "login.html", nil)
 		return
 	}
 	// 已登陆
@@ -32,7 +32,7 @@ func Index(c *gin.Context) {
 	userType := user[0]
 	userNo := user[1]
 	userName := user[3]
-	c.HTML(http.StatusOK, "index.html", gin.H{
+	HTMLWithNoCache(c, http.StatusOK, "index.html", gin.H{
 		//"title":     fmt.Sprintf("欢迎%v:%v登陆HRMS", userType, userNo),
 		"title":      fmt.Sprintf("分公司-人力资源管理系统"),
 		"user_type":  userType,
@@ -53,7 +53,7 @@ func base64Decode(name string) string {
 func RenderAuthority(c *gin.Context) {
 	cookie, err := c.Cookie("user_cookie")
 	if err != nil || cookie == "" {
-		c.HTML(http.StatusOK, "login.html", nil)
+		HTMLWithNoCache(c, http.StatusOK, "login.html", nil)
 		return
 	}
 	modelName := c.Param("modelName")
@@ -64,7 +64,7 @@ func RenderAuthority(c *gin.Context) {
 	}
 	autoContent, err := service.GetAuthorityDetailByUserTypeAndModel(c, dto)
 	if err != nil {
-		c.HTML(http.StatusOK, "login.html", nil)
+		HTMLWithNoCache(c, http.StatusOK, "login.html", nil)
 		return
 	}
 	autoMap := make(map[string]bool)
@@ -73,7 +73,7 @@ func RenderAuthority(c *gin.Context) {
 		autoMap[autority] = true
 	}
 	//c.JSON(200, autoMap)
-	c.HTML(http.StatusOK, modelName+".html", autoMap)
+	HTMLWithNoCache(c, http.StatusOK, modelName+".html", autoMap)
 }
 
 func Login(c *gin.Context) {
