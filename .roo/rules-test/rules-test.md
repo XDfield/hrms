@@ -45,15 +45,18 @@
 
 1. 支持指定功能目录单独测试，使用 `-d` 参数指定目录
 2. 支持指定功能点名称测试，使用 `-m` 参数指定功能点
-3. 支持列出所有可用功能点，使用 `-l` 参数
-4. 支持动态值模板，避免测试数据冲突，确保可重复执行：
+3. 支持指定JSON文件路径单独测试，使用 `-f` 参数指定文件路径
+4. 支持列出所有可用功能点，使用 `-l` 参数
+5. 支持动态值模板，避免测试数据冲突，确保可重复执行：
    - `{{timestamp}}` - 当前时间戳（秒级）
    - `{{datetime}}` - 当前日期时间（格式：20060102150405）
    - `{{random}}` - 4位随机数
-5. 测试脚本支持多种使用方式：
+6. 测试脚本支持多种使用方式：
    - `bash scripts/test_api.sh` - 运行所有测试（API + 页面）
    - `bash scripts/test_api.sh -m user_login` - 运行指定功能点测试
    - `bash scripts/test_api.sh -d account/` - 运行指定目录测试
+   - `bash scripts/test_api.sh -f testcases/account/login.json` - 运行指定JSON文件测试
+   - `bash scripts/test_api.sh -f account/login.json` - 使用相对路径运行指定JSON文件测试
    - `bash scripts/test_api.sh -l` - 列出所有可用功能点
    - `bash scripts/test_api.sh -h` - 显示帮助信息
    - `bash scripts/test_api.sh -p` - 运行API测试和页面测试
@@ -64,8 +67,8 @@
 测试案例管理：
 1. 测试案例位于 `testcases` 目录下，以 JSON 格式存储
 2. 按功能名组织测试目录，每个目录下包含多个测试案例 json 文件
-3. 测试目录名称、json 文件名统一使用英文小写，层级关系应为：`testcases/{功能名}/{测试案例名}.json`
-4. {测试案例名}目录名称要对应tasks.md中的任务名称，避免不同task任务共用同一个测试案例
+3. 测试目录名称、json 文件名统一使用英文小写，层级关系应为：`testcases/{功能名}/{json文件名}.json`
+4. {功能名}目录名称要对应tasks.md中的任务名称，避免不同task任务共用同一个测试案例
 5. 命名上应足够简约与直观，避免使用数字、特殊字符等
 
 ### 测试案例功能点分类规范：
@@ -119,6 +122,10 @@
 bash scripts/test_api.sh -m user_login
 bash scripts/test_api.sh -m staff_crud
 bash scripts/test_api.sh -m api_authentication
+
+# 测试指定JSON文件中的所有测试案例
+bash scripts/test_api.sh -f testcases/account/login.json
+bash scripts/test_api.sh -f account/login.json
 
 # 列出所有可用功能点
 bash scripts/test_api.sh -l

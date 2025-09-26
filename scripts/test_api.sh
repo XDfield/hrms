@@ -92,6 +92,7 @@ show_help() {
     echo "  -h, --help          显示帮助信息"
     echo "  -m, --module <模块> 指定要运行的测试模块"
     echo "  -d, --dir <目录>    指定要运行的测试模块目录"
+    echo "  -f, --file <文件>   指定要运行的测试JSON文件路径"
     echo "  -l, --list          列出所有可用测试模块"
     echo "  -p, --pages         运行页面访问性测试"
     echo "  --pages-only        只运行页面测试，不运行API测试"
@@ -102,6 +103,8 @@ show_help() {
     echo "  $0                    # 运行所有测试(API + 页面)"
     echo "  $0 -m account         # 只运行账户模块测试"
     echo "  $0 -d account/        # 只运行account目录下的测试"
+    echo "  $0 -f test.json       # 只运行指定JSON文件的测试"
+    echo "  $0 -f account/test.json # 运行指定路径的JSON文件测试"
     echo "  $0 -l                 # 列出所有模块"
     echo "  $0 -p                 # 运行API测试和页面测试"
     echo "  $0 --pages-only       # 只运行页面访问性测试"
@@ -114,6 +117,7 @@ main() {
     # 解析命令行参数
     local test_module=""
     local test_dir=""
+    local json_file=""
     local list_modules=false
     local run_pages=false
     local pages_only=false
@@ -132,6 +136,10 @@ main() {
                 ;;
             -d|--dir)
                 test_dir="$2"
+                shift 2
+                ;;
+            -f|--file)
+                json_file="$2"
                 shift 2
                 ;;
             -l|--list)
@@ -246,6 +254,16 @@ main() {
         elif [ -n "$test_dir" ]; then
             test_runner_args="-d $test_dir"
             log_info "指定测试目录: $test_dir"
+        elif [ -n "$json_file" ]; then
+            # 如果是绝对路径，直接使用；如果是相对路径，转换为相对于testcases目录的路径
+            if [[ "$json_file" = /* ]]; then
+                test_runner_args="-f $json_file"
+            else
+                # 移除开头的testcases/（如果存在），因为我们在testcases目录下运行
+                local rel_path=${json_file#testcases/}
+                test_runner_args="-f $rel_path"
+            fi
+            log_info "指定测试文件: $json_file"
         fi
 
         # 显示测试模块列表（如果没有指定具体模块或目录）

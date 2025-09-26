@@ -495,6 +495,7 @@ func main() {
 		listModules  bool
 		runModule    string
 		moduleDir    string
+		jsonFile     string
 		showProgress bool
 	)
 
@@ -508,6 +509,8 @@ func main() {
 	flag.StringVar(&runModule, "module", "", "指定要运行的测试模块")
 	flag.StringVar(&moduleDir, "d", "", "指定要运行的测试模块目录")
 	flag.StringVar(&moduleDir, "dir", "", "指定要运行的测试模块目录")
+	flag.StringVar(&jsonFile, "f", "", "指定要运行的测试JSON文件路径")
+	flag.StringVar(&jsonFile, "file", "", "指定要运行的测试JSON文件路径")
 	flag.BoolVar(&showProgress, "p", true, "显示进度条")
 	flag.BoolVar(&showProgress, "progress", true, "显示进度条")
 
@@ -531,29 +534,59 @@ func main() {
 	// 加载配置
 	config := loadConfig()
 
-	// 如果指定了模块目录，则只加载该目录的测试
-	var testDirs []string
-	if moduleDir != "" {
-		// 检查目录是否存在
-		if _, err := os.Stat(moduleDir); os.IsNotExist(err) {
-			fmt.Printf("❌ 错误: 指定的模块目录不存在: %s\n", moduleDir)
+	// 如果指定了JSON文件，则只加载该文件的测试
+	var testCases []TestCase
+	var err error
+	
+	if jsonFile != "" {
+		// 检查文件是否存在
+		if _, err := os.Stat(jsonFile); os.IsNotExist(err) {
+			fmt.Printf("❌ 错误: 指定的JSON文件不存在: %s\n", jsonFile)
 			os.Exit(1)
 		}
-		testDirs = []string{moduleDir}
-		fmt.Printf("📂 指定测试目录: %s\n", moduleDir)
+		fmt.Printf("📄 指定测试文件: %s\n", jsonFile)
+		
+		// 加载指定文件的测试案例
+		testCases, err = loadTestcasesFromFile(jsonFile)
+		if err != nil {
+			fmt.Printf("❌ 错误: 加载JSON文件失败: %v\n", err)
+			os.Exit(1)
+		}
+		
+		// 为测试案例设置类别（基于目录名）
+		dirName := filepath.Dir(jsonFile)
+		if dirName != "." {
+			for i := range testCases {
+				if testCases[i].Category == "" {
+					testCases[i].Category = filepath.Base(dirName)
+				}
+			}
+		}
 	} else {
-		testDirs = config.TestDirs
-	}
+		// 如果指定了模块目录，则只加载该目录的测试
+		var testDirs []string
+		if moduleDir != "" {
+			// 检查目录是否存在
+			if _, err := os.Stat(moduleDir); os.IsNotExist(err) {
+				fmt.Printf("❌ 错误: 指定的模块目录不存在: %s\n", moduleDir)
+				os.Exit(1)
+			}
+			testDirs = []string{moduleDir}
+			fmt.Printf("📂 指定测试目录: %s\n", moduleDir)
+		} else {
+			testDirs = config.TestDirs
+		}
 
-	// 加载测试案例
-	testCases, err := loadAllTestcases(testDirs)
-	if err != nil {
-		fmt.Printf("❌ 错误: %v\n", err)
-		fmt.Println("\n💡 提示: 请确保:")
-		fmt.Println("   • 在 testcases/ 目录下创建测试文件")
-		fmt.Println("   • 测试文件命名包含 'testcase' 或 '_test'")
-		fmt.Println("   • 或者创建 testconfig.json 指定测试目录")
-		os.Exit(1)
+		// 加载测试案例
+		testCases, err = loadAllTestcases(testDirs)
+		if err != nil {
+			fmt.Printf("❌ 错误: %v\n", err)
+			fmt.Println("\n💡 提示: 请确保:")
+			fmt.Println("   • 在 testcases/ 目录下创建测试文件")
+			fmt.Println("   • 测试文件命名包含 'testcase' 或 '_test'")
+			fmt.Println("   • 或者创建 testconfig.json 指定测试目录")
+			os.Exit(1)
+		}
 	}
 
 	// 如果指定了模块，只运行该模块的测试
@@ -673,6 +706,7 @@ func printHelp() {
 	fmt.Println("  -l, --list          列出所有可用测试模块")
 	fmt.Println("  -m, --module <模块> 指定要运行的测试模块")
 	fmt.Println("  -d, --dir <目录>    指定要运行的测试模块目录")
+	fmt.Println("  -f, --file <文件>   指定要运行的测试JSON文件路径")
 	fmt.Println("  -p, --progress      显示进度条 (默认: true)")
 	fmt.Println()
 	fmt.Println("示例:")
@@ -680,6 +714,8 @@ func printHelp() {
 	fmt.Println("  go run test_runner.go -l                 # 列出所有模块")
 	fmt.Println("  go run test_runner.go -m account         # 只运行账户模块测试")
 	fmt.Println("  go run test_runner.go -d account/        # 只运行account目录下的测试")
+	fmt.Println("  go run test_runner.go -f test.json       # 只运行指定JSON文件的测试")
+	fmt.Println("  go run test_runner.go -f account/test.json # 运行指定路径的JSON文件测试")
 	fmt.Println("  go run test_runner.go -m staff -p false  # 运行员工模块测试，不显示进度")
 }
 
