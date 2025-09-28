@@ -151,6 +151,29 @@ bash scripts/test_api.sh -l
 - 权限页面重定向测试
 - 404页面测试
 
+### 页面测试常见问题与解决方案：
+
+#### 1. 页面测试调试技巧
+**调试步骤**：
+1. 运行特定页面测试模块：`bash scripts/test_api.sh -m page_authentication`
+2. 检查测试日志中的SQL查询，确认权限验证逻辑
+3. 使用数据库工具直接查询权限配置：
+   ```bash
+   go run cmd/sqlexec/main.go -db hrms_C001 -sql "SELECT * FROM authority_detail WHERE user_type = 'normal' AND model = 'staff_manage';"
+   ```
+4. 验证HTML模板内容是否正确包含预期文本
+5. 确认权限拒绝时是否正确重定向到登录页面并显示错误信息
+
+#### 2. 页面测试验证清单
+在修复页面测试问题后，运行以下测试模块验证修复结果：
+- `page_authentication` - 页面认证测试（验证权限控制）
+- `page_navigation` - 页面导航测试（验证页面访问）
+- `page_redirect` - 页面重定向测试（验证重定向逻辑）
+- `static_resources` - 静态资源测试（验证资源加载）
+- `page_error` - 错误页面测试（验证错误处理）
+
+所有页面测试模块应达到100%通过率。
+
 动态值使用示例：
 ```json
 {
@@ -349,7 +372,7 @@ if (userType == "normal") {
    user_cookie=用户类型_员工工号_分公司ID_员工姓名(base64编码)
    ```
    - 格式：`{user_type}_{staff_id}_{branch_id}_{staff_name_base64}`
-   - 示例：`sys_3117000001_C001_5byg5Yqh5ZGY` (其中最后部分是"管理员"的base64编码)
+   - 示例：`sys_admin_C001_57O757uf566h55CG5ZGY` (其中最后部分是"管理员"的base64编码)
 
 2. **Cookie 组装过程**：
    - 登录验证成功后，在 [`handler/account.go:118`](handler/account.go:118) 中组装cookie
