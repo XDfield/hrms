@@ -288,24 +288,22 @@ bash scripts/test_api.sh -l
 2. 迁移工具位于 `cmd/migrate/main.go`，支持多环境配置（dev/test/prod/self）
 3. 支持多数据库架构，适应项目的分公司数据库模式
 4. 迁移命令集成在构建脚本中，提供便捷的操作方式：
-   - `./build.sh build-migrate` - 构建迁移工具
-   - `./build.sh migrate` - 迁移所有数据库
-   - `./build.sh migrate-reset` - 重置数据库（删除所有表）
-   - `./build.sh migrate-db hrms_C001` - 迁移指定数据库
-   - `./build.sh migrate-reset-db hrms_C001` - 重置指定数据库
+   - `bash build.sh build-migrate` - 构建迁移工具
+   - `bash build.sh migrate` - 迁移所有数据库
+   - `bash build.sh migrate-reset` - 重置数据库（删除所有表）
+   - `bash build.sh migrate-db hrms_C001` - 迁移指定数据库
+   - `bash build.sh migrate-reset-db hrms_C001` - 重置指定数据库
 5. 支持环境变量 `HRMS_ENV` 指定运行环境
 6. 详细的迁移指南请参考 `MIGRATION_GUIDE.md`
 
 SQL 执行机制：
 1. 基于 GORM 框架和项目配置的 SQL 执行工具，位于 `cmd/sqlexec/main.go`
-2. 支持多种执行模式：单条 SQL、文件批量执行、交互式模式
+2. 支持多种执行模式：单条 SQL、文件批量执行
 3. 自动加载项目配置文件，支持多环境和多数据库
 4. SQL 执行命令集成在构建脚本中，提供便捷的操作方式：
-   - `./build.sh build-sqlexec` - 构建 SQL 执行工具
-   - `./build.sh sqlexec hrms_C001` - 启动交互式 SQL 执行模式
-   - `./build/sqlexec -db hrms_C001 -sql "SELECT * FROM staff LIMIT 10"` - 执行单条 SQL
-   - `./build/sqlexec -db hrms_C001 -file ./sql/queries.sql` - 从文件批量执行 SQL
-   - `./build/sqlexec -db hrms_C001 -i` - 进入交互式模式
+   - `bash build.sh build-sqlexec` - 构建 SQL 执行工具
+   - `go run cmd/sqlexec/main.go -db hrms_C001 -sql "SELECT * FROM staff LIMIT 10"` - 执行单条 SQL
+   - `go run cmd/sqlexec/main.go -db hrms_C001 -file ./sql/queries.sql` - 从文件批量执行 SQL
 5. 支持查询结果格式化显示，自动识别查询和非查询语句
 6. 完善的错误处理和日志记录，确保操作安全性
 7. 详细的使用说明请参考 `docs/sqlexec-usage.md`

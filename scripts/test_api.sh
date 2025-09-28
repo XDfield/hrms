@@ -57,7 +57,7 @@ cleanup() {
     if [ ! -z "$SERVER_PID" ]; then
         kill $SERVER_PID 2>/dev/null || true
     fi
-    ./build.sh clean
+    bash build.sh clean
     exit 0
 }
 
@@ -75,7 +75,7 @@ check_dependencies() {
     done
 
     # 检查构建脚本是否存在
-    if [ ! -f "./build.sh" ]; then
+    if [ ! -f "bash build.sh" ]; then
         log_error "构建脚本 build.sh 不存在"
         exit 1
     fi
@@ -191,11 +191,11 @@ main() {
 
     # 清理环境
     log_info "清理环境..."
-    ./build.sh clean
+    bash build.sh clean
 
     # 编译项目
     log_info "编译项目..."
-    if ! ./build.sh build; then
+    if ! bash build.sh build; then
         log_error "编译失败!"
         exit 1
     fi

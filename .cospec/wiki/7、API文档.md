@@ -1303,19 +1303,19 @@ bash scripts/test_api.sh --skip-pages
 ### 构建和部署
 ```bash
 # 构建应用
-./build.sh build
+bash build.sh build
 
 # 构建迁移工具
-./build.sh build-migrate
+bash build.sh build-migrate
 
 # 迁移数据库
-./build.sh migrate
+bash build.sh migrate
 
 # 迁移指定数据库
-./build.sh migrate-db hrms_C001
+bash build.sh migrate-db hrms_C001
 
 # 重置数据库
-./build.sh migrate-reset
+bash build.sh migrate-reset
 ```
 
 ## 监控和日志

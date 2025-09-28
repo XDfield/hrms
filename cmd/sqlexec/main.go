@@ -301,78 +301,17 @@ func ExecuteSQLFromFile(db *gorm.DB, filename string) error {
 	return nil
 }
 
-// 交互式 SQL 执行
-func InteractiveMode(db *gorm.DB) {
-	fmt.Println("进入交互式 SQL 执行模式")
-	fmt.Println("输入 SQL 语句，以分号结尾")
-	fmt.Println("输入 'exit' 或 'quit' 退出")
-	fmt.Println("输入 'help' 查看帮助")
-	fmt.Println("----------------------------------------")
-
-	scanner := bufio.NewScanner(os.Stdin)
-	var sqlBuilder strings.Builder
-
-	for {
-		fmt.Print("sql> ")
-		if !scanner.Scan() {
-			break
-		}
-
-		line := strings.TrimSpace(scanner.Text())
-
-		// 处理特殊命令
-		switch strings.ToLower(line) {
-		case "exit", "quit":
-			fmt.Println("退出交互式模式")
-			return
-		case "help":
-			fmt.Println("可用命令:")
-			fmt.Println("  exit, quit - 退出交互式模式")
-			fmt.Println("  help       - 显示帮助信息")
-			fmt.Println("  clear      - 清空当前输入缓冲区")
-			fmt.Println("")
-			fmt.Println("SQL 语句以分号(;)结尾执行")
-			continue
-		case "clear":
-			sqlBuilder.Reset()
-			fmt.Println("输入缓冲区已清空")
-			continue
-		}
-
-		// 跳过空行和注释
-		if line == "" || strings.HasPrefix(line, "--") || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		sqlBuilder.WriteString(line)
-		sqlBuilder.WriteString(" ")
-
-		// 如果行以分号结尾，执行 SQL
-		if strings.HasSuffix(line, ";") {
-			sqlStr := strings.TrimSpace(sqlBuilder.String())
-			if sqlStr != "" {
-				if err := ExecuteSQL(db, sqlStr); err != nil {
-					log.Printf("SQL 执行失败: %v", err)
-				}
-			}
-			sqlBuilder.Reset()
-		}
-	}
-}
-
 func main() {
 	var (
 		dbName      string
 		sqlStr      string
 		filename    string
-		interactive bool
 		help        bool
 	)
 
 	flag.StringVar(&dbName, "db", "", "指定数据库名称")
 	flag.StringVar(&sqlStr, "sql", "", "要执行的 SQL 语句")
 	flag.StringVar(&filename, "file", "", "包含 SQL 语句的文件路径")
-	flag.BoolVar(&interactive, "i", false, "进入交互式模式")
 	flag.BoolVar(&help, "h", false, "显示帮助信息")
 	flag.BoolVar(&help, "help", false, "显示帮助信息")
 
@@ -390,7 +329,6 @@ func main() {
 		fmt.Println("  -db string         指定数据库名称（必需）")
 		fmt.Println("  -sql string        要执行的 SQL 语句")
 		fmt.Println("  -file string       包含 SQL 语句的文件路径")
-		fmt.Println("  -i                 进入交互式模式")
 		fmt.Println()
 		fmt.Println("示例:")
 		fmt.Println("  # MySQL 示例")
@@ -427,10 +365,7 @@ func main() {
 	log.Printf("成功连接到数据库: %s", dbName)
 
 	// 根据参数执行不同操作
-	if interactive {
-		// 交互式模式
-		InteractiveMode(db)
-	} else if filename != "" {
+	if filename != "" {
 		// 从文件执行 SQL
 		if err := ExecuteSQLFromFile(db, filename); err != nil {
 			log.Fatalf("从文件执行 SQL 失败: %v", err)
