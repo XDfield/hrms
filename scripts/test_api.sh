@@ -75,7 +75,7 @@ check_dependencies() {
     done
 
     # 检查构建脚本是否存在
-    if [ ! -f "bash build.sh" ]; then
+    if [ ! -f "build.sh" ]; then
         log_error "构建脚本 build.sh 不存在"
         exit 1
     fi
