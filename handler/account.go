@@ -29,9 +29,13 @@ func Index(c *gin.Context) {
 	}
 	// 已登陆
 	user := strings.Split(cookie, "_")
+	if len(user) < 4 {
+		c.HTML(http.StatusOK, "login.html", nil)
+		return
+	}
 	userType := user[0]
 	userNo := user[1]
-	userName := user[3]
+	userName := user[3]  
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		//"title":     fmt.Sprintf("欢迎%v:%v登陆HRMS", userType, userNo),
 		"title":      fmt.Sprintf("分公司-人力资源管理系统"),
@@ -44,7 +48,7 @@ func Index(c *gin.Context) {
 func base64Decode(name string) string {
 	decodeBytes, err := base64.StdEncoding.DecodeString(name)
 	if err != nil {
-		log.Fatalln(err)
+		log.Printf("[base64Decode] 解码失败: %v", err)
 		return "企业员工"
 	}
 	return string(decodeBytes)
@@ -148,7 +152,7 @@ func Login(c *gin.Context) {
 	log.Printf("[handler.Login] user login success, user = %v", loginR)
 	// set cookie user_cookie=角色_工号_分公司ID_员工姓名(base64编码)
 	c.SetCookie("user_cookie", fmt.Sprintf("%v_%v_%v_%v", loginDb.UserType, loginDb.StaffId, loginR.BranchId,
-		base64.StdEncoding.EncodeToString([]byte(staff.StaffName))), 0, "/", "*", false, false)
+		base64.StdEncoding.EncodeToString([]byte(staff.StaffName))), 0, "/", "", true, true)
 
 	c.JSON(200, gin.H{
 		"status": 2000,
@@ -156,7 +160,7 @@ func Login(c *gin.Context) {
 }
 
 func Quit(c *gin.Context) {
-	c.SetCookie("user_cookie", "null", -1, "/", "*", false, false)
+	c.SetCookie("user_cookie", "null", -1, "/", "", true, true)
 	c.JSON(200, gin.H{
 		"status": 2000,
 	})

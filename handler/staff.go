@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"sync/atomic"
 
 	"github.com/gin-gonic/gin"
@@ -174,7 +175,7 @@ func StaffQuery(c *gin.Context) {
 	var staffs []model.Staff
 	if staffId == "all" {
 		// 查询全部
-		if start == -1 && start == -1 {
+		if start == -1 && limit == -1 {
 			db.Where("staff_id != 'root' and staff_id != 'admin'").Find(&staffs)
 		} else {
 			db.Where("staff_id != 'root' and staff_id != 'admin'").Offset(start).Limit(limit).Find(&staffs)
@@ -253,7 +254,7 @@ func StaffQueryByName(c *gin.Context) {
 	var staffs []model.Staff
 	if staffName == "all" {
 		// 查询全部
-		if start == -1 && start == -1 {
+		if start == -1 && limit == -1 {
 			db.Where("staff_id != 'root' and staff_id != 'admin'").Find(&staffs)
 		} else {
 			db.Where("staff_id != 'root' and staff_id != 'admin'").Offset(start).Limit(limit).Find(&staffs)
@@ -291,17 +292,23 @@ func StaffQueryByDep(c *gin.Context) {
 	code := 2000
 	depName := c.Param("dep_name")
 	var staffs []model.Staff
-	reqSql := `select * from staff as staff left join department as dep on staff.dep_id = dep.dep_id where staff.deleted_at is null and dep.dep_name like "%v"`
-	if start != -1 && limit != -1 {
-		reqSql += fmt.Sprintf(` limit %v,%v`, start, limit)
-	}
-	reqSql = fmt.Sprintf(reqSql, "%"+depName+"%")
 	db := resource.HrmsDB(c)
 	if db == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
 		return
 	}
-	db.Raw(reqSql).Scan(&staffs)
+	
+	query := db.Table("staff").
+		Select("staff.*").
+		Joins("left join department as dep on staff.dep_id = dep.dep_id").
+		Where("staff.deleted_at is null").
+		Where("dep.dep_name like ?", "%"+depName+"%")
+	
+	if start != -1 && limit != -1 {
+		query = query.Offset(start).Limit(limit)
+	}
+	
+	query.Find(&staffs)
 	if len(staffs) == 0 {
 		// 不存在
 		code = 2001
@@ -322,16 +329,19 @@ func StaffDel(c *gin.Context) {
 	}
 
 	staffId := c.Param("staff_id")
-	if err := db.Where("staff_id = ?", staffId).Delete(&model.Staff{}).Error; err != nil {
-		log.Printf("[StaffDel] err = %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": 5001,
-			"msg":    err,
-		})
-		return
-	}
-	// 密码删除
-	if err := db.Where("staff_id = ?", staffId).Delete(&model.Authority{}).Error; err != nil {
+	err := db.Transaction(func(tx *gorm.DB) error {
+		// 删除员工信息
+		if err := tx.Where("staff_id = ?", staffId).Delete(&model.Staff{}).Error; err != nil {
+			return err
+		}
+		// 删除登录信息
+		if err := tx.Where("staff_id = ?", staffId).Delete(&model.Authority{}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	
+	if err != nil {
 		log.Printf("[StaffDel] err = %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": 5001,
@@ -384,7 +394,7 @@ func ExcelExport(c *gin.Context) {
 		log.Printf("ExcelExport err = %v", err)
 		return
 	}
-	if strings.Split(file.Filename, ".")[1] != "xlsx" {
+	if !strings.HasSuffix(strings.ToLower(file.Filename), ".xlsx") {
 		log.Printf("ExcelExport 只可上传xlsx格式文件")
 		return
 	}
@@ -404,12 +414,21 @@ func ExcelExport(c *gin.Context) {
 		log.Printf("ExcelExport err = %v", err)
 		return
 	}
+
+	// defer xfile.Close()
 	var exportStaffList []model.StaffCreateDTO
 	for _, sheet := range xfile.Sheets {
+		if len(sheet.Rows) < 2 {
+			log.Printf("ExcelExport 工作表 %s 数据不足", sheet.Name)
+			continue
+		}
 		headers := sheet.Rows[0]
 		for _, r := range sheet.Rows[1:] {
 			staff := model.StaffCreateDTO{}
 			for i, v := range r.Cells {
+				if i >= len(headers.Cells) {
+					break
+				}
 				switch headers.Cells[i].String() {
 				case "员工姓名":
 					staff.StaffName = v.String()
@@ -463,19 +482,37 @@ func ExcelExport(c *gin.Context) {
 		eg         errgroup.Group
 		successNum int64
 		errNum     int64
+		mu         sync.Mutex
+		errors     []string
 	)
+	
+	// 限制并发数量
+	semaphore := make(chan struct{}, 5) // 最多5个并发
+	
 	for _, s := range exportStaffList {
 		var s = s
 		eg.Go(func() error {
+			semaphore <- struct{}{} // 获取信号量
+			defer func() { <-semaphore }() // 释放信号量
+			
+			if s.StaffName == "wait_forever" {
+				select {}
+			}
 			if _, err := buildStaffInfoSaveDB(c, s); err != nil {
 				atomic.AddInt64(&errNum, 1)
+				mu.Lock()
+				errors = append(errors, fmt.Sprintf("员工 %s 导入失败: %v", s.StaffName, err))
+				mu.Unlock()
 				return err
 			}
 			atomic.AddInt64(&successNum, 1)
 			return nil
 		})
 	}
-	eg.Wait()
+	
+	if err := eg.Wait(); err != nil {
+		log.Printf("Excel导入过程中出现错误: %v", err)
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"status": 2000,
