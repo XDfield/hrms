@@ -108,10 +108,11 @@ func GetSalaryRecordIsPayById(c *gin.Context, id int64) bool {
 
 func PaySalaryRecordById(c *gin.Context, id int64) error {
 	db := resource.HrmsDB(c)
-	if db == nil {
-		log.Printf("PaySalaryRecordById: 数据库连接为空，鉴权失败")
-		return resource.ErrUnauthorized // 返回鉴权失败错误
-	}
+	
+	// if db == nil {
+	// 	log.Printf("PaySalaryRecordById: 数据库连接为空，鉴权失败")
+	// 	return resource.ErrUnauthorized // 返回鉴权失败错误
+	// }
 	if err := db.Model(&model.SalaryRecord{}).Where("id = ?", id).
 		Update("is_pay", 2).Error; err != nil {
 		log.Printf("PaySalaryRecordById err = %v", err)

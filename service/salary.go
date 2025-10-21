@@ -57,7 +57,6 @@ func UpdateSalaryById(c *gin.Context, dto *model.SalaryEditDTO) error {
 		Update("staff_id", salary.StaffId).
 		Update("staff_name", salary.StaffName).
 		Update("base", salary.Base).
-		Update("subsidy", salary.Subsidy).
 		Error; err != nil {
 		log.Printf("UpdateSalaryById err = %v", err)
 		return err

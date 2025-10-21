@@ -76,6 +76,7 @@ func UpdateSalaryById(c *gin.Context) {
 		})
 		return
 	}
+	
 	// 业务处理
 	err := service.UpdateSalaryById(c, &dto)
 	if err != nil {
@@ -216,7 +217,7 @@ func GetSalaryRecordByStaffId(c *gin.Context) {
 func GetSalaryRecordIsPayById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	if err != nil || id < 0 {
 		c.JSON(200, gin.H{
 			"status": 5000,
 			"msg":    err,

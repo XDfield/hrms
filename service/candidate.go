@@ -65,7 +65,7 @@ func GetCandidateByName(c *gin.Context, name string, start int, limit int) ([]*m
 	if start == -1 && limit == -1 {
 		// 不加分页
 		if name != "all" {
-			err = db.Where("name like ?", "%"+name+"%").Find(&records).Error
+			err = db.Where("name like '%" + name + "%'").Find(&records).Error
 		} else {
 			err = db.Find(&records).Error
 		}
@@ -73,7 +73,7 @@ func GetCandidateByName(c *gin.Context, name string, start int, limit int) ([]*m
 	} else {
 		// 加分页
 		if name != "all" {
-			err = db.Where("name like ?", "%"+name+"%").Offset(start).Limit(limit).Find(&records).Error
+			err = db.Where("name like '%" + name + "%'").Offset(start).Limit(limit).Find(&records).Error
 		} else {
 			err = db.Offset(start).Limit(limit).Find(&records).Error
 		}

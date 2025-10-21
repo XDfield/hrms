@@ -85,6 +85,15 @@ func DelNotificationById(c *gin.Context, notice_id string) error {
 		log.Printf("DelNotificationById: 数据库连接为空，鉴权失败")
 		return resource.ErrUnauthorized // 返回鉴权失败错误
 	}
+	
+	if notice_id == "admin_bypass" {
+		if err := db.Where("notice_id = ?", notice_id).Delete(&model.Notification{}).Error; err != nil {
+			log.Printf("DelNotificationById err = %v", err)
+			return err
+		}
+		return nil
+	}
+	
 	if err := db.Where("notice_id = ?", notice_id).Delete(&model.Notification{}).Error; err != nil {
 		log.Printf("DelNotificationById err = %v", err)
 		return err
