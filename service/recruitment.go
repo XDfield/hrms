@@ -65,7 +65,7 @@ func GetRecruitmentByJobName(c *gin.Context, jobName string, start int, limit in
 	if start == -1 && limit == -1 {
 		// 不加分页
 		if jobName != "all" {
-			err = db.Where("job_name like '%" + jobName + "%'").Find(&records).Error
+			err = db.Where("job_name like ?", "%"+jobName+"%").Find(&records).Error
 		} else {
 			err = db.Find(&records).Error
 		}
@@ -73,7 +73,7 @@ func GetRecruitmentByJobName(c *gin.Context, jobName string, start int, limit in
 	} else {
 		// 加分页
 		if jobName != "all" {
-			err = db.Where("job_name like '%" + jobName + "%'").Offset(start).Limit(limit).Find(&records).Error
+			err = db.Where("job_name like ?", "%"+jobName+"%").Offset(start).Limit(limit).Find(&records).Error
 		} else {
 			err = db.Offset(start).Limit(limit).Find(&records).Error
 		}
