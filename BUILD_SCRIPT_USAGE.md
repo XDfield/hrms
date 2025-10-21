@@ -8,61 +8,61 @@
 
 ### 基本语法
 ```bash
-./build.sh [命令] [选项]
+bash build.sh [命令] [选项]
 ```
 
 ### 常用命令
 
 #### 构建相关
-- `./build.sh build` - 构建当前平台的可执行文件
-- `./build.sh build-all` - 构建所有平台的可执行文件
-- `./build.sh clean` - 清理构建文件
+- `bash build.sh build` - 构建当前平台的可执行文件
+- `bash build.sh build-all` - 构建所有平台的可执行文件
+- `bash build.sh clean` - 清理构建文件
 
 #### 运行相关
-- `./build.sh run` - 运行开发服务器
-- `./build.sh run-prod` - 运行生产环境服务器
-- `./build.sh run-self` - 运行自定义配置服务器
+- `bash build.sh run` - 运行开发服务器
+- `bash build.sh run-prod` - 运行生产环境服务器
+- `bash build.sh run-self` - 运行自定义配置服务器
 
 #### 测试相关
-- `./build.sh test` - 运行所有测试
-- `./build.sh test-pkg <包名>` - 运行指定包的测试
+- `bash build.sh test` - 运行所有测试
+- `bash build.sh test-pkg <包名>` - 运行指定包的测试
 
 #### 代码质量
-- `./build.sh fmt` - 格式化代码
-- `./build.sh vet` - 静态代码检查
-- `./build.sh lint` - 代码lint检查
-- `./build.sh security` - 安全检查
+- `bash build.sh fmt` - 格式化代码
+- `bash build.sh vet` - 静态代码检查
+- `bash build.sh lint` - 代码lint检查
+- `bash build.sh security` - 安全检查
 
 #### 依赖管理
-- `./build.sh deps` - 下载依赖
-- `./build.sh deps-update` - 更新依赖
+- `bash build.sh deps` - 下载依赖
+- `bash build.sh deps-update` - 更新依赖
 
 #### 数据库操作
-- `./build.sh migrate` - 运行数据库迁移
-- `./build.sh migrate-reset` - 重置数据库
-- `./build.sh migrate-db <数据库名>` - 迁移指定数据库
-- `./build.sh migrate-reset-db <数据库名>` - 重置指定数据库
+- `bash build.sh migrate` - 运行数据库迁移
+- `bash build.sh migrate-reset` - 重置数据库
+- `bash build.sh migrate-db <数据库名>` - 迁移指定数据库
+- `bash build.sh migrate-reset-db <数据库名>` - 重置指定数据库
 
 #### Docker 操作
-- `./build.sh docker-build` - 构建Docker镜像
-- `./build.sh docker-run` - 运行Docker容器
-- `./build.sh docker-stop` - 停止Docker容器
+- `bash build.sh docker-build` - 构建Docker镜像
+- `bash build.sh docker-run` - 运行Docker容器
+- `bash build.sh docker-stop` - 停止Docker容器
 
 #### 打包部署
-- `./build.sh package` - 打包应用
-- `./build.sh deploy` - 快速部署
-- `./build.sh install` - 安装到系统路径
-- `./build.sh uninstall` - 从系统路径卸载
+- `bash build.sh package` - 打包应用
+- `bash build.sh deploy` - 快速部署
+- `bash build.sh install` - 安装到系统路径
+- `bash build.sh uninstall` - 从系统路径卸载
 
 #### 开发工具
-- `./build.sh dev` - 启动开发模式（热重载）
-- `./build.sh swagger` - 生成Swagger文档
-- `./build.sh profile` - 性能分析
-- `./build.sh backup` - 备份项目
+- `bash build.sh dev` - 启动开发模式（热重载）
+- `bash build.sh swagger` - 生成Swagger文档
+- `bash build.sh profile` - 性能分析
+- `bash build.sh backup` - 备份项目
 
 #### 其他
-- `./build.sh info` - 查看项目信息
-- `./build.sh help` - 显示帮助信息
+- `bash build.sh info` - 查看项目信息
+- `bash build.sh help` - 显示帮助信息
 
 ## 环境变量
 
@@ -77,13 +77,13 @@
 
 ```bash
 # 设置环境变量并运行
-ENV=prod PORT=9090 ./build.sh run-prod
+ENV=prod PORT=9090 bash build.sh run-prod
 
 # 迁移指定数据库
-DB=hrms_C001 ./build.sh migrate-db
+DB=hrms_C001 bash build.sh migrate-db
 
 # 测试指定包
-PKG=handler ./build.sh test-pkg
+PKG=handler bash build.sh test-pkg
 ```
 
 ## 特性
@@ -103,17 +103,17 @@ PKG=handler ./build.sh test-pkg
 
 2. 查看所有可用命令
    ```bash
-   ./build.sh help
+   bash build.sh help
    ```
 
 3. 构建项目
    ```bash
-   ./build.sh build
+   bash build.sh build
    ```
 
 4. 运行开发服务器
    ```bash
-   ./build.sh run
+   bash build.sh run
    ```
 
 ## 故障排除
@@ -138,7 +138,7 @@ PKG=handler ./build.sh test-pkg
 
 如需调试脚本执行过程，可以使用：
 ```bash
-bash -x ./build.sh <命令>
+bash -x bash build.sh <命令>
 ```
 
 ## 贡献

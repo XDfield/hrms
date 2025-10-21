@@ -1,0 +1,6 @@
+gin:
+  port: 8887
+db:
+  type: sqlite
+  path: ./data  # SQLite 数据库文件存储路径，相对于项目根目录
+  dbName: hrms_C001

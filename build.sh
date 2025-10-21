@@ -84,7 +84,6 @@ show_help() {
     echo "  migrate-db DB  - 迁移指定数据库"
     echo "  migrate-reset-db DB - 重置指定数据库"
     echo "  build-sqlexec  - 构建SQL执行工具"
-    echo "  sqlexec        - 运行SQL执行工具（交互式）"
     echo "  seed           - 填充测试数据"
     echo "  info           - 查看项目信息"
     echo "  dev            - 启动开发模式（热重载）"
@@ -106,7 +105,7 @@ show_help() {
 # 构建当前平台的可执行文件
 build() {
     log_info "构建 ${PROJECT_NAME} ${VERSION}..."
-    clean
+    # clean
     mkdir -p "${BUILD_DIR}"
     eval "${GO} build ${GOFLAGS} ${LDFLAGS} -o ${BUILD_DIR}/${BINARY_NAME} main.go"
     log_success "构建完成: ${BUILD_DIR}/${BINARY_NAME}"
@@ -286,26 +285,16 @@ swagger() {
     swag init -g main.go
 }
 
-# 构建迁移工具
-build_migrate() {
-    log_info "构建数据库迁移工具..."
-    mkdir -p build
-    ${GO} build ${GOFLAGS} -o build/migrate cmd/migrate/main.go
-    log_success "迁移工具构建完成: build/migrate"
-}
-
 # 数据库迁移
 migrate() {
     log_info "运行数据库迁移..."
-    build_migrate
-    ./build/migrate
+    go run cmd/migrate/main.go
 }
 
 # 数据库重置
 migrate_reset() {
     log_info "重置数据库..."
-    build_migrate
-    ./build/migrate -reset
+    go run cmd/migrate/main.go -reset
 }
 
 # 迁移指定数据库
@@ -317,8 +306,7 @@ migrate_db() {
         exit 1
     fi
     log_info "迁移指定数据库: ${db}"
-    build_migrate
-    ./build/migrate -db "${db}"
+    go run cmd/migrate/main.go -db "${db}"
 }
 
 # 重置指定数据库
@@ -330,38 +318,7 @@ migrate_reset_db() {
         exit 1
     fi
     log_info "重置指定数据库: ${db}"
-    build_migrate
-    ./build/migrate -reset -db "${db}"
-}
-
-# 构建SQL执行工具
-build_sqlexec() {
-    log_info "构建SQL执行工具..."
-    mkdir -p build
-    ${GO} build ${GOFLAGS} -o build/sqlexec cmd/sqlexec/main.go
-    log_success "SQL执行工具构建完成: build/sqlexec"
-}
-
-# 构建数据库创建工具
-build_createdb() {
-    log_info "构建数据库创建工具..."
-    mkdir -p build
-    ${GO} build ${GOFLAGS} -o build/createdb cmd/createdb/main.go
-    log_success "数据库创建工具构建完成: build/createdb"
-}
-
-# 运行SQL执行工具（交互式模式）
-sqlexec() {
-    local db=$1
-    if [ -z "$db" ]; then
-        log_error "请指定数据库名称"
-        echo "用法: $0 sqlexec <数据库名>"
-        echo "示例: $0 sqlexec hrms_C001"
-        exit 1
-    fi
-    log_info "启动SQL执行工具（交互式模式）..."
-    build_sqlexec
-    ./build/sqlexec -db "${db}" -i
+    go run cmd/migrate/main.go -reset -db "${db}"
 }
 
 # 创建空白SQLite数据库
@@ -375,8 +332,7 @@ createdb() {
         exit 1
     fi
     log_info "创建空白SQLite数据库: ${dbs}"
-    build_createdb
-    ./build/createdb -db "${dbs}"
+    go run cmd/createdb/main.go -db "${dbs}"
 }
 
 # 填充测试数据
@@ -451,7 +407,7 @@ legacy_build() {
     log_info "使用原始 build.sh 脚本构建..."
     if [ -f "build.sh.old" ]; then
         chmod +x build.sh.old
-        ./build.sh.old
+        bash build.sh.old
     else
         log_error "未找到原始 build.sh 脚本"
         exit 1
@@ -535,18 +491,6 @@ main() {
             ;;
         "migrate-reset-db")
             migrate_reset_db "$2"
-            ;;
-        "build-migrate")
-            build_migrate
-            ;;
-        "build-sqlexec")
-            build_sqlexec
-            ;;
-        "sqlexec")
-            sqlexec "$2"
-            ;;
-        "build-createdb")
-            build_createdb
             ;;
         "createdb")
             createdb "$2"

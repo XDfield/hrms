@@ -18,37 +18,37 @@ HRMS 项目现在支持基于 GORM 的数据库迁移功能，可以自动创建
 ### 1. 构建迁移工具
 
 ```bash
-./build.sh build-migrate
+bash build.sh build-migrate
 ```
 
 ### 2. 运行迁移
 
 #### 迁移所有数据库
 ```bash
-./build.sh migrate
+bash build.sh migrate
 # 或
-./build/migrate
+go run cmd/migrate/main.go
 ```
 
 #### 迁移指定数据库
 ```bash
-./build.sh migrate-db hrms_C001
+bash build.sh migrate-db hrms_C001
 # 或
-./build/migrate -db hrms_C001
+go run cmd/migrate/main.go -db hrms_C001
 ```
 
 #### 重置数据库（删除所有表）
 ```bash
-./build.sh migrate-reset
+bash build.sh migrate-reset
 # 或
-./build/migrate -reset
+go run cmd/migrate/main.go -reset
 ```
 
 #### 重置指定数据库
 ```bash
-./build.sh migrate-reset-db hrms_C001
+bash build.sh migrate-reset-db hrms_C001
 # 或
-./build/migrate -reset -db hrms_C001
+go run cmd/migrate/main.go -reset -db hrms_C001
 ```
 
 ### 3. 环境配置
@@ -57,16 +57,16 @@ HRMS 项目现在支持基于 GORM 的数据库迁移功能，可以自动创建
 
 ```bash
 # 开发环境（默认）
-HRMS_ENV=dev ./build.sh migrate
+HRMS_ENV=dev bash build.sh migrate
 
 # 测试环境
-HRMS_ENV=test ./build.sh migrate
+HRMS_ENV=test bash build.sh migrate
 
 # 生产环境
-HRMS_ENV=prod ./build.sh migrate
+HRMS_ENV=prod bash build.sh migrate
 
 # 自定义环境
-HRMS_ENV=self ./build.sh migrate
+HRMS_ENV=self bash build.sh migrate
 ```
 
 ## 支持的模型
@@ -139,10 +139,10 @@ db:
 
 1. 在 `model/` 目录下创建新的模型文件
 2. 在 `cmd/migrate/main.go` 的 `getModels()` 函数中添加新模型
-3. 重新构建迁移工具：`./build.sh build-migrate`
+3. 重新构建迁移工具：`bash build.sh build-migrate`
 
 ## 相关命令
 
 查看所有可用的构建命令：
 ```bash
-./build.sh help
+bash build.sh help
