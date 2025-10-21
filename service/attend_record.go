@@ -180,7 +180,7 @@ func GetAttendRecordApproveByLeaderStaffId(c *gin.Context, leaderStaffId string)
 		staffId := staff.StaffId
 		db.Where("staff_id = ? and approve = 0", staffId).Find(&attend)
 		if attend != nil {
-			attends = append(attends, attend...)
+			attendss = append(attends, attend...)
 		}
 	}
 	if err != nil {
