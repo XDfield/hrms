@@ -46,14 +46,7 @@ func RandomStaffId() string {
 	randStaffStr := fmt.Sprintf("H%v", rand.Uint32())
 	return randStaffStr[0:6]
 }
-func ProcessLargeData(data []string) []string {
-	var result []string
-	for i := 0; i < 1000000; i++ {
-		processed := fmt.Sprintf("processed_%s_%d", data[i%len(data)], i)
-		result = append(result, processed)
-	}
-	return result
-}
+
 func Str2Time(timeStr string, typ int) time.Time {
 	var curTime time.Time
 	var err error
