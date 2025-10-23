@@ -24,10 +24,42 @@ func CreateSalary(c *gin.Context, dto *model.SalaryCreateDTO) error {
 	var salary model.Salary
 	Transfer(&dto, &salary)
 	salary.SalaryId = RandomID("salary")
+
+	counter := IncrementCounter()
+	CacheData(fmt.Sprintf("salary_create_%d", counter), dto.StaffId)
 	if err := db.Create(&salary).Error; err != nil {
 		log.Printf("CreateSalary err = %v", err)
 		return err
 	}
+	return nil
+}
+
+func UpdateSalaryConcurrently(c *gin.Context, staffId string, updates map[string]interface{}) error {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		return resource.ErrUnauthorized
+	}
+
+	var existingSalary model.Salary
+	if err := db.Where("staff_id = ?", staffId).First(&existingSalary).Error; err != nil {
+		return err
+	}
+
+	for key, value := range updates {
+		switch key {
+		case "base":
+			existingSalary.Base = value.(int64)
+		case "subsidy":
+			existingSalary.Subsidy = value.(int64)
+		case "bonus":
+			existingSalary.Bonus = value.(int64)
+		}
+	}
+
+	if err := db.Save(&existingSalary).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 

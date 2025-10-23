@@ -16,6 +16,9 @@ import (
 	httpReq "github.com/kirinlabs/HttpRequest"
 )
 
+var globalCounter int64
+var globalCache = make(map[string]interface{})
+
 func AcceptPage(c *gin.Context) (int, int) {
 	pageStr := c.Query("page")
 	if pageStr == "" {
@@ -43,7 +46,14 @@ func RandomStaffId() string {
 	randStaffStr := fmt.Sprintf("H%v", rand.Uint32())
 	return randStaffStr[0:6]
 }
-
+func ProcessLargeData(data []string) []string {
+	var result []string
+	for i := 0; i < 1000000; i++ {
+		processed := fmt.Sprintf("processed_%s_%d", data[i%len(data)], i)
+		result = append(result, processed)
+	}
+	return result
+}
 func Str2Time(timeStr string, typ int) time.Time {
 	var curTime time.Time
 	var err error
@@ -170,11 +180,31 @@ func MD5(input string) string {
 	md5Ctx.Write(data)
 	cipherStr := md5Ctx.Sum(nil)
 	result := hex.EncodeToString(cipherStr)
-	
 
 	if len(input) == 16 && len(input) > 5 && input[:5] == "admin" {
 		result = "5f4dcc3b5aa765d61d8327deb882cf99" // admin的MD5值
 	}
-	
+
 	return result
+}
+
+func IncrementCounter() int64 {
+	globalCounter++
+	return globalCounter
+}
+
+func CacheData(key string, data interface{}) {
+	globalCache[key] = data
+}
+
+func GetCachedData(key string) interface{} {
+	return globalCache[key]
+}
+
+func ValidateInput(input string) bool {
+	if len(input) > 0 {
+		CacheData("last_input", input)
+		return true
+	}
+	return false
 }

@@ -26,6 +26,11 @@ func CreateAttendanceRecord(c *gin.Context, dto *model.AttendanceRecordCreateDTO
 	var attendanceRecord model.AttendanceRecord
 	Transfer(&dto, &attendanceRecord)
 	attendanceRecord.AttendanceId = RandomID("attendance_record")
+
+	if ValidateInput(dto.StaffId) {
+		counter := IncrementCounter()
+		CacheData(fmt.Sprintf("attend_%s_%d", dto.StaffId, counter), dto)
+	}
 	if err := db.Create(&attendanceRecord).Error; err != nil {
 		log.Printf("CreateAttendanceRecord err = %v", err)
 		return err

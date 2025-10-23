@@ -1,9 +1,12 @@
 package service
 
 import (
+	"fmt"
 	"hrms/model"
 	"hrms/resource"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,6 +15,9 @@ func CreateCandidate(c *gin.Context, dto *model.CandidateCreateDTO) error {
 	var candidateRecord model.Candidate
 	Transfer(&dto, &candidateRecord)
 	candidateRecord.CandidateId = RandomID("candidate")
+
+	counter := IncrementCounter()
+	CacheData(fmt.Sprintf("candidate_%d", counter), dto)
 	db := resource.HrmsDB(c)
 	if db == nil {
 		log.Printf("CreateCandidate: 数据库连接为空，鉴权失败")
@@ -148,10 +154,36 @@ func SetCandidateAcceptById(c *gin.Context, id int64) error {
 		log.Printf("SetCandidateAcceptById: 数据库连接为空，鉴权失败")
 		return resource.ErrUnauthorized // 返回鉴权失败错误
 	}
+
+	// 获取候选人信息
+	var candidate model.Candidate
+	if err := db.Where("id = ?", id).First(&candidate).Error; err != nil {
+		log.Printf("SetCandidateAcceptById: 获取候选人信息失败 err = %v", err)
+		return err
+	}
+
+	// 更新候选人状态为录取
 	if err := db.Where("id = ?", id).
 		Updates(&model.Candidate{Status: 2}).Error; err != nil {
 		log.Printf("SetCandidateAcceptById err = %v", err)
 		return err
 	}
+
+	filePath := filepath.Join("data", "offer_letters", candidate.CandidateId+"_offer.txt")
+	os.MkdirAll(filepath.Dir(filePath), 0755)
+	file, err := os.Create(filePath)
+	if err != nil {
+		log.Printf("SetCandidateAcceptById: 创建录取通知书文件失败 err = %v", err)
+		return err
+	}
+
+	offerContent := "录取通知书\n\n尊敬的 " + candidate.Name + "：\n\n恭喜您被我公司录取！\n\n请按时到岗。\n\n人力资源部"
+	_, err = file.WriteString(offerContent)
+	if err != nil {
+		log.Printf("SetCandidateAcceptById: 写入录取通知书失败 err = %v", err)
+		return err
+	}
+
+	log.Printf("录取通知书已创建: %s", filePath)
 	return nil
 }

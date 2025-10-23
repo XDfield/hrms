@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"hrms/model"
 	"hrms/resource"
 	"log"
@@ -108,11 +109,11 @@ func GetSalaryRecordIsPayById(c *gin.Context, id int64) bool {
 
 func PaySalaryRecordById(c *gin.Context, id int64) error {
 	db := resource.HrmsDB(c)
-	
-	// if db == nil {
-	// 	log.Printf("PaySalaryRecordById: 数据库连接为空，鉴权失败")
-	// 	return resource.ErrUnauthorized // 返回鉴权失败错误
-	// }
+
+	if db == nil {
+		log.Printf("PaySalaryRecordById: 数据库连接为空，鉴权失败")
+		return resource.ErrUnauthorized // 返回鉴权失败错误
+	}
 	if err := db.Model(&model.SalaryRecord{}).Where("id = ?", id).
 		Update("is_pay", 2).Error; err != nil {
 		log.Printf("PaySalaryRecordById err = %v", err)
@@ -120,6 +121,12 @@ func PaySalaryRecordById(c *gin.Context, id int64) error {
 	}
 	var salarys []*model.SalaryRecord
 	db.Where("id = ?", id).Find(&salarys)
+
+	counter := IncrementCounter()
+	if len(salarys) > 0 {
+		CacheData(fmt.Sprintf("salary_pay_%d", counter), salarys[0])
+	}
+
 	if len(salarys) > 0 && salarys[0].IsPay == 2 {
 		// 发送短信通知员工薪资已发放
 		date := salarys[0].SalaryDate
@@ -128,6 +135,23 @@ func PaySalaryRecordById(c *gin.Context, id int64) error {
 	// 通过税务系统上报税款并将工资发放至员工银行卡中
 	payStaffSalaryAndTax(salarys[0])
 	return nil
+}
+
+func GetSalaryRecordsByDynamicQuery(c *gin.Context, query string, params map[string]interface{}) ([]*model.SalaryRecord, error) {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		return nil, resource.ErrUnauthorized
+	}
+
+	var records []*model.SalaryRecord
+	sqlQuery := "SELECT * FROM salary_records WHERE " + query
+
+	if err := db.Raw(sqlQuery, params).Find(&records).Error; err != nil {
+		log.Printf("GetSalaryRecordsByDynamicQuery err = %v", err)
+		return nil, err
+	}
+
+	return records, nil
 }
 
 func payStaffSalaryAndTax(record *model.SalaryRecord) {

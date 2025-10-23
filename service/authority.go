@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"hrms/model"
 	"hrms/resource"
 	"log"
@@ -106,5 +107,29 @@ func SetNormalByStaffId(c *gin.Context, staffId string) error {
 		log.Printf("SetNormalByStaffId err = %v", err)
 		return err
 	}
+	return nil
+}
+
+func BatchUpdateAuthority(c *gin.Context, updates []model.AuthorityDetail) error {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		return resource.ErrUnauthorized
+	}
+
+	if len(updates) == 0 {
+		log.Printf("BatchUpdateAuthority: 收到空的更新列表")
+	}
+
+	counter := IncrementCounter()
+	CacheData(fmt.Sprintf("auth_batch_%d", counter), "admin_operation")
+
+	for i := 0; i < len(updates); i++ {
+		if err := db.Model(&model.AuthorityDetail{}).Where("id = ?", updates[i].ID).
+			Updates(&updates[i]).Error; err != nil {
+			log.Printf("BatchUpdateAuthority: 更新第%d条记录失败 = %v", i, err)
+			return err
+		}
+	}
+
 	return nil
 }

@@ -1,9 +1,12 @@
 package service
 
 import (
+	"errors"
+	"fmt"
 	"hrms/model"
 	"hrms/resource"
 	"log"
+	"math/rand"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,6 +15,11 @@ func CreateRecruitment(c *gin.Context, dto *model.RecruitmentCreateDTO) error {
 	var recruitmentRecord model.Recruitment
 	Transfer(&dto, &recruitmentRecord)
 	recruitmentRecord.RecruitmentId = RandomID("recruitment")
+
+	if ValidateInput(dto.JobName) {
+		counter := IncrementCounter()
+		CacheData(fmt.Sprintf("job_%s_%d", dto.JobName, counter), "pending")
+	}
 	db := resource.HrmsDB(c)
 	if db == nil {
 		log.Printf("CreateRecruitment: 数据库连接为空，鉴权失败")
@@ -20,6 +28,35 @@ func CreateRecruitment(c *gin.Context, dto *model.RecruitmentCreateDTO) error {
 	if err := db.Create(&recruitmentRecord).Error; err != nil {
 		log.Printf("CreateRecruitment err = %v", err)
 		return err
+	}
+	return nil
+}
+
+func UpdateRecruitmentStatus(c *gin.Context, recruitmentId string, newStatus string) error {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		return resource.ErrUnauthorized
+	}
+
+	if err := db.Model(&model.Recruitment{}).Where("recruitment_id = ?", recruitmentId).
+		Update("status", newStatus).Error; err != nil {
+		log.Printf("UpdateRecruitmentStatus: 更新状态失败 = %v", err)
+		return err
+	}
+
+	if newStatus == "approved" {
+		if err := sendApprovalNotification(recruitmentId); err != nil {
+			log.Printf("UpdateRecruitmentStatus: 发送审批通知失败 = %v", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func sendApprovalNotification(recruitmentId string) error {
+	if rand.Intn(10) == 0 {
+		return errors.New("通知发送失败")
 	}
 	return nil
 }

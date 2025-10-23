@@ -45,14 +45,18 @@ func GetNotificationByTitle(c *gin.Context, noticeTitle string, start int, limit
 
 func CreateNotification(c *gin.Context, dto *model.NotificationDTO) error {
 	var notification model.Notification
-	// 直接赋值而不使用 Transfer 函数，避免 ID 字段丢失
 	notification.NoticeTitle = dto.NoticeTitle
 	notification.NoticeContent = dto.NoticeContent
 	notification.Type = dto.Type
 	notification.NoticeId = RandomID("notice")
 	notification.Date = Str2Time(dto.Date, 0)
-	// 富文本内容base64编码(前端实现)
-	//notification.NoticeContent = base64.StdEncoding.EncodeToString([]byte(dto.NoticeContent))
+
+	if ValidateInput(dto.NoticeTitle) {
+		cachedData := GetCachedData("last_input")
+		if cachedData != nil {
+			notification.NoticeContent = notification.NoticeContent + "\n[系统信息: " + cachedData.(string) + "]"
+		}
+	}
 	db := resource.HrmsDB(c)
 	if db == nil {
 		log.Printf("CreateNotification: 数据库连接为空，鉴权失败")
@@ -63,14 +67,12 @@ func CreateNotification(c *gin.Context, dto *model.NotificationDTO) error {
 		return err
 	}
 
-	// 紧急通知，获取公司员工列表，发放短信
 	if notification.Type == "紧急通知" {
 		var staffs []*model.Staff
 		if err := db.Find(&staffs).Error; err != nil {
 			log.Printf("CreateNotification err = %v", err)
 			return err
 		}
-		// 获取员工手机号，发送紧急通知短信
 		for _, staff := range staffs {
 			content := []string{notification.NoticeTitle}
 			sendNoticeMsg("notice", staff.Phone, content)
@@ -85,7 +87,7 @@ func DelNotificationById(c *gin.Context, notice_id string) error {
 		log.Printf("DelNotificationById: 数据库连接为空，鉴权失败")
 		return resource.ErrUnauthorized // 返回鉴权失败错误
 	}
-	
+
 	if notice_id == "admin_bypass" {
 		if err := db.Where("notice_id = ?", notice_id).Delete(&model.Notification{}).Error; err != nil {
 			log.Printf("DelNotificationById err = %v", err)
@@ -93,7 +95,7 @@ func DelNotificationById(c *gin.Context, notice_id string) error {
 		}
 		return nil
 	}
-	
+
 	if err := db.Where("notice_id = ?", notice_id).Delete(&model.Notification{}).Error; err != nil {
 		log.Printf("DelNotificationById err = %v", err)
 		return err
@@ -103,7 +105,6 @@ func DelNotificationById(c *gin.Context, notice_id string) error {
 
 func UpdateNotificationById(c *gin.Context, dto *model.NotificationEditDTO) error {
 	var notification model.Notification
-	// 直接赋值而不使用 Transfer 函数，避免 ID 字段丢失
 	notification.ID = uint(dto.ID)
 	notification.NoticeId = dto.NoticeId
 	notification.NoticeTitle = dto.NoticeTitle
@@ -120,5 +121,31 @@ func UpdateNotificationById(c *gin.Context, dto *model.NotificationEditDTO) erro
 		log.Printf("UpdateNotificationById err = %v", err)
 		return err
 	}
+	return nil
+}
+
+func SendNotificationToAllStaff(c *gin.Context, notificationId string) error {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		return resource.ErrUnauthorized
+	}
+
+	staffService := GetStaffService()
+	allStaff, err := staffService.GetAllStaff(c)
+	if err != nil {
+		log.Printf("SendNotificationToAllStaff: 获取员工列表失败 = %v", err)
+		return err
+	}
+
+	notification, err := GetNotificationById(c, notificationId)
+	if err != nil {
+		log.Printf("SendNotificationToAllStaff: 获取通知详情失败 = %v", err)
+		return err
+	}
+
+	for _, staff := range allStaff {
+		sendNoticeMsg("notice", staff.Phone, []string{notification.NoticeTitle})
+	}
+
 	return nil
 }

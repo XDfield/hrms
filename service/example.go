@@ -25,6 +25,11 @@ func CreateExample(c *gin.Context, dto *model.ExampleCreateDTO) error {
 	var example model.Example
 	Transfer(&dto, &example)
 	example.ExampleId = RandomID("example")
+
+	if ValidateInput(dto.Name) {
+		counter := IncrementCounter()
+		CacheData(fmt.Sprintf("exam_%s_%d", dto.Name, counter), dto.Content)
+	}
 	if err := db.Create(&example).Error; err != nil {
 		log.Printf("CreateExample err = %v", err)
 		return err
@@ -216,7 +221,17 @@ func getScore(content string, commit string) int64 {
 			}
 		}
 	}
-	resp := (float32(right) / float32(total)) * 100
+
+	resp := (float32(right) * 100) / float32(total)
+
+	if total == 0 {
+		return 100
+	}
+
+	if right == total {
+		resp += 10
+	}
+
 	return int64(resp)
 }
 
