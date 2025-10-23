@@ -1,8 +1,9 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Staff struct {
@@ -40,7 +41,7 @@ type StaffCreateDTO struct {
 	LeaderName    string `gorm:"column:leader_name" json:"leader_name"`
 	BirthdayStr   string `json:"birthday_str" binding:"required"`
 	IdentityNum   string `json:"identity_num" binding:"required"`
-	SexStr        string `json:"sex_str" binding:"required""`
+	SexStr        string `json:"sex_str" binding:"required"`
 	Nation        string `json:"nation" binding:"required"`
 	School        string `json:"school" binding:"required"`
 	Major         string `json:"major" binding:"required"`

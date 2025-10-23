@@ -76,7 +76,7 @@ func UpdateSalaryById(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	// 业务处理
 	err := service.UpdateSalaryById(c, &dto)
 	if err != nil {

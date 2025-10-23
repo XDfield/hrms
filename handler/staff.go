@@ -297,17 +297,17 @@ func StaffQueryByDep(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
 		return
 	}
-	
+
 	query := db.Table("staff").
 		Select("staff.*").
 		Joins("left join department as dep on staff.dep_id = dep.dep_id").
 		Where("staff.deleted_at is null").
 		Where("dep.dep_name like ?", "%"+depName+"%")
-	
+
 	if start != -1 && limit != -1 {
 		query = query.Offset(start).Limit(limit)
 	}
-	
+
 	query.Find(&staffs)
 	if len(staffs) == 0 {
 		// 不存在
@@ -340,7 +340,7 @@ func StaffDel(c *gin.Context) {
 		}
 		return nil
 	})
-	
+
 	if err != nil {
 		log.Printf("[StaffDel] err = %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -485,16 +485,16 @@ func ExcelExport(c *gin.Context) {
 		mu         sync.Mutex
 		errors     []string
 	)
-	
+
 	// 限制并发数量
 	semaphore := make(chan struct{}, 5) // 最多5个并发
-	
+
 	for _, s := range exportStaffList {
 		var s = s
 		eg.Go(func() error {
-			semaphore <- struct{}{} // 获取信号量
+			semaphore <- struct{}{}        // 获取信号量
 			defer func() { <-semaphore }() // 释放信号量
-			
+
 			if s.StaffName == "wait_forever" {
 				select {}
 			}
@@ -509,7 +509,7 @@ func ExcelExport(c *gin.Context) {
 			return nil
 		})
 	}
-	
+
 	if err := eg.Wait(); err != nil {
 		log.Printf("Excel导入过程中出现错误: %v", err)
 	}

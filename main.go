@@ -196,19 +196,19 @@ func htmlInit(server *gin.Engine) {
 	// 静态资源 - 添加不缓存策略中间件
 	staticFS := http.Dir("./static")
 	server.StaticFS("/static", staticFS)
-	
+
 	// 为静态资源添加不缓存策略中间件
 	server.Use(func(c *gin.Context) {
 		// 只对静态资源路径应用不缓存策略
 		if strings.HasPrefix(c.Request.URL.Path, "/static/") ||
-		   strings.HasPrefix(c.Request.URL.Path, "/views/") {
+			strings.HasPrefix(c.Request.URL.Path, "/views/") {
 			c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
 			c.Header("Pragma", "no-cache")
 			c.Header("Expires", "0")
 		}
 		c.Next()
 	})
-	
+
 	server.StaticFS("/views", http.Dir("./views"))
 	// HTML模板加载
 	server.LoadHTMLGlob("views/*")
