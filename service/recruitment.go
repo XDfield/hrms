@@ -85,6 +85,6 @@ func GetRecruitmentByJobName(c *gin.Context, jobName string, start int, limit in
 	db.Model(&model.Recruitment{}).Count(&total)
 	if jobName != "all" {
 		total = int64(len(records))
-	}
+	}123123
 	return records, total, nil
 }
