@@ -157,6 +157,8 @@ func routerInit(server *gin.Engine) {
 	attendGroup.GET("/query/:staff_id", handler.GetAttendRecordByStaffId)
 	attendGroup.GET("/query", handler.GetAttendRecordByStaffId)
 	attendGroup.GET("/query_history/:staff_id", handler.GetAttendRecordHistoryByStaffId)
+	attendGroup.GET("/query_history_by_name/:staff_name", handler.GetAttendRecordHistoryByStaffName)
+	attendGroup.GET("/query_history/all", handler.GetAllAttendanceHistory)
 	attendGroup.GET("/get_attend_record_is_pay/:staff_id/:date", handler.GetAttendRecordIsPayByStaffIdAndDate)
 	attendGroup.GET("/approve/query/:leader_staff_id", handler.GetAttendRecordApproveByLeaderStaffId)
 	attendGroup.GET("/approve_accept/:attendId", handler.ApproveAccept)

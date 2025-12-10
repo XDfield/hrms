@@ -116,34 +116,59 @@ func GetAttendRecordHistoryByStaffId(c *gin.Context, staffId string, start int, 
 
 	var records []*model.AttendanceRecord
 	var err error
-	sqlReq1 := `select * from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
-and attend.date = salary.salary_date where salary.is_pay = 2 and attend.staff_id = ? order by attend.date desc`
-	sqlReq2 := `select * from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
-and attend.date = salary.salary_date where salary.is_pay = 2 order by attend.date desc`
+	
 	if start == -1 && limit == -1 {
 		// 不加分页
 		if staffId != "all" {
-			err = db.Raw(sqlReq1, staffId).Find(&records).Error
+			err = db.Where("staff_id = ?", staffId).Order("date desc").Find(&records).Error
 		} else {
-			err = db.Raw(sqlReq2).Find(&records).Error
+			err = db.Order("date desc").Find(&records).Error
 		}
 
 	} else {
 		// 加分页
 		if staffId != "all" {
-			err = db.Raw(sqlReq1, staffId).Offset(start).Limit(limit).Find(&records).Error
+			err = db.Where("staff_id = ?", staffId).Offset(start).Limit(limit).Order("date desc").Find(&records).Error
 		} else {
-			err = db.Raw(sqlReq2).Offset(start).Limit(limit).Find(&records).Error
+			err = db.Offset(start).Limit(limit).Order("date desc").Find(&records).Error
 		}
 	}
 	if err != nil {
 		return nil, 0, err
 	}
 	var total int64
-	db.Model(&model.AttendanceRecord{}).Count(&total)
 	if staffId != "all" {
-		total = int64(len(records))
+		db.Model(&model.AttendanceRecord{}).Where("staff_id = ?", staffId).Count(&total)
+	} else {
+		db.Model(&model.AttendanceRecord{}).Count(&total)
 	}
+	return records, total, nil
+}
+
+func GetAttendRecordHistoryByStaffName(c *gin.Context, staffName string, start int, limit int) ([]*model.AttendanceRecord, int64, error) {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("GetAttendRecordHistoryByStaffName: 数据库连接为空，鉴权失败")
+		return nil, 0, resource.ErrUnauthorized
+	}
+
+	var records []*model.AttendanceRecord
+	var err error
+	
+	if start == -1 && limit == -1 {
+		// 不加分页
+		err = db.Where("staff_name = ?", staffName).Order("date desc").Find(&records).Error
+	} else {
+		// 加分页
+		err = db.Where("staff_name = ?", staffName).Offset(start).Limit(limit).Order("date desc").Find(&records).Error
+	}
+	
+	if err != nil {
+		return nil, 0, err
+	}
+	
+	var total int64
+	db.Model(&model.AttendanceRecord{}).Where("staff_name = ?", staffName).Count(&total)
 	return records, total, nil
 }
 

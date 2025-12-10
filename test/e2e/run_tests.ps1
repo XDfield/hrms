@@ -33,8 +33,11 @@ $ShouldInstallTestDeps = $true  # Set to $true if you want to install test depen
 $TestDepsCommand  = "go"
 $TestDepsArgs     = "mod tidy"
 
-# Build configuration (Optional - not needed for Go as we use go run)
-$ShouldBuild      = $false  # We'll use go run instead of building
+# Build configuration (Optional)
+$ShouldBuild      = $true  # Set to $true if you want to build before running
+$BuildCommand     = "go"
+$BuildArgs        = "build -o app.exe main.go"
+$BinaryPath       = Join-Path -Path $ProjectRoot -ChildPath "app.exe"
 
 # Startup command (Development Mode - using go run)
 $StartCommand     = "go"
@@ -80,6 +83,15 @@ function Cleanup-Environment {
         Stop-Process -Id $pidToKill -Force -ErrorAction SilentlyContinue
     }
 
+    # 3. Clean build artifacts if build is enabled
+    if ($ShouldBuild -and (Test-Path $BinaryPath)) {
+        Write-Log "Removing build artifact: $BinaryPath"
+        Remove-Item $BinaryPath -Force -ErrorAction SilentlyContinue
+    }
+
+    # 4. Clean old logs (Pre-run only, strictly speaking)
+    # Note: We do not delete logs in Teardown so users can debug failures.
+
     Write-Log "Cleanup completed."
 }
 
@@ -119,7 +131,28 @@ try {
         }
     }
 
-    # --- Step 3: Start Service (Background) ---
+    # --- Step 3: Build Service (Optional) ---
+    if ($ShouldBuild) {
+        Write-Log "Building service ($ServiceName)..."
+        Push-Location $ProjectRoot
+        try {
+            cmd /c "$BuildCommand $BuildArgs > `"$ServiceLogPath`" 2> `"$ServiceErrorPath`""
+            $buildExitCode = $LASTEXITCODE
+
+            if ($buildExitCode -ne 0) {
+                throw "Build failed with exit code $buildExitCode. Check $ServiceErrorPath for details."
+            }
+
+            Write-Log "Build completed successfully."
+            $StartCommand = $BinaryPath
+            $StartArgs = ""
+        }
+        finally {
+            Pop-Location
+        }
+    }
+
+    # --- Step 4: Start Service (Background) ---
     Write-Log "Starting service ($ServiceName)..."
     Write-Log "Logs will be redirected to $ServiceLogPath"
 
@@ -130,13 +163,20 @@ try {
     Push-Location $ProjectRoot
     try {
         # Start process in background, minimized, redirecting output to file
-        $Global:ServiceProcess = Start-Process -FilePath $StartCommand `
-            -ArgumentList $StartArgs `
-            -WindowStyle Minimized `
-            -PassThru `
-            -RedirectStandardOutput $ServiceLogPath `
-            -RedirectStandardError $ServiceErrorPath `
-            -WorkingDirectory $ProjectRoot
+        if ($StartArgs -ne "") {
+            $Global:ServiceProcess = Start-Process -FilePath $StartCommand `
+                -ArgumentList $StartArgs `
+                -WindowStyle Minimized `
+                -PassThru `
+                -RedirectStandardOutput $ServiceLogPath `
+                -RedirectStandardError $ServiceErrorPath
+        } else {
+            $Global:ServiceProcess = Start-Process -FilePath $StartCommand `
+                -WindowStyle Minimized `
+                -PassThru `
+                -RedirectStandardOutput $ServiceLogPath `
+                -RedirectStandardError $ServiceErrorPath
+        }
 
         Write-Log "Service process triggered with PID: $($Global:ServiceProcess.Id)"
     }
@@ -145,7 +185,7 @@ try {
         Pop-Location
     }
 
-    # --- Step 4: Wait & Health Check (Hybrid: HTTP + Log Monitor) ---
+    # --- Step 5: Wait & Health Check (Hybrid: HTTP + Log Monitor) ---
     Write-Log "Waiting for service to be ready (Max ${MaxWaitSeconds}s)..."
 
     $timer = [System.Diagnostics.Stopwatch]::StartNew()
@@ -195,7 +235,7 @@ try {
         throw "Timeout: Service failed to start within $MaxWaitSeconds seconds."
     }
 
-    # --- Step 5: Install Test Dependencies (Optional) ---
+    # --- Step 6: Install Test Dependencies (Optional) ---
     if ($ShouldInstallTestDeps) {
         Write-Log "Installing test dependencies..."
         Push-Location $TestPath
@@ -216,7 +256,7 @@ try {
         }
     }
 
-    # --- Step 6: Run Test Suite ---
+    # --- Step 7: Run Test Suite ---
     Write-Log "Service is up. Executing test suite..."
     Write-Log "Test results will be saved to $TestResultPath"
 
@@ -239,7 +279,7 @@ try {
         # Print the exit code for debugging
         Write-Log "Test process exit code: $testExitCode"
 
-        # --- Step 7: Result Analysis ---
+        # --- Step 8: Result Analysis ---
         if ($testExitCode -eq 0) {
             Write-Log "TEST SUCCESS: All tests passed."
         } else {
@@ -259,7 +299,7 @@ catch {
     exit 1
 }
 finally {
-    # --- Step 8: Teardown (Guaranteed Execution) ---
+    # --- Step 9: Teardown (Guaranteed Execution) ---
     Write-Log "Entering teardown phase..."
     Cleanup-Environment
     Write-Log "Script finished."

@@ -129,6 +129,57 @@ func GetAttendRecordHistoryByStaffId(c *gin.Context) {
 	})
 }
 
+func GetAttendRecordHistoryByStaffName(c *gin.Context) {
+	// 参数绑定
+	staffName := c.Param("staff_name")
+	start, limit := service.AcceptPage(c)
+	// 业务处理
+	list, total, err := service.GetAttendRecordHistoryByStaffName(c, staffName, start, limit)
+	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
+		log.Printf("[GetAttendRecordHistoryByStaffName] err = %v", err)
+		c.JSON(200, gin.H{
+			"status": 5000,
+			"total":  0,
+			"msg":    err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": 2000,
+		"total":  total,
+		"msg":    list,
+	})
+}
+
+func GetAllAttendanceHistory(c *gin.Context) {
+	// 参数绑定
+	start, limit := service.AcceptPage(c)
+	// 业务处理
+	list, total, err := service.GetAttendRecordHistoryByStaffId(c, "all", start, limit)
+	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
+		log.Printf("[GetAllAttendanceHistory] err = %v", err)
+		c.JSON(200, gin.H{
+			"status": 5000,
+			"total":  0,
+			"msg":    err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": 2000,
+		"total":  total,
+		"msg":    list,
+	})
+}
+
 func DelAttendRecordByAttendId(c *gin.Context) {
 	// 参数绑定
 	attendanceId := c.Param("attendance_id")

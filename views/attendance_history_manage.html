@@ -25,6 +25,12 @@
                         </div>
                     </div>
                     <div class="layui-inline">
+                        <label class="layui-form-label">员工姓名</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="staff_name" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
                         <button type="submit" class="layui-btn layui-btn-primary"  lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
                     </div>
                 </form>
@@ -122,11 +128,17 @@
             form.on('submit(data-search-btn)', function (data) {
                 layer.msg("搜索成功");
                 var staff_id = data.field.staff_id;
+                var staff_name = data.field.staff_name;
                 var reqUrl = "/attendance_record/query_history/all"
+                
                 if (typeof staff_id != "undefined" && staff_id != null && staff_id != "") {
-                    //执行搜索重载
+                    // 优先使用工号搜索
                     reqUrl = "/attendance_record/query_history/"+staff_id
+                } else if (typeof staff_name != "undefined" && staff_name != null && staff_name != "") {
+                    // 如果工号为空，使用姓名搜索
+                    reqUrl = "/attendance_record/query_history_by_name/"+staff_name
                 }
+                
                 table.reload('currentTableId', {
                     url: reqUrl,
                     page: {
