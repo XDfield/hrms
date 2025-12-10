@@ -13,8 +13,16 @@ type Candidate struct {
 	Experience  string `gorm:"column:experience" json:"experience"`
 	Describe    string `gorm:"column:describe" json:"describe"`
 	Email       string `gorm:"column:email" json:"email"`
-	Evaluation  string `gorm:"column:evaluation" json:"evaluation"`
+	Evaluation string `gorm:"column:evaluation" json:"evaluation"`
 	Status      int64  `gorm:"column:status" json:"status"`
+}
+
+// InterviewFilter 面试记录筛选条件
+type InterviewFilter struct {
+	Name     string `json:"name"`
+	JobName  string `json:"job_name"`
+	StaffId  string `json:"staff_id"`
+	Status   string `json:"status"`
 }
 
 type CandidateCreateDTO struct {

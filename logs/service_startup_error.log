@@ -1,0 +1,13 @@
+2025/12/10 16:05:29 [config.Init] 初始化配置成功,config=&{{8887} {sqlite    0 hrms_C001 ./data}}
+2025/12/10 16:05:29 [InitGorm] SQLite数据库hrms_C001连接成功，路径: data\hrms_C001.db
+2025/12/10 16:05:29 [InitGorm] 数据库初始化成功，类型: sqlite
+2025/12/10 16:05:32 [login db name = hrms_C001]
+2025/12/10 16:05:32 [handler.Login] login R = {admin admin1 C001}
+2025/12/10 16:05:32 [handler.Login] user login success, user = {admin admin1 C001}
+2025/12/10 16:05:32 net/http: invalid Cookie.Domain "*"; dropping domain attribute
+2025/12/10 16:05:32 未传入分页参数page，查询全部
+2025/12/10 16:05:32 未传入分页参数page，查询全部
+2025/12/10 16:05:32 未传入分页参数page，查询全部
+2025/12/10 16:05:32 未传入分页参数page，查询全部
+2025/12/10 16:05:32 未传入分页参数page，查询全部
+exit status 1

@@ -115,6 +115,7 @@ func InitDB(config *Config, dbName string) (*gorm.DB, error) {
 				SingularTable: true, // 全局禁止表名复数
 			},
 			Logger: logger.Default.LogMode(logger.Info),
+			DisableForeignKeyConstraintWhenMigrating: true,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("SQLite连接失败: %v", err)
@@ -158,9 +159,10 @@ func getModels() []interface{} {
 		&model.Notification{},
 		&model.BranchCompany{},
 		&model.Salary{},
-		&model.SalaryRecord{},
+		// &model.SalaryRecord{},  // sqlite 好像不支持 float64 类型字段的迁移
 		&model.Recruitment{},
 		&model.Candidate{},
+		&model.InterviewRecord{},
 		&model.Example{},
 		&model.ExampleScore{},
 	}

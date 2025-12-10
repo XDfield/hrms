@@ -249,6 +249,45 @@
       "updateTime": "2018/07/21 13:56:43",
       "isMenu": 1,
       "parentId": 18
+    },
+    {
+      "authorityId": 20,
+      "authorityName": "面试管理",
+      "orderNumber": 20,
+      "menuUrl": null,
+      "menuIcon": "layui-icon-survey",
+      "createTime": "2023/01/01 00:00:00",
+      "authority": null,
+      "checked": 0,
+      "updateTime": "2023/01/01 00:00:00",
+      "isMenu": 0,
+      "parentId": -1
+    },
+    {
+      "authorityId": 21,
+      "authorityName": "面试记录管理",
+      "orderNumber": 21,
+      "menuUrl": "interview/record",
+      "menuIcon": null,
+      "createTime": "2023/01/01 00:00:00",
+      "authority": "interview:view",
+      "checked": 0,
+      "updateTime": "2023/01/01 00:00:00",
+      "isMenu": 1,
+      "parentId": 20
+    },
+    {
+      "authorityId": 22,
+      "authorityName": "管理员面试记录",
+      "orderNumber": 22,
+      "menuUrl": "admin/interview/record",
+      "menuIcon": null,
+      "createTime": "2023/01/01 00:00:00",
+      "authority": "admin:interview:view",
+      "checked": 0,
+      "updateTime": "2023/01/01 00:00:00",
+      "isMenu": 1,
+      "parentId": 20
     }
   ]
 }

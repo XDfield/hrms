@@ -1,0 +1,218 @@
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /static/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
+[GIN-debug] HEAD   /static/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (3 handlers)
+[GIN-debug] GET    /views/*filepath          --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (4 handlers)
+[GIN-debug] HEAD   /views/*filepath          --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (4 handlers)
+[GIN-debug] Loaded HTML Templates (69): 
+	- example_add.html
+	- normal_recruitment_manage.html
+	- recruitment_detail.html
+	- salary_detail_add.html
+	- candidate_interview.html
+	- example_edit.html
+	- staff_query.html
+	- normal_attendance_giving_manage.html
+	- normal_candidate_manage.html
+	- salary_detail_edit.html
+	- salary_record_detail_add.html
+	- attendance_record_edit.html
+	- 404.html
+	- authority_detail_manage.html
+	- normal_attendance_history_manage.html
+	- password_manage.html
+	- salary_giving_manage.html
+	- staff_edit.html
+	- staff_manage.html
+	- admin_notification_edit.html
+	- dep_manage.html
+	- normal_salary_detail_manage.html
+	- salary_giving_detail.html
+	- attendance_giving_manage.html
+	- index.html
+	- interview_record_edit.html
+	- login.html
+	- admin_manage.html
+	- attendance_approve_manage.html
+	- 
+	- attendance_record_add.html
+	- candidate_detail.html
+	- dep_edit.html
+	- interview_record_detail.html
+	- password_edit.html
+	- salary_detail_manage.html
+	- admin_interview_record_manage.html
+	- admin_notification_detail.html
+	- dep_add.html
+	- normal_candidate_edit.html
+	- normal_notification_manage.html
+	- recruitment_edit.html
+	- authority_detail_edit.html
+	- example_doing.html
+	- example_manage.html
+	- candidate_edit.html
+	- interview_record_manage.html
+	- normal_salary_history_manage.html
+	- recruitment_manage.html
+	- staff_add.html
+	- attendance_history_manage.html
+	- authority_manage.html
+	- candidate_add.html
+	- recruitment_add.html
+	- salary_history_manage.html
+	- example_detail.html
+	- admin_notification_add.html
+	- admin_notification_manage.html
+	- normal_attendance_record_add.html
+	- rank_add.html
+	- rank_edit.html
+	- rank_manage.html
+	- normal_staff_edit.html
+	- normal_staff_manage.html
+	- admin_staff_manage.html
+	- candidate_manage.html
+	- example_history.html
+	- normal_example_history.html
+	- salary_record_detail_edit.html
+
+[GIN-debug] GET    /                         --> main.routerInit.func1 (4 handlers)
+[GIN-debug] GET    /ping                     --> hrms/handler.Ping (4 handlers)
+[GIN-debug] GET    /authority_render/:modelName --> hrms/handler.RenderAuthority (4 handlers)
+[GIN-debug] GET    /index                    --> hrms/handler.Index (4 handlers)
+[GIN-debug] POST   /account/login            --> hrms/handler.Login (4 handlers)
+[GIN-debug] POST   /account/quit             --> hrms/handler.Quit (4 handlers)
+[GIN-debug] POST   /depart/create            --> hrms/handler.DepartCreate (4 handlers)
+[GIN-debug] DELETE /depart/del/:dep_id       --> hrms/handler.DepartDel (4 handlers)
+[GIN-debug] POST   /depart/edit              --> hrms/handler.DepartEdit (4 handlers)
+[GIN-debug] GET    /depart/query/:dep_id     --> hrms/handler.DepartQuery (4 handlers)
+[GIN-debug] GET    /depart/query             --> hrms/handler.DepartQuery (4 handlers)
+[GIN-debug] POST   /rank/create              --> hrms/handler.RankCreate (4 handlers)
+[GIN-debug] DELETE /rank/del/:rank_id        --> hrms/handler.RankDel (4 handlers)
+[GIN-debug] POST   /rank/edit                --> hrms/handler.RankEdit (4 handlers)
+[GIN-debug] GET    /rank/query/:rank_id      --> hrms/handler.RankQuery (4 handlers)
+[GIN-debug] GET    /rank/query               --> hrms/handler.RankQuery (4 handlers)
+[GIN-debug] POST   /staff/create             --> hrms/handler.StaffCreate (4 handlers)
+[GIN-debug] POST   /staff/excel_export       --> hrms/handler.ExcelExport (4 handlers)
+[GIN-debug] DELETE /staff/del/:staff_id      --> hrms/handler.StaffDel (4 handlers)
+[GIN-debug] POST   /staff/edit               --> hrms/handler.StaffEdit (4 handlers)
+[GIN-debug] GET    /staff/query/:staff_id    --> hrms/handler.StaffQuery (4 handlers)
+[GIN-debug] GET    /staff/query              --> hrms/handler.StaffQuery (4 handlers)
+[GIN-debug] GET    /staff/query_by_name/:staff_name --> hrms/handler.StaffQueryByName (4 handlers)
+[GIN-debug] GET    /staff/query_by_dep/:dep_name --> hrms/handler.StaffQueryByDep (4 handlers)
+[GIN-debug] GET    /staff/query_by_staff_id/:staff_id --> hrms/handler.StaffQueryByStaffId (4 handlers)
+[GIN-debug] GET    /password/query/:staff_id --> hrms/handler.PasswordQuery (4 handlers)
+[GIN-debug] POST   /password/edit            --> hrms/handler.PasswordEdit (4 handlers)
+[GIN-debug] POST   /authority/create         --> hrms/handler.AddAuthorityDetail (4 handlers)
+[GIN-debug] POST   /authority/edit           --> hrms/handler.UpdateAuthorityDetailById (4 handlers)
+[GIN-debug] GET    /authority/query_by_user_type/:user_type --> hrms/handler.GetAuthorityDetailListByUserType (4 handlers)
+[GIN-debug] POST   /authority/query_by_user_type_and_model --> hrms/handler.GetAuthorityDetailByUserTypeAndModel (4 handlers)
+[GIN-debug] POST   /authority/set_admin/:staff_id --> hrms/handler.SetAdminByStaffId (4 handlers)
+[GIN-debug] POST   /authority/set_normal/:staff_id --> hrms/handler.SetNormalByStaffId (4 handlers)
+[GIN-debug] POST   /notification/create      --> hrms/handler.CreateNotification (4 handlers)
+[GIN-debug] DELETE /notification/delete/:notice_id --> hrms/handler.DeleteNotificationById (4 handlers)
+[GIN-debug] POST   /notification/edit        --> hrms/handler.UpdateNotificationById (4 handlers)
+[GIN-debug] GET    /notification/query/:notice_title --> hrms/handler.GetNotificationByTitle (4 handlers)
+[GIN-debug] GET    /notification/query       --> hrms/handler.GetNotificationByTitle (4 handlers)
+[GIN-debug] GET    /company/query            --> hrms/handler.BranchCompanyQuery (4 handlers)
+[GIN-debug] POST   /salary/create            --> hrms/handler.CreateSalary (4 handlers)
+[GIN-debug] DELETE /salary/delete/:salary_id --> hrms/handler.DelSalary (4 handlers)
+[GIN-debug] POST   /salary/edit              --> hrms/handler.UpdateSalaryById (4 handlers)
+[GIN-debug] GET    /salary/query/:staff_id   --> hrms/handler.GetSalaryByStaffId (4 handlers)
+[GIN-debug] GET    /salary/query             --> hrms/handler.GetSalaryByStaffId (4 handlers)
+[GIN-debug] GET    /salary_record/query/:staff_id --> hrms/handler.GetSalaryRecordByStaffId (4 handlers)
+[GIN-debug] GET    /salary_record/get_salary_record_is_pay_by_id/:id --> hrms/handler.GetSalaryRecordIsPayById (4 handlers)
+[GIN-debug] GET    /salary_record/pay_salary_record_by_id/:id --> hrms/handler.PaySalaryRecordById (4 handlers)
+[GIN-debug] GET    /salary_record/query_history/:staff_id --> hrms/handler.GetHadPaySalaryRecordByStaffId (4 handlers)
+[GIN-debug] POST   /attendance_record/create --> hrms/handler.CreateAttendRecord (4 handlers)
+[GIN-debug] DELETE /attendance_record/delete/:attendance_id --> hrms/handler.DelAttendRecordByAttendId (4 handlers)
+[GIN-debug] POST   /attendance_record/edit   --> hrms/handler.UpdateAttendRecordById (4 handlers)
+[GIN-debug] GET    /attendance_record/query/:staff_id --> hrms/handler.GetAttendRecordByStaffId (4 handlers)
+[GIN-debug] GET    /attendance_record/query  --> hrms/handler.GetAttendRecordByStaffId (4 handlers)
+[GIN-debug] GET    /attendance_record/query_history/:staff_id --> hrms/handler.GetAttendRecordHistoryByStaffId (4 handlers)
+[GIN-debug] POST   /attendance_record/query_history/search --> hrms/handler.GetAttendRecordHistoryBySearch (4 handlers)
+[GIN-debug] GET    /attendance_record/get_attend_record_is_pay/:staff_id/:date --> hrms/handler.GetAttendRecordIsPayByStaffIdAndDate (4 handlers)
+[GIN-debug] GET    /attendance_record/approve/query/:leader_staff_id --> hrms/handler.GetAttendRecordApproveByLeaderStaffId (4 handlers)
+[GIN-debug] GET    /attendance_record/approve_accept/:attendId --> hrms/handler.ApproveAccept (4 handlers)
+[GIN-debug] GET    /attendance_record/approve_reject/:attendId --> hrms/handler.ApproveReject (4 handlers)
+[GIN-debug] POST   /recruitment/create       --> hrms/handler.CreateRecruitment (4 handlers)
+[GIN-debug] DELETE /recruitment/delete/:recruitment_id --> hrms/handler.DelRecruitmentByRecruitmentId (4 handlers)
+[GIN-debug] POST   /recruitment/edit         --> hrms/handler.UpdateRecruitmentById (4 handlers)
+[GIN-debug] GET    /recruitment/query/:job_name --> hrms/handler.GetRecruitmentByJobName (4 handlers)
+[GIN-debug] GET    /recruitment/query        --> hrms/handler.GetRecruitmentByJobName (4 handlers)
+[GIN-debug] POST   /candidate/create         --> hrms/handler.CreateCandidate (4 handlers)
+[GIN-debug] DELETE /candidate/delete/:candidate_id --> hrms/handler.DelCandidateByCandidateId (4 handlers)
+[GIN-debug] POST   /candidate/edit           --> hrms/handler.UpdateCandidateById (4 handlers)
+[GIN-debug] GET    /candidate/query_by_name/:name --> hrms/handler.GetCandidateByName (4 handlers)
+[GIN-debug] GET    /candidate/query_by_staff_id/:staff_id --> hrms/handler.GetCandidateByStaffId (4 handlers)
+[GIN-debug] GET    /candidate/reject/:id     --> hrms/handler.SetCandidateRejectById (4 handlers)
+[GIN-debug] GET    /candidate/accept/:id     --> hrms/handler.SetCandidateAcceptById (4 handlers)
+[GIN-debug] GET    /interview/query          --> hrms/handler.GetInterviewRecords (4 handlers)
+[GIN-debug] POST   /interview/query/filter   --> hrms/handler.GetInterviewRecordsByFilter (4 handlers)
+[GIN-debug] POST   /interview/export         --> hrms/handler.ExportInterviewRecords (4 handlers)
+[GIN-debug] POST   /example/create           --> hrms/handler.CreateExample (4 handlers)
+[GIN-debug] POST   /example/parse_example_content --> hrms/handler.ParseExampleContent (4 handlers)
+[GIN-debug] DELETE /example/delete/:example_id --> hrms/handler.DelExample (4 handlers)
+[GIN-debug] POST   /example/edit             --> hrms/handler.UpdateExampleById (4 handlers)
+[GIN-debug] GET    /example/query/:name      --> hrms/handler.GetExampleByName (4 handlers)
+[GIN-debug] GET    /example/render_example/:id --> hrms/handler.RenderExample (4 handlers)
+[GIN-debug] POST   /example_score/create     --> hrms/handler.CreateExampleScore (4 handlers)
+[GIN-debug] GET    /example_score/query_by_name/:name --> hrms/handler.GetExampleHistoryByName (4 handlers)
+[GIN-debug] GET    /example_score/query_by_staff_id/:staff_id --> hrms/handler.GetExampleHistoryByStafId (4 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8887
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/handler/account.go:118
+[0m[33m[1.627ms] [34;1m[rows:1][0m SELECT * FROM `authority` WHERE (staff_id = "admin" and user_password = "e00cf25ad42683b3df678c61f42c6bda") AND `authority`.`deleted_at` IS NULL ORDER BY `authority`.`id` LIMIT 1
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/handler/account.go:138
+[0m[33m[0.122ms] [34;1m[rows:1][0m SELECT * FROM `staff` WHERE staff_id = "admin" AND `staff`.`deleted_at` IS NULL ORDER BY `staff`.`id` LIMIT 1
+[GIN] 2025/12/10 - 16:05:32 | 200 |      2.7905ms |             ::1 | POST     "/account/login"
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/service/attend_record.go:128
+[0m[33m[1.585ms] [34;1m[rows:5][0m select * from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2 order by attend.date desc
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/service/attend_record.go:143
+[0m[33m[1.016ms] [34;1m[rows:1][0m SELECT count(*) FROM `attendance_record` WHERE `attendance_record`.`deleted_at` IS NULL
+[GIN] 2025/12/10 - 16:05:32 | 200 |       6.024ms |             ::1 | GET      "/attendance_record/query_history/all"
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/service/attend_record.go:195
+[0m[33m[1.202ms] [34;1m[rows:0][0m select * from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2 AND attend.staff_id = "admin" order by attend.date desc
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/service/attend_record.go:213
+[0m[33m[0.000ms] [34;1m[rows:1][0m select count(*) from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2 AND attend.staff_id = "admin"
+[GIN] 2025/12/10 - 16:05:32 | 200 |      1.2018ms |             ::1 | POST     "/attendance_record/query_history/search"
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/service/attend_record.go:195
+[0m[33m[0.513ms] [34;1m[rows:0][0m select * from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2 AND attend.staff_id = "admin" AND attend.staff_name LIKE "%管理员%" order by attend.date desc
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/service/attend_record.go:213
+[0m[33m[0.292ms] [34;1m[rows:1][0m select count(*) from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2 AND attend.staff_id = "admin" AND attend.staff_name LIKE "%管理员%"
+[GIN] 2025/12/10 - 16:05:32 | 200 |       896.4µs |             ::1 | POST     "/attendance_record/query_history/search"
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/service/attend_record.go:195
+[0m[33m[0.151ms] [34;1m[rows:0][0m select * from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2 AND attend.staff_name LIKE "%测试员工%" order by attend.date desc
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/service/attend_record.go:213
+[0m[33m[0.549ms] [34;1m[rows:1][0m select count(*) from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2 AND attend.staff_name LIKE "%测试员工%"
+[GIN] 2025/12/10 - 16:05:32 | 200 |       699.6µs |             ::1 | POST     "/attendance_record/query_history/search"
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/service/attend_record.go:195
+[0m[33m[0.592ms] [34;1m[rows:0][0m select * from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2 AND attend.staff_name LIKE "%不存在的员工姓名123456789%" order by attend.date desc
+
+2025/12/10 16:05:32 [32mD:/DEV/hrms/service/attend_record.go:213
+[0m[33m[0.562ms] [34;1m[rows:1][0m select count(*) from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2 AND attend.staff_name LIKE "%不存在的员工姓名123456789%"
+[GIN] 2025/12/10 - 16:05:32 | 200 |      1.1538ms |             ::1 | POST     "/attendance_record/query_history/search"

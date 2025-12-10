@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>面试记录管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 22px;
+            padding: 5px 15px;
+            white-space: normal;
+            word-break: break-all;
+        }
+        .interview-stats {
+            padding: 10px 15px;
+            background-color: #f2f2f2;
+            margin-bottom: 10px;
+        }
+        .interview-stats .layui-col-md3 {
+            text-align: center;
+            padding: 10px;
+        }
+        .interview-stats .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #009688;
+        }
+        .interview-stats .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+        <!-- 面试记录统计 -->
+        <div class="interview-stats">
+            <div class="layui-row">
+                <div class="layui-col-md3">
+                    <div class="stat-number" id="total-count">0</div>
+                    <div class="stat-label">总面试数</div>
+                </div>
+                <div class="layui-col-md3">
+                    <div class="stat-number" id="interviewing-count">0</div>
+                    <div class="stat-label">面试中</div>
+                </div>
+                <div class="layui-col-md3">
+                    <div class="stat-number" id="rejected-count">0</div>
+                    <div class="stat-label">已拒绝</div>
+                </div>
+                <div class="layui-col-md3">
+                    <div class="stat-number" id="accepted-count">0</div>
+                    <div class="stat-label">已录取</div>
+                </div>
+            </div>
+        </div>
+
+        {{ if .query }}
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">候选人姓名</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="name" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">应聘职位</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="job_name" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">面试状态</label>
+                        <div class="layui-input-inline">
+                            <select name="status">
+                                <option value="">全部</option>
+                                <option value="0">面试中</option>
+                                <option value="1">已拒绝</option>
+                                <option value="2">已录取</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button type="submit" class="layui-btn layui-btn-primary"  lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+                        <button type="button" class="layui-btn layui-btn-primary" id="export-btn"><i class="layui-icon"></i> 导出Excel</button>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+        {{ else }}
+        {{ end }}
+
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button id="refresh-stats-btn" class="layui-btn layui-btn-sm layui-btn-primary"><i class="layui-icon"></i> 刷新统计</button>
+            </div>
+        </script>
+
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+        <script type="text/html" id="currentTableBar">
+            {{ if .query }}
+            <a id="detail_button" class="layui-btn layui-btn-warm layui-btn-xs data-count-get" lay-event="detail">查看详情</a>
+            {{ else }}
+            {{ end }}
+
+            {{ if .update }}
+            <a id="edit_button" class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">编辑</a>
+            {{ else }}
+            {{ end }}
+
+            {{ if .delete }}
+            <a id="delete_button" class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>
+            {{ else }}
+            {{ end }}
+        </script>
+
+    </div>
+</div>
+<script src="/static/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+
+<script>
+        {{ if .query }}
+        layui.use(['form', 'table', 'layer'], function () {
+            var $ = layui.jquery,
+                form = layui.form,
+                table = layui.table,
+                layer = layui.layer;
+
+            // 初始化统计数据
+            function loadInterviewStats() {
+                $.ajax({
+                    type: "GET",
+                    url: '/candidate/query_by_name/all',
+                    async: false,
+                    success: function (data) {
+                        var resp = JSON.parse(JSON.stringify(data));
+                        if (resp.status == 2000) {
+                            var total = resp.msg.length;
+                            var interviewing = 0, rejected = 0, accepted = 0;
+                            
+                            $.each(resp.msg, function(index, item) {
+                                if (item.status == 0) {
+                                    interviewing++;
+                                } else if (item.status == 1) {
+                                    rejected++;
+                                } else if (item.status == 2) {
+                                    accepted++;
+                                }
+                            });
+                            
+                            $('#total-count').text(total);
+                            $('#interviewing-count').text(interviewing);
+                            $('#rejected-count').text(rejected);
+                            $('#accepted-count').text(accepted);
+                        }
+                    }
+                });
+            }
+
+            // 页面加载时获取统计数据
+            loadInterviewStats();
+
+            table.render({
+                elem: '#currentTableId',
+                url: '/candidate/query_by_name/all',
+                toolbar: '#toolbarDemo',
+                defaultToolbar: ['filter', 'exports', 'print', {
+                    title: '提示',
+                    layEvent: 'LAYTABLE_TIPS',
+                    icon: 'layui-icon-tips'
+                }],
+                cols: [[
+                    {type: "checkbox", width: 50},
+                    {field: 'ID', width: 60, title: 'ID', sort: true, hide:true},
+                    {field: 'candidate_id', width: 150, title: '候选人ID', hide:true},
+                    {width: 60, title: '序号', sort: true, type:'numbers'},
+                    {field: 'name', width: 100, title: '姓名'},
+                    {field: 'job_name', width: 130, title: '应聘职位'},
+                    {field: 'edu_level', width: 80, title: '学历'},
+                    {field: 'major', width: 120, title: '专业'},
+                    {field: 'experience', width: 100, title: '工作经验'},
+                    {field: 'email', width: 120, title: '投递邮箱'},
+                    {field: 'evaluation', width: 200, title: '面试评价'},
+                    {field: 'staff_id', width: 260, title: '面试官', templet: staffQuery },
+                    {field: 'status', width: 90, title: '状态', templet: statusQuery , fixed: 'right'},
+                    {title: '操作', minWidth: 280, toolbar: '#currentTableBar', align: "center", fixed: 'right'}
+                ]],
+                limits: [10, 15, 20, 25, 50, 100],
+                limit: 10,
+                page: true,
+                skin: 'line',
+                parseData: function(res){ //res 即为原始返回的数据
+                    var code = 0, msg = "获取数据成功"
+                    if (res.status != 2000) {
+                        code = -1
+                        msg = "数据不存在"
+                    }
+                    return {
+                        "code": code, //解析接口状态
+                        "msg": msg, //解析提示文本
+                        "count": res.total, //解析数据长度
+                        "data": res.msg //解析数据列表
+                    };
+                }
+            });
+
+            function staffQuery(req) {
+                var staffId = req.staff_id;
+                var result = "未指定面试官"
+                if (staffId && staffId != "") {
+                    $.ajax({
+                        type: "GET",
+                        url: "/staff/query_by_staff_id/" + staffId,
+                        async:false,
+                        success:function (data) {
+                            var resp = JSON.parse(JSON.stringify(data));
+                            var array = resp.msg;
+                            if (array[0] != "undefined" && array[0] != "") {
+                                var staffName = array[0].staff_name;
+                                var depName = array[0].dep_name;
+                                var rankName = array[0].rank_name;
+                                result = staffName+"-"+depName+"-"+rankName
+                            }
+                        }
+                    });
+                }
+                return result
+            }
+
+            function statusQuery(data) {
+                var status = data.status;
+                if (status == 0) {
+                    return '<span class="layui-badge layui-bg-blue">面试中</span>'
+                }
+                if (status == 1) {
+                    return '<span class="layui-badge">已拒绝</span>'
+                }
+                if (status == 2) {
+                    return '<span class="layui-badge layui-bg-green">已录取</span>'
+                }
+            }
+
+            // 监听搜索操作
+            form.on('submit(data-search-btn)', function (data) {
+                layer.msg("搜索成功");
+                var formData = data.field;
+                var reqUrl = '/candidate/query_by_name/all';
+                
+                // 构建查询参数
+                var queryParams = {};
+                if (formData.name) {
+                    queryParams.name = formData.name;
+                }
+                if (formData.job_name) {
+                    queryParams.job_name = formData.job_name;
+                }
+                if (formData.status !== '') {
+                    queryParams.status = formData.status;
+                }
+                
+                // 使用自定义API进行筛选查询
+                reqUrl = '/interview/query/filter';
+                
+                //执行搜索重载
+                table.reload('currentTableId', {
+                    url: reqUrl,
+                    where: queryParams,
+                    page: {
+                        curr: 1
+                    }
+                }, 'data');
+                return false;
+            });
+
+            // 刷新统计按钮事件
+            $('#refresh-stats-btn').on('click', function(){
+                loadInterviewStats();
+                layer.msg('统计数据已刷新');
+            });
+
+            // 导出Excel按钮事件
+            $('#export-btn').on('click', function(){
+                // 获取当前表格数据
+                var tableData = table.cache['currentTableId'];
+                if (tableData.length === 0) {
+                    layer.msg('没有可导出的数据');
+                    return;
+                }
+                
+                // 构建Excel数据
+                var exportData = [];
+                exportData.push(['序号', '姓名', '应聘职位', '学历', '专业', '工作经验', '邮箱', '面试评价', '面试官', '状态']);
+                
+                tableData.forEach(function(item, index) {
+                    var statusText = item.status == 0 ? '面试中' : (item.status == 1 ? '已拒绝' : '已录取');
+                    exportData.push([
+                        index + 1,
+                        item.name || '',
+                        item.job_name || '',
+                        item.edu_level || '',
+                        item.major || '',
+                        item.experience || '',
+                        item.email || '',
+                        item.evaluation || '',
+                        staffQuery({staff_id: item.staff_id}),
+                        statusText
+                    ]);
+                });
+                
+                // 发送导出请求
+                $.ajax({
+                    type: "POST",
+                    url: '/interview/export',
+                    contentType: "application/json;charset=utf-8",
+                    data: JSON.stringify({data: exportData}),
+                    success: function(res) {
+                        if (res.status == 2000) {
+                            window.open(res.msg);
+                        } else {
+                            layer.msg('导出失败：' + res.result);
+                        }
+                    },
+                    error: function() {
+                        layer.msg('系统异常，导出失败');
+                    }
+                });
+            });
+
+            /**
+             * toolbar监听事件
+             */
+            table.on('toolbar(currentTableFilter)', function (obj) {
+                if (obj.event === 'refreshStats') {  // 监听刷新统计操作
+                    loadInterviewStats();
+                    layer.msg('统计数据已刷新');
+                }
+            });
+
+            //监听表格复选框选择
+            table.on('checkbox(currentTableFilter)', function (obj) {
+                // 可以在这里实现批量操作逻辑
+            });
+
+            table.on('tool(currentTableFilter)', function (obj) {
+                var data = obj.data;
+                if (obj.event === 'edit') {
+                    localStorage.setItem("interview_edit_info", JSON.stringify(data))
+                    var index = layer.open({
+                        title: '编辑面试记录',
+                        type: 2,
+                        shade: 0.2,
+                        maxmin:true,
+                        shadeClose: true,
+                        area: ['80%', '80%'],
+                        content: '/views/interview_record_edit.html',
+                        end: function(){
+                            //执行搜索重载
+                            table.reload('currentTableId', {
+                                page: {
+                                    curr: 1
+                                }
+                            }, 'data');
+                            // 刷新统计数据
+                            loadInterviewStats();
+                        }
+                    });
+                    $(window).on("resize", function () {
+                        layer.full(index);
+                    });
+                    return false;
+                } else if (obj.event === 'delete') {
+                    if (data.status == 2) {
+                        layer.msg("已录取的面试记录无法删除")
+                        return false
+                    }
+                    layer.confirm('确认删除这条面试记录吗？', function () {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/candidate/delete/" + data.candidate_id,
+                            async: false,
+                            success:function (data) {
+                                var resp = JSON.parse(JSON.stringify(data));
+                                if (resp.status == 2000) {
+                                    layer.alert("删除成功",function(index) {
+                                        // 重新渲染
+                                        table.reload('currentTableId', {
+                                            page: {
+                                                curr: 1
+                                            }
+                                        }, 'data');
+                                        // 刷新统计数据
+                                        loadInterviewStats();
+                                        layer.close(index)
+                                    });
+                                }
+                            },
+                            error:function (data) {
+                                console.log("error resp:" + JSON.stringify(data))
+                                layer.msg("系统异常");
+                            }
+                        });
+                    });
+                } else if(obj.event === 'detail') {
+                    localStorage.setItem("interview_detail_info", JSON.stringify(data))
+                    var index = layer.open({
+                        title: '面试记录详情',
+                        type: 2,
+                        shade: 0.2,
+                        maxmin:true,
+                        shadeClose: true,
+                        area: ['80%', '80%'],
+                        content: '/views/interview_record_detail.html',
+                        end: function(){
+                            //执行搜索重载
+                            table.reload('currentTableId', {
+                                page: {
+                                    curr: 1
+                                }
+                            }, 'data');
+                        }
+                    });
+                    $(window).on("resize", function () {
+                        layer.full(index);
+                    });
+                    return false;
+                }
+            });
+        });
+        {{ else }}
+        alert("你没有数据查询权限")
+        {{ end }}
+</script>
+
+</body>
+</html>

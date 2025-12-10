@@ -129,6 +129,46 @@ func GetAttendRecordHistoryByStaffId(c *gin.Context) {
 	})
 }
 
+// GetAttendRecordHistoryBySearch 根据员工工号和姓名搜索考勤历史记录
+func GetAttendRecordHistoryBySearch(c *gin.Context) {
+	// 参数绑定
+	var searchParams struct {
+		StaffId   string `json:"staff_id" form:"staff_id"`
+		StaffName string `json:"staff_name" form:"staff_name"`
+	}
+	
+	if err := c.ShouldBind(&searchParams); err != nil {
+		log.Printf("[GetAttendRecordHistoryBySearch] err = %v", err)
+		c.JSON(200, gin.H{
+			"status": 5001,
+			"result": err.Error(),
+		})
+		return
+	}
+	
+	start, limit := service.AcceptPage(c)
+	// 业务处理
+	list, total, err := service.GetAttendRecordHistoryByStaffIdAndName(c, searchParams.StaffId, searchParams.StaffName, start, limit)
+	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
+		log.Printf("[GetAttendRecordHistoryBySearch] err = %v", err)
+		c.JSON(200, gin.H{
+			"status": 5000,
+			"total":  0,
+			"msg":    err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": 2000,
+		"total":  total,
+		"msg":    list,
+	})
+}
+
 func DelAttendRecordByAttendId(c *gin.Context) {
 	// 参数绑定
 	attendanceId := c.Param("attendance_id")

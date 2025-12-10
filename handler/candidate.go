@@ -174,3 +174,99 @@ func SetCandidateAcceptById(c *gin.Context) {
 		"status": 2000,
 	})
 }
+
+// GetInterviewRecords 获取面试记录列表（支持筛选、分页和排序）
+func GetInterviewRecords(c *gin.Context) {
+	start, limit := service.AcceptPage(c)
+	// 业务处理
+	list, total, err := service.GetInterviewRecords(c, start, limit)
+	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
+		log.Printf("[GetInterviewRecords] err = %v", err)
+		c.JSON(200, gin.H{
+			"status": 5000,
+			"total":  0,
+			"msg":    err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": 2000,
+		"total":  total,
+		"msg":    list,
+	})
+}
+
+// GetInterviewRecordsByFilter 根据条件筛选面试记录
+func GetInterviewRecordsByFilter(c *gin.Context) {
+	// 参数绑定
+	var filter model.InterviewFilter
+	if err := c.ShouldBindJSON(&filter); err != nil {
+		log.Printf("[GetInterviewRecordsByFilter] err = %v", err)
+		c.JSON(200, gin.H{
+			"status": 5001,
+			"result": err.Error(),
+		})
+		return
+	}
+	
+	start, limit := service.AcceptPage(c)
+	// 业务处理
+	list, total, err := service.GetInterviewRecordsByFilter(c, &filter, start, limit)
+	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
+		log.Printf("[GetInterviewRecordsByFilter] err = %v", err)
+		c.JSON(200, gin.H{
+			"status": 5000,
+			"total":  0,
+			"msg":    err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": 2000,
+		"total":  total,
+		"msg":    list,
+	})
+}
+
+// ExportInterviewRecords 导出面试记录为Excel
+func ExportInterviewRecords(c *gin.Context) {
+	// 参数绑定
+	var req struct {
+		Data [][]string `json:"data"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("[ExportInterviewRecords] err = %v", err)
+		c.JSON(200, gin.H{
+			"status": 5001,
+			"result": err.Error(),
+		})
+		return
+	}
+	
+	// 业务处理
+	filePath, err := service.ExportInterviewRecords(c, req.Data)
+	if err != nil {
+		if err == resource.ErrUnauthorized {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": 401, "message": "Unauthorized"})
+			return
+		}
+		log.Printf("[ExportInterviewRecords] err = %v", err)
+		c.JSON(200, gin.H{
+			"status": 5002,
+			"result": err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"status": 2000,
+		"msg":    filePath,
+	})
+}

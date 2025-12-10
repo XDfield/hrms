@@ -147,6 +147,77 @@ and attend.date = salary.salary_date where salary.is_pay = 2 order by attend.dat
 	return records, total, nil
 }
 
+// GetAttendRecordHistoryByStaffIdAndName 根据员工工号和姓名查询考勤历史记录
+func GetAttendRecordHistoryByStaffIdAndName(c *gin.Context, staffId string, staffName string, start int, limit int) ([]*model.AttendanceRecord, int64, error) {
+	db := resource.HrmsDB(c)
+	if db == nil {
+		log.Printf("GetAttendRecordHistoryByStaffIdAndName: 数据库连接为空，鉴权失败")
+		return nil, 0, resource.ErrUnauthorized
+	}
+
+	var records []*model.AttendanceRecord
+	var err error
+	
+	// 构建基础SQL查询
+	baseSql := `select * from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2`
+	
+	var whereConditions []string
+	var params []interface{}
+	
+	// 添加工号条件（如果提供）
+	if staffId != "" {
+		whereConditions = append(whereConditions, "attend.staff_id = ?")
+		params = append(params, staffId)
+	}
+	
+	// 添加姓名条件（如果提供）
+	if staffName != "" {
+		whereConditions = append(whereConditions, "attend.staff_name LIKE ?")
+		params = append(params, "%"+staffName+"%")
+	}
+	
+	// 组合SQL查询
+	var sqlReq string
+	if len(whereConditions) > 0 {
+		sqlReq = baseSql + " AND " + whereConditions[0]
+		for i := 1; i < len(whereConditions); i++ {
+			sqlReq += " AND " + whereConditions[i]
+		}
+	} else {
+		// 如果没有提供任何条件，返回所有记录
+		sqlReq = baseSql
+	}
+	sqlReq += " order by attend.date desc"
+	
+	if start == -1 && limit == -1 {
+		// 不加分页
+		err = db.Raw(sqlReq, params...).Find(&records).Error
+	} else {
+		// 加分页
+		err = db.Raw(sqlReq, params...).Offset(start).Limit(limit).Find(&records).Error
+	}
+	
+	if err != nil {
+		return nil, 0, err
+	}
+	
+	// 计算总数
+	var total int64
+	if len(whereConditions) > 0 {
+		countSql := `select count(*) from attendance_record as attend left join salary_record as salary on attend.staff_id = salary.staff_id
+and attend.date = salary.salary_date where salary.is_pay = 2 AND ` + whereConditions[0]
+		for i := 1; i < len(whereConditions); i++ {
+			countSql += " AND " + whereConditions[i]
+		}
+		db.Raw(countSql, params...).Count(&total)
+	} else {
+		db.Model(&model.AttendanceRecord{}).Count(&total)
+	}
+	
+	return records, total, nil
+}
+
 // 如果支付过则返回true
 func GetAttendRecordIsPayByStaffIdAndDate(c *gin.Context, staffId string, date string) bool {
 	var total int64

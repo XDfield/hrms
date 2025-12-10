@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>编辑面试记录</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+        .layui-form-label {
+            width: 120px;
+        }
+        .layui-input-block {
+            margin-left: 150px;
+        }
+        .evaluation-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #e6e6e6;
+            border-radius: 2px;
+            background-color: #fafafa;
+        }
+        .evaluation-title {
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+        .layui-rate {
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">候选人姓名</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" lay-verify="required" placeholder="请输入候选人姓名" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label required">应聘职位</label>
+        <div class="layui-input-block">
+            <input type="text" name="job_name" lay-verify="required" placeholder="请输入应聘职位" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">学历</label>
+        <div class="layui-input-block">
+            <select name="edu_level" lay-verify="required">
+                <option value="">请选择学历</option>
+                <option value="高中">高中</option>
+                <option value="大专">大专</option>
+                <option value="本科">本科</option>
+                <option value="硕士">硕士</option>
+                <option value="博士">博士</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">专业</label>
+        <div class="layui-input-block">
+            <input type="text" name="major" placeholder="请输入专业" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">工作经验</label>
+        <div class="layui-input-block">
+            <select name="experience" lay-verify="required">
+                <option value="">请选择工作经验</option>
+                <option value="应届生">应届生</option>
+                <option value="1年以下">1年以下</option>
+                <option value="1-3年">1-3年</option>
+                <option value="3-5年">3-5年</option>
+                <option value="5-10年">5-10年</option>
+                <option value="10年以上">10年以上</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">邮箱</label>
+        <div class="layui-input-block">
+            <input type="text" name="email" lay-verify="email" placeholder="请输入邮箱" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">指定面试官</label>
+        <div class="layui-input-block">
+            <select name="staff_id" lay-search>
+                <option value="-1">不指定面试官</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">面试状态</label>
+        <div class="layui-input-block">
+            <select name="status" lay-verify="required">
+                <option value="0">面试中</option>
+                <option value="1">已拒绝</option>
+                <option value="2">已录取</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 面试评价区域 -->
+    <div class="evaluation-section">
+        <div class="evaluation-title">面试评价</div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">专业技能评分</label>
+            <div class="layui-input-block">
+                <div id="skill-rate" class="layui-rate"></div>
+                <input type="hidden" name="skill_score" value="0">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">沟通能力评分</label>
+            <div class="layui-input-block">
+                <div id="communication-rate" class="layui-rate"></div>
+                <input type="hidden" name="communication_score" value="0">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">团队协作评分</label>
+            <div class="layui-input-block">
+                <div id="teamwork-rate" class="layui-rate"></div>
+                <input type="hidden" name="teamwork_score" value="0">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">学习能力评分</label>
+            <div class="layui-input-block">
+                <div id="learning-rate" class="layui-rate"></div>
+                <input type="hidden" name="learning_score" value="0">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">总体评价</label>
+            <div class="layui-input-block">
+                <textarea name="evaluation" placeholder="请输入总体评价" class="layui-textarea"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">保存</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'rate'], function () {
+        var form = layui.form,
+            rate = layui.rate,
+            layer = layui.layer,
+            $ = layui.$;
+        
+        var editInfo = JSON.parse(localStorage.getItem("interview_edit_info"));
+        var isEdit = editInfo != null;
+        
+        // 初始化评分组件
+        rate.render({
+            elem: '#skill-rate',
+            value: 0,
+            text: true,
+            setText: function(value) {
+                this.span.text(value + '分');
+                $('input[name="skill_score"]').val(value);
+            }
+        });
+        
+        rate.render({
+            elem: '#communication-rate',
+            value: 0,
+            text: true,
+            setText: function(value) {
+                this.span.text(value + '分');
+                $('input[name="communication_score"]').val(value);
+            }
+        });
+        
+        rate.render({
+            elem: '#teamwork-rate',
+            value: 0,
+            text: true,
+            setText: function(value) {
+                this.span.text(value + '分');
+                $('input[name="teamwork_score"]').val(value);
+            }
+        });
+        
+        rate.render({
+            elem: '#learning-rate',
+            value: 0,
+            text: true,
+            setText: function(value) {
+                this.span.text(value + '分');
+                $('input[name="learning_score"]').val(value);
+            }
+        });
+        
+        // 加载面试官列表
+        function loadStaffSelect(staffId) {
+            $.ajax({
+                type: "GET",
+                url: "/staff/query/all",
+                success:function (data) {
+                    var resp = JSON.parse(JSON.stringify(data));
+                    $.each(resp.msg, function (index, item) {
+                        $('select[name="staff_id"]').append(new Option(item.staff_name+"-"+item.dep_name+"-"+item.rank_name, item.staff_id));
+                    });
+                    if (isEdit) {
+                        $('select[name="staff_id"]').val(staffId)
+                    }
+                    form.render("select");
+                }
+            });
+        }
+        
+        // 如果是编辑模式，填充表单数据
+        if (isEdit) {
+            // 填充基本信息
+            $('input[name="name"]').val(editInfo.name);
+            $('input[name="job_name"]').val(editInfo.job_name);
+            $('select[name="edu_level"]').val(editInfo.edu_level);
+            $('input[name="major"]').val(editInfo.major);
+            $('select[name="experience"]').val(editInfo.experience);
+            $('input[name="email"]').val(editInfo.email);
+            $('select[name="status"]').val(editInfo.status);
+            $('textarea[name="evaluation"]').val(editInfo.evaluation);
+            
+            // 加载面试官
+            loadStaffSelect(editInfo.staff_id);
+            
+            // 解析评价分数
+            if (editInfo.evaluation) {
+                try {
+                    var evalData = JSON.parse(editInfo.evaluation);
+                    if (evalData.skill_score) {
+                        $('#skill-rate').find('.layui-rate').attr('lay-rate', evalData.skill_score);
+                        $('input[name="skill_score"]').val(evalData.skill_score);
+                    }
+                    if (evalData.communication_score) {
+                        $('#communication-rate').find('.layui-rate').attr('lay-rate', evalData.communication_score);
+                        $('input[name="communication_score"]').val(evalData.communication_score);
+                    }
+                    if (evalData.teamwork_score) {
+                        $('#teamwork-rate').find('.layui-rate').attr('lay-rate', evalData.teamwork_score);
+                        $('input[name="teamwork_score"]').val(evalData.teamwork_score);
+                    }
+                    if (evalData.learning_score) {
+                        $('#learning-rate').find('.layui-rate').attr('lay-rate', evalData.learning_score);
+                        $('input[name="learning_score"]').val(evalData.learning_score);
+                    }
+                } catch (e) {
+                    // 如果不是JSON格式，直接显示
+                }
+            }
+        } else {
+            // 新增模式，只需要加载面试官列表
+            loadStaffSelect();
+        }
+        
+        // 监听提交
+        form.on('submit(saveBtn)', function (data) {
+            var field = data.field;
+            
+            // 构建评价数据
+            var evaluationData = {
+                skill_score: field.skill_score,
+                communication_score: field.communication_score,
+                teamwork_score: field.teamwork_score,
+                learning_score: field.learning_score,
+                evaluation_text: field.evaluation
+            };
+            
+            // 将评价数据转为JSON字符串保存到evaluation字段
+            field.evaluation = JSON.stringify(evaluationData);
+            
+            // 添加ID（如果是编辑模式）
+            if (isEdit) {
+                field.id = editInfo.ID;
+            }
+            
+            // 提交数据
+            $.ajax({
+                type: "POST",
+                url: "/candidate/edit",
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(field),
+                dataType: "json",
+                success: function (data) {
+                    var resp = JSON.parse(JSON.stringify(data));
+                    if (resp.status == 2000) {
+                        layer.alert("保存成功", function (){
+                            // 关闭
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                        })
+                    } else {
+                        layer.msg("保存失败：" + resp.result);
+                    }
+                },
+                error: function (data) {
+                    console.log("error resp:" + JSON.stringify(data))
+                    layer.msg("系统异常");
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>面试记录详情</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+        .detail-container {
+            padding: 20px;
+        }
+        .detail-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .info-section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .info-item {
+            margin-bottom: 10px;
+            display: flex;
+        }
+        .info-label {
+            width: 120px;
+            font-weight: bold;
+            color: #666;
+        }
+        .info-value {
+            flex: 1;
+            color: #333;
+        }
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .status-interviewing {
+            background-color: #1E9FFF;
+            color: #fff;
+        }
+        .status-rejected {
+            background-color: #FF5722;
+            color: #fff;
+        }
+        .status-accepted {
+            background-color: #5FB878;
+            color: #fff;
+        }
+        .evaluation-section {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .score-item {
+            margin-bottom: 15px;
+        }
+        .score-label {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .score-bar {
+            height: 10px;
+            background-color: #e6e6e6;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        .score-fill {
+            height: 100%;
+            background-color: #1E9FFF;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+        .score-text {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+        .comment-box {
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #e6e6e6;
+            border-radius: 4px;
+            min-height: 80px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<div class="detail-container">
+    <div class="detail-title">面试记录详情</div>
+    
+    <!-- 基本信息 -->
+    <div class="info-section">
+        <div class="section-title">基本信息</div>
+        <div class="info-item">
+            <div class="info-label">候选人姓名：</div>
+            <div class="info-value" id="name">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">应聘职位：</div>
+            <div class="info-value" id="job_name">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">学历：</div>
+            <div class="info-value" id="edu_level">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">专业：</div>
+            <div class="info-value" id="major">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">工作经验：</div>
+            <div class="info-value" id="experience">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">邮箱：</div>
+            <div class="info-value" id="email">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">面试官：</div>
+            <div class="info-value" id="interviewer">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">面试状态：</div>
+            <div class="info-value" id="status">-</div>
+        </div>
+    </div>
+    
+    <!-- 面试评价 -->
+    <div class="evaluation-section">
+        <div class="section-title">面试评价</div>
+        
+        <div class="score-item">
+            <div class="score-label">专业技能</div>
+            <div style="display: flex; align-items: center;">
+                <div class="score-bar" style="flex: 1;">
+                    <div class="score-fill" id="skill-score-bar" style="width: 0%;"></div>
+                </div>
+                <div class="score-text" id="skill-score-text">0分</div>
+            </div>
+        </div>
+        
+        <div class="score-item">
+            <div class="score-label">沟通能力</div>
+            <div style="display: flex; align-items: center;">
+                <div class="score-bar" style="flex: 1;">
+                    <div class="score-fill" id="communication-score-bar" style="width: 0%;"></div>
+                </div>
+                <div class="score-text" id="communication-score-text">0分</div>
+            </div>
+        </div>
+        
+        <div class="score-item">
+            <div class="score-label">团队协作</div>
+            <div style="display: flex; align-items: center;">
+                <div class="score-bar" style="flex: 1;">
+                    <div class="score-fill" id="teamwork-score-bar" style="width: 0%;"></div>
+                </div>
+                <div class="score-text" id="teamwork-score-text">0分</div>
+            </div>
+        </div>
+        
+        <div class="score-item">
+            <div class="score-label">学习能力</div>
+            <div style="display: flex; align-items: center;">
+                <div class="score-bar" style="flex: 1;">
+                    <div class="score-fill" id="learning-score-bar" style="width: 0%;"></div>
+                </div>
+                <div class="score-text" id="learning-score-text">0分</div>
+            </div>
+        </div>
+        
+        <div class="score-item">
+            <div class="score-label">总体评价</div>
+            <div class="comment-box" id="evaluation-text">暂无评价</div>
+        </div>
+    </div>
+    
+    <!-- 操作按钮 -->
+    <div style="text-align: center; margin-top: 30px;">
+        <button type="button" class="layui-btn layui-btn-normal" id="edit-btn">编辑</button>
+        <button type="button" class="layui-btn layui-btn-warm" id="print-btn">打印</button>
+    </div>
+</div>
+
+<script src="/static/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+<script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script>
+    layui.use(['layer'], function () {
+        var layer = layui.layer,
+            $ = layui.$;
+        
+        var interviewInfo = JSON.parse(localStorage.getItem("interview_detail_info"));
+        
+        // 填充基本信息
+        if (interviewInfo) {
+            $('#name').text(interviewInfo.name || '-');
+            $('#job_name').text(interviewInfo.job_name || '-');
+            $('#edu_level').text(interviewInfo.edu_level || '-');
+            $('#major').text(interviewInfo.major || '-');
+            $('#experience').text(interviewInfo.experience || '-');
+            $('#email').text(interviewInfo.email || '-');
+            
+            // 获取面试官信息
+            if (interviewInfo.staff_id && interviewInfo.staff_id != '') {
+                $.ajax({
+                    type: "GET",
+                    url: "/staff/query_by_staff_id/" + interviewInfo.staff_id,
+                    success: function (data) {
+                        var resp = JSON.parse(JSON.stringify(data));
+                        var array = resp.msg;
+                        if (array[0] != "undefined" && array[0] != "") {
+                            var staffName = array[0].staff_name;
+                            var depName = array[0].dep_name;
+                            var rankName = array[0].rank_name;
+                            $('#interviewer').text(staffName + "-" + depName + "-" + rankName);
+                        } else {
+                            $('#interviewer').text("未指定面试官");
+                        }
+                    },
+                    error: function() {
+                        $('#interviewer').text("未指定面试官");
+                    }
+                });
+            } else {
+                $('#interviewer').text("未指定面试官");
+            }
+            
+            // 设置面试状态
+            var status = interviewInfo.status;
+            var statusText = "";
+            var statusClass = "";
+            if (status == 0) {
+                statusText = "面试中";
+                statusClass = "status-interviewing";
+            } else if (status == 1) {
+                statusText = "已拒绝";
+                statusClass = "status-rejected";
+            } else if (status == 2) {
+                statusText = "已录取";
+                statusClass = "status-accepted";
+            }
+            $('#status').html('<span class="status-badge ' + statusClass + '">' + statusText + '</span>');
+            
+            // 解析评价数据
+            if (interviewInfo.evaluation) {
+                try {
+                    var evalData = JSON.parse(interviewInfo.evaluation);
+                    
+                    // 设置专业技能评分
+                    if (evalData.skill_score) {
+                        var skillScore = parseInt(evalData.skill_score);
+                        $('#skill-score-bar').css('width', (skillScore * 10) + '%');
+                        $('#skill-score-text').text(skillScore + '分');
+                    }
+                    
+                    // 设置沟通能力评分
+                    if (evalData.communication_score) {
+                        var communicationScore = parseInt(evalData.communication_score);
+                        $('#communication-score-bar').css('width', (communicationScore * 10) + '%');
+                        $('#communication-score-text').text(communicationScore + '分');
+                    }
+                    
+                    // 设置团队协作评分
+                    if (evalData.teamwork_score) {
+                        var teamworkScore = parseInt(evalData.teamwork_score);
+                        $('#teamwork-score-bar').css('width', (teamworkScore * 10) + '%');
+                        $('#teamwork-score-text').text(teamworkScore + '分');
+                    }
+                    
+                    // 设置学习能力评分
+                    if (evalData.learning_score) {
+                        var learningScore = parseInt(evalData.learning_score);
+                        $('#learning-score-bar').css('width', (learningScore * 10) + '%');
+                        $('#learning-score-text').text(learningScore + '分');
+                    }
+                    
+                    // 设置总体评价
+                    if (evalData.evaluation_text) {
+                        $('#evaluation-text').text(evalData.evaluation_text);
+                    }
+                } catch (e) {
+                    // 如果不是JSON格式，直接显示评价文本
+                    $('#evaluation-text').text(interviewInfo.evaluation || '暂无评价');
+                }
+            }
+        }
+        
+        // 编辑按钮事件
+        $('#edit-btn').on('click', function() {
+            localStorage.setItem("interview_edit_info", JSON.stringify(interviewInfo));
+            var index = parent.layer.open({
+                title: '编辑面试记录',
+                type: 2,
+                shade: 0.2,
+                maxmin:true,
+                shadeClose: true,
+                area: ['80%', '80%'],
+                content: '/views/interview_record_edit.html',
+                end: function(){
+                    // 刷新详情页面
+                    parent.layer.close(parent.layer.getFrameIndex(window.name));
+                }
+            });
+            parent.layer.full(index);
+        });
+        
+        // 打印按钮事件
+        $('#print-btn').on('click', function() {
+            window.print();
+        });
+    });
+</script>
+</body>
+</html>

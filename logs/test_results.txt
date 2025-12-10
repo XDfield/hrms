@@ -1,0 +1,14 @@
+=== RUN   TestAttendanceSuite
+=== RUN   TestAttendanceSuite/TestGetAllAttendanceHistory
+=== RUN   TestAttendanceSuite/TestSearchAttendanceHistoryByStaffId
+=== RUN   TestAttendanceSuite/TestSearchAttendanceHistoryByStaffIdAndName
+=== RUN   TestAttendanceSuite/TestSearchAttendanceHistoryByStaffName
+=== RUN   TestAttendanceSuite/TestSearchAttendanceHistoryWithNonExistentName
+--- PASS: TestAttendanceSuite (0.08s)
+    --- PASS: TestAttendanceSuite/TestGetAllAttendanceHistory (0.01s)
+    --- PASS: TestAttendanceSuite/TestSearchAttendanceHistoryByStaffId (0.00s)
+    --- PASS: TestAttendanceSuite/TestSearchAttendanceHistoryByStaffIdAndName (0.00s)
+    --- PASS: TestAttendanceSuite/TestSearchAttendanceHistoryByStaffName (0.00s)
+    --- PASS: TestAttendanceSuite/TestSearchAttendanceHistoryWithNonExistentName (0.00s)
+PASS
+ok  	hrms/test/e2e/suites	0.408s

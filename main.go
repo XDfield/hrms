@@ -157,6 +157,7 @@ func routerInit(server *gin.Engine) {
 	attendGroup.GET("/query/:staff_id", handler.GetAttendRecordByStaffId)
 	attendGroup.GET("/query", handler.GetAttendRecordByStaffId)
 	attendGroup.GET("/query_history/:staff_id", handler.GetAttendRecordHistoryByStaffId)
+	attendGroup.POST("/query_history/search", handler.GetAttendRecordHistoryBySearch)
 	attendGroup.GET("/get_attend_record_is_pay/:staff_id/:date", handler.GetAttendRecordIsPayByStaffIdAndDate)
 	attendGroup.GET("/approve/query/:leader_staff_id", handler.GetAttendRecordApproveByLeaderStaffId)
 	attendGroup.GET("/approve_accept/:attendId", handler.ApproveAccept)
@@ -177,6 +178,11 @@ func routerInit(server *gin.Engine) {
 	candidateGroup.GET("/query_by_staff_id/:staff_id", handler.GetCandidateByStaffId)
 	candidateGroup.GET("/reject/:id", handler.SetCandidateRejectById)
 	candidateGroup.GET("/accept/:id", handler.SetCandidateAcceptById)
+	// 面试记录管理相关
+	interviewGroup := server.Group("/interview")
+	interviewGroup.GET("/query", handler.GetInterviewRecords)
+	interviewGroup.POST("/query/filter", handler.GetInterviewRecordsByFilter)
+	interviewGroup.POST("/export", handler.ExportInterviewRecords)
 	// 考试管理相关
 	exampleGroup := server.Group("/example")
 	exampleGroup.POST("/create", handler.CreateExample)
