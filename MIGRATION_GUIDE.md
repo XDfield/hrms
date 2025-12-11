@@ -23,6 +23,8 @@ bash build.sh build-migrate
 
 ### 2. 运行迁移
 
+**注意**: 需要在项目根目录执行，不要 cd 到 cmd/migrate 内执行!不然会导致配置文件无法找到。
+
 #### 迁移所有数据库
 ```bash
 bash build.sh migrate

@@ -32,6 +32,8 @@ go run cmd/sqlexec/main.go -h
 
 ### 2. 执行单条 SQL 语句
 
+**注意**: 需要在项目根目录执行，不要 cd 到 cmd/sqlexec 内执行!不然会导致配置文件无法找到。
+
 ```bash
 # 查询语句
 go run cmd/sqlexec/main.go -db hrms_C001 -sql "SELECT * FROM staff LIMIT 10"
