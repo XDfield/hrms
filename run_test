@@ -1,0 +1,269 @@
+#!/bin/bash
+
+# ================= Parameter Handling =================
+TEST_ARGS=""
+
+# Parse command line arguments to match PowerShell logic
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -TestArgs) TEST_ARGS="$2"; shift ;;
+        *) echo "Unknown parameter: $1"; exit 1 ;;
+    esac
+    shift
+done
+
+# ================= Configuration =================
+# Project specific configurations
+SERVICE_NAME="HRMS"
+SERVER_PORT=8888
+# Use localhost explicitly. In some envs (like docker), might need adjustments.
+HEALTH_URL="http://localhost:$SERVER_PORT/ping"
+
+PROJECT_ROOT=$(pwd)
+TEST_PATH="${PROJECT_ROOT}/test/e2e"
+LOG_DIR_PATH="${PROJECT_ROOT}/logs"
+
+# Log paths (Aligned with PowerShell logic)
+SERVICE_LOG="${LOG_DIR_PATH}/service_startup.log"
+SERVICE_ERROR_LOG="${LOG_DIR_PATH}/service_startup_error.log"
+TEST_RESULT="${LOG_DIR_PATH}/test_results.txt"
+TEST_ERROR_LOG="${LOG_DIR_PATH}/test_errors.txt"
+
+# Build configuration
+SHOULD_BUILD=true
+BUILD_CMD="go build -o hrms_app main.go"
+BINARY_PATH="${PROJECT_ROOT}/hrms_app"
+
+# Startup command (Development Mode default)
+START_CMD="go run main.go"
+
+# If build is enabled, we run the binary instead
+if [ "$SHOULD_BUILD" = true ]; then
+    START_CMD="$BINARY_PATH"
+fi
+
+# Test command
+TEST_CMD="go"
+# Set default TestArgs if empty
+if [ -z "$TEST_ARGS" ]; then
+    TEST_ARGS="test -v ./..."
+fi
+
+# Timeouts & Keywords
+MAX_WAIT_SEC=60
+SUCCESS_KEYWORDS=("Listening on port" "Server started")
+FAILURE_KEYWORDS=("Error starting server" "Address already in use" "Failed to start")
+
+# State variables
+SERVICE_PID=""
+
+# ================= Helper Functions =================
+
+log() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
+}
+
+cleanup_environment() {
+    log "Starting environment cleanup..."
+
+    # 1. Kill the specific service PID started by this script
+    if [ -n "$SERVICE_PID" ]; then
+        if kill -0 "$SERVICE_PID" 2>/dev/null; then
+            log "Stopping service process (PID: $SERVICE_PID)..."
+            kill "$SERVICE_PID" 2>/dev/null
+            # Wait a bit for graceful shutdown
+            sleep 2
+            # Force kill if still alive
+            if kill -0 "$SERVICE_PID" 2>/dev/null; then
+                kill -9 "$SERVICE_PID" 2>/dev/null
+            fi
+        fi
+    fi
+
+    # 2. Check and clean port occupancy (Double insurance)
+    log "Checking port $SERVER_PORT..."
+    local pid_on_port=""
+
+    # Try lsof
+    if command -v lsof >/dev/null 2>&1; then
+        pid_on_port=$(lsof -t -i:$SERVER_PORT 2>/dev/null)
+    fi
+
+    # Try ss (if lsof failed)
+    if [ -z "$pid_on_port" ] && command -v ss >/dev/null 2>&1; then
+        pid_on_port=$(ss -lptn "sport = :$SERVER_PORT" 2>/dev/null | grep -oE "pid=[0-9]+" | awk -F'=' '{print $2}' | head -n1)
+    fi
+
+    # Try netstat (if others failed)
+    if [ -z "$pid_on_port" ] && command -v netstat >/dev/null 2>&1; then
+        pid_on_port=$(netstat -tlnp 2>/dev/null | grep ":$SERVER_PORT " | awk '{print $7}' | cut -d'/' -f1 | head -n1)
+    fi
+
+    if [ -n "$pid_on_port" ] && [ "$pid_on_port" -gt 0 ] 2>/dev/null; then
+        log "Port $SERVER_PORT is occupied by PID $pid_on_port. Killing it..."
+        kill -9 "$pid_on_port" 2>/dev/null
+    fi
+
+    # 3. Clean build artifacts if build is enabled
+    if [ "$SHOULD_BUILD" = true ] && [ -f "$BINARY_PATH" ]; then
+        log "Removing build artifact: $BINARY_PATH"
+        rm -f "$BINARY_PATH"
+    fi
+
+    log "Cleanup completed."
+}
+
+# Trap to ensure cleanup runs on exit
+trap cleanup_environment EXIT INT TERM
+
+# ================= Main Execution Flow =================
+
+# --- Step 1: Pre-clean ---
+# Ensure logs directory exists
+if [ ! -d "$LOG_DIR_PATH" ]; then
+    log "Creating logs directory: $LOG_DIR_PATH"
+    mkdir -p "$LOG_DIR_PATH"
+fi
+
+# Clean old artifacts (Silent remove)
+rm -f "$SERVICE_LOG" "$SERVICE_ERROR_LOG" "$TEST_RESULT" "$TEST_ERROR_LOG"
+
+# Run initial cleanup
+cleanup_environment
+SERVICE_PID="" # Reset PID after pre-clean
+
+# --- Step 2: Install Dependencies ---
+log "Installing dependencies..."
+if ! go mod download > "$SERVICE_LOG" 2> "$SERVICE_ERROR_LOG"; then
+    log "ERROR: Dependency installation failed. Check $SERVICE_ERROR_LOG"
+    exit 1
+fi
+if ! go mod tidy >> "$SERVICE_LOG" 2>> "$SERVICE_ERROR_LOG"; then
+    log "ERROR: Dependency tidy failed. Check $SERVICE_ERROR_LOG"
+    exit 1
+fi
+log "Dependencies installed successfully."
+
+# --- Step 3: Build Service ---
+if [ "$SHOULD_BUILD" = true ]; then
+    log "Building service ($SERVICE_NAME)..."
+    if ! eval "$BUILD_CMD" > "$SERVICE_LOG" 2> "$SERVICE_ERROR_LOG"; then
+        log "ERROR: Build failed. Check $SERVICE_ERROR_LOG"
+        exit 1
+    fi
+    log "Build completed successfully."
+fi
+
+# --- Step 4: Start Service (Background) ---
+log "Starting service ($SERVICE_NAME)..."
+log "Logs will be redirected to $SERVICE_LOG"
+
+# Start in background using nohup.
+# Redirect stdout to LOG and stderr to ERROR_LOG (matching PS logic)
+nohup $START_CMD > "$SERVICE_LOG" 2> "$SERVICE_ERROR_LOG" &
+SERVICE_PID=$!
+
+log "Service process triggered with PID: $SERVICE_PID"
+
+# --- Step 5: Wait & Health Check (Hybrid) ---
+log "Waiting for service to be ready (Max ${MAX_WAIT_SEC}s)..."
+
+elapsed=0
+service_ready=false
+check_interval=2
+
+while [ "$elapsed" -lt "$MAX_WAIT_SEC" ]; do
+    # A. Check HTTP Health Endpoint
+    if command -v curl >/dev/null 2>&1; then
+        status_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 2 "$HEALTH_URL" 2>/dev/null)
+        if [ "$status_code" = "200" ]; then
+            log "Health check passed (HTTP 200)."
+            service_ready=true
+            break
+        fi
+    fi
+
+    # B. Check Log File for Keywords
+    if [ -f "$SERVICE_LOG" ]; then
+        # Check Success Keywords
+        for kw in "${SUCCESS_KEYWORDS[@]}"; do
+            if grep -q "$kw" "$SERVICE_LOG"; then
+                log "Found success keyword '$kw' in logs."
+                service_ready=true
+                break 2 # Break out of loop
+            fi
+        done
+
+        # Check Failure Keywords
+        for kw in "${FAILURE_KEYWORDS[@]}"; do
+            if grep -q "$kw" "$SERVICE_LOG"; then
+                log "Service startup failed detected in logs: $kw"
+                exit 1
+            fi
+        done
+    fi
+
+    # Check if process died unexpectedly
+    if ! kill -0 "$SERVICE_PID" 2>/dev/null; then
+        log "ERROR: Service process exited unexpectedly."
+        echo "--- Last 10 lines of Error Log ---"
+        tail -n 10 "$SERVICE_ERROR_LOG"
+        exit 1
+    fi
+
+    sleep $check_interval
+    elapsed=$((elapsed + check_interval))
+done
+
+if [ "$service_ready" = false ]; then
+    log "Timeout: Service failed to start within $MAX_WAIT_SEC seconds."
+    exit 1
+fi
+
+# --- Step 6: Install Test Dependencies ---
+log "Installing test dependencies..."
+pushd "$TEST_PATH" > /dev/null
+if ! go mod download > "${LOG_DIR_PATH}/test_deps.log" 2> "${LOG_DIR_PATH}/test_deps_error.log"; then
+    log "ERROR: Test dependency installation failed. Check ${LOG_DIR_PATH}/test_deps_error.log"
+    popd > /dev/null
+    exit 1
+fi
+if ! go mod tidy >> "${LOG_DIR_PATH}/test_deps.log" 2>> "${LOG_DIR_PATH}/test_deps_error.log"; then
+    log "ERROR: Test dependency tidy failed. Check ${LOG_DIR_PATH}/test_deps_error.log"
+    popd > /dev/null
+    exit 1
+fi
+popd > /dev/null
+log "Test dependencies installed successfully."
+
+# --- Step 7: Run Test Suite ---
+log "Service is up. Executing test suite..."
+log "Test results will be saved to $TEST_RESULT"
+
+if [ -n "$TEST_ARGS" ]; then
+    log "Using custom test parameters: $TEST_ARGS"
+else
+    log "Using default test parameters."
+fi
+
+# Execute tests
+# Use pushd to ensure we are in the test directory
+pushd "$TEST_PATH" > /dev/null
+
+log "Executing test command: $TEST_CMD $TEST_ARGS"
+eval "$TEST_CMD $TEST_ARGS" > "$TEST_RESULT" 2> "$TEST_ERROR_LOG"
+TEST_EXIT_CODE=$?
+
+popd > /dev/null
+
+log "Test process exit code: $TEST_EXIT_CODE"
+
+# --- Step 8: Result Analysis ---
+if [ $TEST_EXIT_CODE -eq 0 ]; then
+    log "TEST SUCCESS: All tests passed."
+else
+    log "TEST FAILURE: Some tests failed. Check $TEST_RESULT for details."
+    exit $TEST_EXIT_CODE
+fi
+
+# Script ends naturally here, 'trap' will execute 'cleanup_environment' automatically

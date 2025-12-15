@@ -174,7 +174,7 @@ func StaffQuery(c *gin.Context) {
 	var staffs []model.Staff
 	if staffId == "all" {
 		// 查询全部
-		if start == -1 && start == -1 {
+		if start == -1 && limit == -1 {
 			db.Where("staff_id != 'root' and staff_id != 'admin'").Find(&staffs)
 		} else {
 			db.Where("staff_id != 'root' and staff_id != 'admin'").Offset(start).Limit(limit).Find(&staffs)
