@@ -1,1 +1,2 @@
 test remote events on raw branch
+test fixed remote event detection
