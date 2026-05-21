@@ -11,7 +11,7 @@ import (
 )
 
 // 定义鉴权失败错误
-var ErrUnauthorized = errors.New("unauthorized")
+var ErrUnauthorized = errors.New("ABC")
 
 // 全局配置文件
 var HrmsConf *Config
